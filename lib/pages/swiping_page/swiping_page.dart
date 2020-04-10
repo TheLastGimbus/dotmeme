@@ -13,6 +13,13 @@ class SwipingPage extends StatefulWidget {
       );
 }
 
+class SwipingPageRouteData {
+  final List<String> imagesList;
+  final int startIndex;
+
+  SwipingPageRouteData(this.imagesList, this.startIndex);
+}
+
 class _SwipingPageState extends State<SwipingPage> {
   // TODO: Change this to get memes from Provider or something
   _SwipingPageState({@required this.imagesList, this.startIndex = 0});
