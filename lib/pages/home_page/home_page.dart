@@ -48,7 +48,7 @@ class HomePage extends StatelessWidget {
               );
             },
             child: Hero(
-              tag: 'meme$index:$index',
+              tag: 'meme$index',
               child: Image.asset(
                 memesPaths[index],
                 fit: BoxFit.cover,

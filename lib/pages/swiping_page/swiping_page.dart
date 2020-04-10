@@ -31,11 +31,18 @@ class _SwipingPageState extends State<SwipingPage> {
   Widget build(BuildContext context) {
     final _controller = PageController(initialPage: startIndex);
     return Scaffold(
+      backgroundColor: Colors.black,
+      appBar: AppBar(
+        leading: BackButton(),
+        backgroundColor: Colors.transparent,
+      ),
+      extendBodyBehindAppBar: true,
       body: PageView.builder(
         controller: _controller,
         itemBuilder: (context, index) {
           return Hero(
-            tag: 'meme$index:$startIndex',
+            tag: 'meme$index',
+            transitionOnUserGestures: true,
             child: Image.asset(imagesList[index]),
           );
         },
