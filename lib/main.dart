@@ -1,6 +1,6 @@
+import 'package:dotmeme/route_generator.dart';
 import 'package:dotmeme/theme/themes.dart';
 import 'package:flutter/material.dart';
-import 'package:dotmeme/pages/home_page/home_page.dart';
 
 void main() => runApp(MyApp());
 
@@ -13,7 +13,8 @@ class MyApp extends StatelessWidget {
       darkTheme: darkTheme(),
       // TODO: Add settings for this
       themeMode: ThemeMode.dark,
-      home: HomePage(),
+      initialRoute: '/',
+      onGenerateRoute: RouteGenerator.generateRoute,
     );
   }
 }
