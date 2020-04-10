@@ -47,9 +47,12 @@ class HomePage extends StatelessWidget {
                 arguments: SwipingPageRouteData(memesPaths, index),
               );
             },
-            child: Image.asset(
-              memesPaths[index],
-              fit: BoxFit.cover,
+            child: Hero(
+              tag: 'meme$index:$index',
+              child: Image.asset(
+                memesPaths[index],
+                fit: BoxFit.cover,
+              ),
             ),
           );
         },

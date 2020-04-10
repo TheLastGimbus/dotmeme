@@ -34,7 +34,10 @@ class _SwipingPageState extends State<SwipingPage> {
       body: PageView.builder(
         controller: _controller,
         itemBuilder: (context, index) {
-          return Image.asset(imagesList[index]);
+          return Hero(
+            tag: 'meme$index:$startIndex',
+            child: Image.asset(imagesList[index]),
+          );
         },
       ),
     );
