@@ -31,7 +31,7 @@ class HomePage extends StatelessWidget {
           cursorColor: Colors.white,
           onSubmitted: (input) {
             print('entered $input');
-            FocusScope.of(context).unfocus();
+            FocusScope.of(context).dispose();
           },
         ),
       ),
