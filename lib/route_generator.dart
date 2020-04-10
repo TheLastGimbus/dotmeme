@@ -1,4 +1,5 @@
 import 'package:dotmeme/pages/home_page/home_page.dart';
+import 'package:dotmeme/pages/swiping_page/swiping_page.dart';
 import 'package:flutter/material.dart';
 
 class RouteGenerator {
@@ -7,6 +8,17 @@ class RouteGenerator {
     switch (settings.name) {
       case '/':
         return MaterialPageRoute(builder: (_) => HomePage());
+      case '/swiping_page':
+        return (args is SwipingPageRouteData)
+            ? MaterialPageRoute(
+          builder: (_) =>
+              SwipingPage(
+                imagesList: args.imagesList,
+                startIndex: args.startIndex,
+              ),
+        )
+            : _errorRoute();
+
       default:
         return _errorRoute();
     }
