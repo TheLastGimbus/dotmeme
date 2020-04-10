@@ -18,21 +18,41 @@ class HomePage extends StatelessWidget {
       'assets/example_memes/china.png',
     ];
 
+    final searchFocusNode = FocusNode();
+
     return Scaffold(
-      appBar: AppBar(title: Text('Dotmeme')),
+      appBar: AppBar(
+        title: TextField(
+          textInputAction: TextInputAction.search,
+          focusNode: searchFocusNode,
+          minLines: 1,
+          maxLines: 2,
+          decoration: InputDecoration.collapsed(hintText: 'Search'),
+          cursorColor: Colors.white,
+          onSubmitted: (input) {
+            print('entered $input');
+            FocusScope.of(context).unfocus();
+          },
+        ),
+      ),
       body: GridView.builder(
         itemCount: memesPaths.length,
         gridDelegate:
         SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
-
         itemBuilder: (context, index) {
-          return Image.asset(memesPaths[index], fit: BoxFit.cover,);
+          return Image.asset(
+            memesPaths[index],
+            fit: BoxFit.cover,
+          );
         },
       ),
+      drawer: Drawer(),
       floatingActionButton: FloatingActionButton(
         tooltip: 'Search',
         child: Icon(Icons.search),
-        onPressed: () {},
+        onPressed: () {
+          FocusScope.of(context).requestFocus(searchFocusNode);
+        },
       ),
     );
   }
