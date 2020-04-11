@@ -18,9 +18,7 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     controller.addListener(() {
-      setState(() {
-
-      });
+      setState(() {});
     });
   }
 
@@ -50,7 +48,9 @@ class _HomePageState extends State<HomePage> {
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.close),
-            onPressed: () {},
+            onPressed: () {
+              controller.selection = Selection(Set());
+            },
           )
         ],
         backgroundColor: Colors.black38,
