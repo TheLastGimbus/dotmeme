@@ -15,8 +15,6 @@ class RouteGenerator {
               MultiProvider(
                 providers: [
                   ChangeNotifierProvider(create: (_) => MemesProvider()),
-                  ChangeNotifierProvider(
-                    create: (_) => SelectedItemsProvider(),)
                 ],
                 child: HomePage(),
               ),

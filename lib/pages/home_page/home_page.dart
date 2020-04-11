@@ -1,5 +1,6 @@
-import 'package:dotmeme/pages/home_page/memes_grid.dart';
+import 'package:dotmeme/pages/swiping_page/swiping_page.dart';
 import 'package:dotmeme/providers/memes_provider.dart';
+import 'package:drag_select_grid_view/drag_select_grid_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -7,10 +8,14 @@ import 'package:provider/provider.dart';
 class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final memesProvider = Provider.of<MemesProvider>(context);
     final searchFocusNode = FocusNode();
+    final controller = DragSelectGridViewController();
+    var memesList = memesProvider.getAllMemes;
 
     return Scaffold(
-      appBar: AppBar(
+      appBar: controller.selection.isSelecting
+          ? AppBar(
         title: TextField(
           textInputAction: TextInputAction.search,
           focusNode: searchFocusNode,
@@ -23,11 +28,57 @@ class HomePage extends StatelessWidget {
             FocusScope.of(context).dispose();
           },
         ),
+      )
+          : AppBar(
+        title: Text('Selected ${controller.selection.amount}'),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.close),
+            onPressed: () {},
+          )
+        ],
+        backgroundColor: Colors.black38,
+        brightness: Brightness.dark,
       ),
-      body:
-      MemesGrid(memesList: Provider
-          .of<MemesProvider>(context)
-          .getAllMemes),
+      body: DragSelectGridView(
+        itemCount: memesList.length,
+        gridController: controller,
+        gridDelegate:
+        SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3),
+        itemBuilder: (context, index, selected) {
+          return AnimatedContainer(
+            duration: Duration(milliseconds: 150),
+            decoration: selected
+                ? BoxDecoration(
+                color: Theme
+                    .of(context)
+                    .primaryColorLight
+                    .withOpacity(0.5))
+                : BoxDecoration(),
+            padding: EdgeInsets.all(selected ? 12 : 3),
+            child: GestureDetector(
+              onTap: controller.selection.isSelecting
+                  ? null
+                  : () {
+                Navigator.of(context).pushNamed(
+                  '/swiping_page',
+                  arguments: SwipingPageRouteData(memesList, index),
+                );
+              },
+              child: Hero(
+                tag: 'meme$index',
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: Image.asset(
+                    memesList[index],
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ),
+            ),
+          );
+        },
+      ),
       drawer: Drawer(),
       floatingActionButton: FloatingActionButton(
         tooltip: 'Search',
