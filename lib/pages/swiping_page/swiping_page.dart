@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:photo_view/photo_view.dart';
 
 class SwipingPage extends StatefulWidget {
   SwipingPage({@required this.imagesList, this.startIndex});
@@ -40,10 +41,12 @@ class _SwipingPageState extends State<SwipingPage> {
       body: PageView.builder(
         controller: _controller,
         itemBuilder: (context, index) {
-          return Hero(
-            tag: 'meme$index',
-            transitionOnUserGestures: true,
-            child: Image.asset(imagesList[index]),
+          return PhotoView(
+            imageProvider: AssetImage(imagesList[index]),
+            heroAttributes: PhotoViewHeroAttributes(
+              tag: 'meme$index',
+              transitionOnUserGestures: true,
+            ),
           );
         },
       ),
