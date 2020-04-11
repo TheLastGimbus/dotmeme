@@ -5,16 +5,32 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  final searchFocusNode = FocusNode();
+  final controller = DragSelectGridViewController();
+
+  @override
+  void initState() {
+    super.initState();
+    controller.addListener(() {
+      setState(() {
+
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final memesProvider = Provider.of<MemesProvider>(context);
-    final searchFocusNode = FocusNode();
-    final controller = DragSelectGridViewController();
     var memesList = memesProvider.getAllMemes;
 
     return Scaffold(
-      appBar: controller.selection.isSelecting
+      appBar: !controller.selection.isSelecting
           ? AppBar(
         title: TextField(
           textInputAction: TextInputAction.search,
