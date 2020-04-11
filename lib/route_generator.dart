@@ -1,13 +1,21 @@
 import 'package:dotmeme/pages/home_page/home_page.dart';
 import 'package:dotmeme/pages/swiping_page/swiping_page.dart';
+import 'package:dotmeme/providers/memes_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class RouteGenerator {
   static Route<dynamic> generateRoute(RouteSettings settings) {
     final args = settings.arguments;
     switch (settings.name) {
       case '/':
-        return MaterialPageRoute(builder: (_) => HomePage());
+        return MaterialPageRoute(
+          builder: (_) =>
+              ChangeNotifierProvider(
+                create: (_) => MemesProvider(),
+                child: HomePage(),
+              ),
+        );
       case '/swiping_page':
         return (args is SwipingPageRouteData)
             ? MaterialPageRoute(
