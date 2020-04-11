@@ -1,5 +1,6 @@
 import 'package:dotmeme/pages/home_page/memes_grid.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class HomePage extends StatelessWidget {
   @override
@@ -16,6 +17,17 @@ class HomePage extends StatelessWidget {
       'assets/example_memes/high-priority.jpg',
       'assets/example_memes/duck.jpg',
       'assets/example_memes/china.png',
+      'assets/example_memes/beautiful.jpeg',
+      'assets/example_memes/ding-ding.png',
+      'assets/example_memes/first-kiss.png',
+      'assets/example_memes/instagram.png',
+      'assets/example_memes/iphone.jpeg',
+      'assets/example_memes/linus-sniffs.jpeg',
+      'assets/example_memes/pumped.png',
+      'assets/example_memes/remote-work.jpg',
+      'assets/example_memes/secrets.jpeg',
+      'assets/example_memes/stonks.jpeg',
+      'assets/example_memes/the-cpu.png',
     ];
 
     final searchFocusNode = FocusNode();

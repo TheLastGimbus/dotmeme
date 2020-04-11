@@ -32,11 +32,11 @@ class _MemesGridState extends State<MemesGrid> {
               );
             },
             child: Container(
-              padding: EdgeInsets.all(5),
+              padding: EdgeInsets.all(3),
               child: Hero(
                 tag: 'meme$index',
                 child: ClipRRect(
-                  borderRadius: BorderRadius.circular(3),
+                  borderRadius: BorderRadius.circular(4),
                   child: Image.asset(
                     memesList[index],
                     fit: BoxFit.cover,
