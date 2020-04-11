@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:photo_view/photo_view.dart';
+import 'package:photo_view/photo_view_gallery.dart';
 
 class SwipingPage extends StatefulWidget {
   SwipingPage({@required this.imagesList, this.startIndex});
@@ -38,17 +39,20 @@ class _SwipingPageState extends State<SwipingPage> {
         backgroundColor: Colors.transparent,
       ),
       extendBodyBehindAppBar: true,
-      body: PageView.builder(
-        controller: _controller,
-        itemBuilder: (context, index) {
-          return PhotoView(
+      body: PhotoViewGallery.builder(
+        pageController: _controller,
+        builder: (context, index) {
+          return PhotoViewGalleryPageOptions(
             imageProvider: AssetImage(imagesList[index]),
+            minScale: PhotoViewComputedScale.contained,
+            maxScale: 50.0, // User is at control ;)
             heroAttributes: PhotoViewHeroAttributes(
               tag: 'meme$index',
               transitionOnUserGestures: true,
             ),
           );
         },
+        itemCount: imagesList.length,
       ),
     );
   }
