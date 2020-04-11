@@ -1,4 +1,4 @@
-import 'package:dotmeme/pages/swiping_page/swiping_page.dart';
+import 'package:dotmeme/pages/home_page/memes_grid.dart';
 import 'package:flutter/material.dart';
 
 class HomePage extends StatelessWidget {
@@ -35,28 +35,7 @@ class HomePage extends StatelessWidget {
           },
         ),
       ),
-      body: GridView.builder(
-        itemCount: memesPaths.length,
-        gridDelegate:
-        SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
-        itemBuilder: (context, index) {
-          return GestureDetector(
-            onTap: () {
-              Navigator.of(context).pushNamed(
-                '/swiping_page',
-                arguments: SwipingPageRouteData(memesPaths, index),
-              );
-            },
-            child: Hero(
-              tag: 'meme$index',
-              child: Image.asset(
-                memesPaths[index],
-                fit: BoxFit.cover,
-              ),
-            ),
-          );
-        },
-      ),
+      body: MemesGrid(memesList: memesPaths),
       drawer: Drawer(),
       floatingActionButton: FloatingActionButton(
         tooltip: 'Search',
