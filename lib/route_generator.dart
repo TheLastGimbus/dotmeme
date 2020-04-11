@@ -1,6 +1,7 @@
 import 'package:dotmeme/pages/home_page/home_page.dart';
 import 'package:dotmeme/pages/swiping_page/swiping_page.dart';
 import 'package:dotmeme/providers/memes_provider.dart';
+import 'package:dotmeme/providers/selected_items_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -11,8 +12,12 @@ class RouteGenerator {
       case '/':
         return MaterialPageRoute(
           builder: (_) =>
-              ChangeNotifierProvider(
-                create: (_) => MemesProvider(),
+              MultiProvider(
+                providers: [
+                  ChangeNotifierProvider(create: (_) => MemesProvider()),
+                  ChangeNotifierProvider(
+                    create: (_) => SelectedItemsProvider(),)
+                ],
                 child: HomePage(),
               ),
         );
