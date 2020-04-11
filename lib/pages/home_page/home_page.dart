@@ -30,57 +30,54 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: !controller.selection.isSelecting
           ? AppBar(
-        title: TextField(
-          textInputAction: TextInputAction.search,
-          focusNode: searchFocusNode,
-          minLines: 1,
-          maxLines: 2,
-          decoration: InputDecoration.collapsed(hintText: 'Search'),
-          cursorColor: Colors.white,
-          onSubmitted: (input) {
-            print('entered $input');
-            FocusScope.of(context).dispose();
-          },
-        ),
-      )
+              title: TextField(
+                textInputAction: TextInputAction.search,
+                focusNode: searchFocusNode,
+                minLines: 1,
+                maxLines: 2,
+                decoration: InputDecoration.collapsed(hintText: 'Search'),
+                cursorColor: Colors.white,
+                onSubmitted: (input) {
+                  print('entered $input');
+                  FocusScope.of(context).dispose();
+                },
+              ),
+            )
           : AppBar(
-        title: Text('Selected ${controller.selection.amount}'),
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.close),
-            onPressed: () {
-              controller.selection = Selection(Set());
-            },
-          )
-        ],
-        backgroundColor: Colors.black38,
-        brightness: Brightness.dark,
-      ),
+              title: Text('Selected ${controller.selection.amount}'),
+              actions: <Widget>[
+                IconButton(
+                  icon: Icon(Icons.close),
+                  onPressed: () {
+                    controller.selection = Selection(Set());
+                  },
+                )
+              ],
+              backgroundColor: Colors.black38,
+              brightness: Brightness.dark,
+            ),
       body: DragSelectGridView(
         itemCount: memesList.length,
         gridController: controller,
         gridDelegate:
-        SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3),
+            SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3),
         itemBuilder: (context, index, selected) {
           return AnimatedContainer(
             duration: Duration(milliseconds: 150),
             decoration: selected
                 ? BoxDecoration(
-                color: Theme
-                    .of(context)
-                    .primaryColorLight
-                    .withOpacity(0.5))
+                    color: Theme.of(context).primaryColorLight.withOpacity(0.5))
                 : BoxDecoration(),
             padding: EdgeInsets.all(selected ? 12 : 3),
             child: GestureDetector(
               onTap: controller.selection.isSelecting
                   ? null
                   : () {
-                Navigator.of(context).pushNamed(
-                  '/swiping_page',
-                  arguments: SwipingPageRouteData(memesList, index),
-                );
-              },
+                      Navigator.of(context).pushNamed(
+                        '/swiping_page',
+                        arguments: SwipingPageRouteData(memesList, index),
+                      );
+                    },
               child: Hero(
                 tag: 'meme$index',
                 child: ClipRRect(
