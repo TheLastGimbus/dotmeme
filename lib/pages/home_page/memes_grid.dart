@@ -3,6 +3,7 @@ import 'package:dotmeme/providers/selected_items_provider.dart';
 import 'package:drag_select_grid_view/drag_select_grid_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
+import 'package:flutter/rendering.dart';
 import 'package:provider/provider.dart';
 
 class MemesGrid extends StatefulWidget {
@@ -58,8 +59,8 @@ class _MemesGridState extends State<MemesGrid> {
                 ? BoxDecoration(
                 color: Theme
                     .of(context)
-                    .primaryColor
-                    .withOpacity(0.3))
+                    .primaryColorLight
+                    .withOpacity(0.5))
                 : BoxDecoration(),
             padding: EdgeInsets.all(selected ? 12 : 3),
             child: GestureDetector(
@@ -74,7 +75,7 @@ class _MemesGridState extends State<MemesGrid> {
               child: Hero(
                 tag: 'meme$index',
                 child: ClipRRect(
-                  borderRadius: BorderRadius.circular(4),
+                  borderRadius: BorderRadius.circular(10),
                   child: Image.asset(
                     memesList[index],
                     fit: BoxFit.cover,
