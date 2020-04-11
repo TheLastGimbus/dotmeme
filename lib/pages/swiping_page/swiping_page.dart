@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 
@@ -45,7 +46,16 @@ class _SwipingPageState extends State<SwipingPage> {
           return PhotoViewGalleryPageOptions(
             imageProvider: AssetImage(imagesList[index]),
             minScale: PhotoViewComputedScale.contained,
-            maxScale: 50.0, // User is at control ;)
+            maxScale: 50.0,
+            scaleStateCycle: (scaleState) {
+              print('ScaleState: $scaleState');
+              if (scaleState == PhotoViewScaleState.initial) {
+                return PhotoViewScaleState.covering;
+              } else {
+                return PhotoViewScaleState.initial;
+              }
+            },
+            // User is at control ;)
             heroAttributes: PhotoViewHeroAttributes(
               tag: 'meme$index',
               transitionOnUserGestures: true,
