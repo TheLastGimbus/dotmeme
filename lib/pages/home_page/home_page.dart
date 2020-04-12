@@ -23,6 +23,13 @@ class _HomePageState extends State<HomePage> {
   }
 
   @override
+  void dispose() {
+    selectControl.dispose();
+    searchTextControl.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final memesProvider = Provider.of<MemesProvider>(context);
     var memesList = memesProvider.getAllMemes;
