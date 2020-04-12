@@ -7,6 +7,7 @@ ThemeData lightTheme() {
     primaryColorLight: Colors.cyanAccent,
     primaryColorDark: Colors.indigo,
     accentColor: Colors.orange,
+    textTheme: TextTheme(body1: TextStyle(fontSize: 16)),
   );
 }
 
@@ -17,5 +18,6 @@ ThemeData darkTheme() {
     primaryColorLight: Colors.cyanAccent,
     primaryColorDark: Colors.indigo,
     accentColor: Colors.orange,
+    textTheme: TextTheme(body1: TextStyle(fontSize: 16)),
   );
 }
