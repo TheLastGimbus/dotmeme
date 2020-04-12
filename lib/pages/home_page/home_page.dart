@@ -28,8 +28,21 @@ class _HomePageState extends State<HomePage> {
     var memesList = memesProvider.getAllMemes;
 
     return Scaffold(
-      appBar: !controller.selection.isSelecting
+      appBar: controller.selection.isSelecting
           ? AppBar(
+              title: Text('Selected ${controller.selection.amount}'),
+              actions: <Widget>[
+                IconButton(
+                  icon: Icon(Icons.close),
+                  onPressed: () {
+                    controller.selection = Selection(Set());
+                  },
+                )
+              ],
+              backgroundColor: Colors.black38,
+              brightness: Brightness.dark,
+            )
+          : AppBar(
               title: TextField(
                 textInputAction: TextInputAction.search,
                 focusNode: searchFocusNode,
@@ -42,19 +55,6 @@ class _HomePageState extends State<HomePage> {
                   FocusScope.of(context).dispose();
                 },
               ),
-            )
-          : AppBar(
-              title: Text('Selected ${controller.selection.amount}'),
-              actions: <Widget>[
-                IconButton(
-                  icon: Icon(Icons.close),
-                  onPressed: () {
-                    controller.selection = Selection(Set());
-                  },
-                )
-              ],
-              backgroundColor: Colors.black38,
-              brightness: Brightness.dark,
             ),
       body: DragSelectGridView(
         itemCount: memesList.length,
