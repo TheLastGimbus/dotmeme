@@ -84,15 +84,19 @@ class _HomePageState extends State<HomePage> {
               actions: [
                 AnimatedSwitcher(
                   duration: Duration(milliseconds: 200),
-                  child:searchTextControl.text.length > 0 ? IconButton(
-                    icon: Icon(Icons.close),
-                    onPressed: () {
-                      setState(() {
-                        searchTextControl.clear();
-                        _userTyping = false;
-                      });
-                    },
-                  ) : SizedBox(),
+                  transitionBuilder: (child, animation) =>
+                      ScaleTransition(child: child, scale: animation),
+                  child: _userTyping
+                      ? IconButton(
+                          icon: Icon(Icons.close),
+                          onPressed: () {
+                            setState(() {
+                              searchTextControl.clear();
+                              _userTyping = false;
+                            });
+                          },
+                        )
+                      : SizedBox(),
                 )
               ],
             ),
