@@ -31,13 +31,16 @@ class _HomePageState extends State<HomePage> {
       appBar: controller.selection.isSelecting
           ? AppBar(
               title: Text('Selected ${controller.selection.amount}'),
+              leading: IconButton(
+                icon: Icon(Icons.close),
+                onPressed: () {
+                  controller.selection = Selection(Set());
+                },
+              ),
               actions: <Widget>[
-                IconButton(
-                  icon: Icon(Icons.close),
-                  onPressed: () {
-                    controller.selection = Selection(Set());
-                  },
-                )
+                IconButton(icon: Icon(Icons.share)),
+                IconButton(icon: Icon(Icons.delete)),
+                IconButton(icon: Icon(Icons.more_vert)),
               ],
               backgroundColor: Colors.black38,
               brightness: Brightness.dark,
