@@ -25,6 +25,7 @@ dependencies:
   cupertino_icons: ^0.1.2
 
   tesseract_ocr: ^0.3.0
+  file_picker: ^1.6.2
 
   provider: ^4.0.5
   photo_view: ^0.9.2
