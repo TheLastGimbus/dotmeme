@@ -11,6 +11,8 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  // TODO: When keyboard is hidden, but pointer is still visible,
+  // and user comes back from other page, keyboard pops up
   final searchFocusNode = FocusNode();
   final selectControl = DragSelectGridViewController();
   final searchTextControl = TextEditingController();
@@ -37,6 +39,7 @@ class _HomePageState extends State<HomePage> {
     var memesList = memesProvider.getAllMemes;
     var theme = Theme.of(context);
     var textTheme = theme.textTheme;
+    var focus = FocusScope.of(context);
 
     return Scaffold(
       appBar: selectControl.selection.isSelecting
@@ -78,7 +81,7 @@ class _HomePageState extends State<HomePage> {
                 },
                 onSubmitted: (input) {
                   print('entered $input');
-                  FocusScope.of(context).dispose();
+                  focus.unfocus();
                 },
               ),
               actions: [
@@ -141,7 +144,10 @@ class _HomePageState extends State<HomePage> {
         tooltip: 'Search',
         child: Icon(Icons.search),
         onPressed: () {
-          FocusScope.of(context).requestFocus(searchFocusNode);
+          if(focus.hasFocus){
+            focus.unfocus();
+          }
+          focus.requestFocus(searchFocusNode);
         },
       ),
     );
