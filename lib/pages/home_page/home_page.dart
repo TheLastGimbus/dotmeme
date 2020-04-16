@@ -11,8 +11,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  // TODO: When keyboard is hidden, but pointer is still visible,
-  // and user comes back from other page, keyboard pops up
   final searchFocusNode = FocusNode();
   final selectControl = DragSelectGridViewController();
   final searchTextControl = TextEditingController();
@@ -120,6 +118,7 @@ class _HomePageState extends State<HomePage> {
               onTap: selectControl.selection.isSelecting
                   ? null
                   : () {
+                      focus.unfocus();
                       Navigator.of(context).pushNamed(
                         '/swiping_page',
                         arguments: SwipingPageRouteData(memesList, index),
