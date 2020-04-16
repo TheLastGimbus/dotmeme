@@ -11,6 +11,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  // TODO: Clear textField focus when keyboard hidden by back press
   final searchFocusNode = FocusNode();
   final selectControl = DragSelectGridViewController();
   final searchTextControl = TextEditingController();
@@ -138,12 +139,24 @@ class _HomePageState extends State<HomePage> {
           );
         },
       ),
-      drawer: Drawer(),
+      drawer: Drawer(
+        // TODO: Make this apear only on debug config
+        child: ListView(
+          children: <Widget>[
+            ListTile(
+              title: Text('Dev - quick scan'),
+              onTap: () {
+                Navigator.of(context).pushNamed('/testing_page');
+              },
+            )
+          ],
+        ),
+      ),
       floatingActionButton: FloatingActionButton(
         tooltip: 'Search',
         child: Icon(Icons.search),
         onPressed: () {
-          if(focus.hasFocus){
+          if (focus.hasFocus) {
             focus.unfocus();
           }
           focus.requestFocus(searchFocusNode);
