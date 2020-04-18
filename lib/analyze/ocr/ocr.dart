@@ -5,7 +5,7 @@ import 'package:tesseract_ocr/tesseract_ocr.dart';
 
 class Ocr {
   static Future<String> getText(
-      {@required String imagePath, String language = 'eng'}) async {
+      {@required String imagePath, String language = 'eng'}) {
     return TesseractOcr.extractText(imagePath, language: language);
   }
 }
