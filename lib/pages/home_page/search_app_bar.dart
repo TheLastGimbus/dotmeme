@@ -12,15 +12,12 @@ Widget searchAppBar(BuildContext context) {
       minLines: 1,
       maxLines: 2,
       decoration: InputDecoration.collapsed(
-          hintText: 'Search',
-          hintStyle: textTheme.title.copyWith(color: Colors.white)),
-      // TODO
-      controller: TextEditingController(),
+        hintText: 'Search',
+        hintStyle: textTheme.title.copyWith(color: Colors.white),
+      ),
+      controller: homeProvider.searchTextControl,
       cursorColor: Colors.white,
       style: textTheme.body1.copyWith(color: Colors.white),
-      onChanged: (input) {
-        // TODO: Show/hide "discard text" button
-      },
       onSubmitted: (input) {
         print('entered $input');
         FocusScope.of(context).unfocus();
@@ -31,11 +28,11 @@ Widget searchAppBar(BuildContext context) {
         duration: Duration(milliseconds: 200),
         transitionBuilder: (child, animation) =>
             ScaleTransition(child: child, scale: animation),
-        child: false // TODO: When user typing
+        child: homeProvider.searchTextControl.text.isNotEmpty
             ? IconButton(
                 icon: Icon(Icons.close),
                 onPressed: () {
-                  // TODO: Clear text
+                  homeProvider.searchTextControl.clear();
                 },
               )
             : SizedBox(),
