@@ -27,8 +27,7 @@ class MemesGridView extends StatelessWidget {
             onTap: () {
               Navigator.of(context).pushNamed(
                 '/swiping_page',
-                arguments: SwipingPageRouteData(
-                    ['assets/example_memes/the-cpu.png'], 0), // TODO
+                arguments: SwipingPageRouteData(index),
               );
             },
             child: Hero(

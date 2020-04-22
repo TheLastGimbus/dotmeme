@@ -1,37 +1,35 @@
+import 'package:dotmeme/providers/home_page_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
+import 'package:provider/provider.dart';
 
 class SwipingPage extends StatefulWidget {
-  SwipingPage({@required this.imagesList, this.startIndex});
+  SwipingPage({this.startIndex});
 
-  final List<String> imagesList;
   final startIndex;
 
   @override
-  State<StatefulWidget> createState() => _SwipingPageState(
-        imagesList: imagesList,
-        startIndex: startIndex,
-      );
+  State<StatefulWidget> createState() =>
+      _SwipingPageState(startIndex: startIndex);
 }
 
 class SwipingPageRouteData {
-  final List<String> imagesList;
   final int startIndex;
 
-  SwipingPageRouteData(this.imagesList, this.startIndex);
+  SwipingPageRouteData(this.startIndex);
 }
 
 class _SwipingPageState extends State<SwipingPage> {
   // TODO: Change this to get memes from Provider or something
-  _SwipingPageState({@required this.imagesList, this.startIndex = 0});
+  _SwipingPageState({this.startIndex = 0});
 
-  List<String> imagesList;
   final int startIndex;
 
   @override
   Widget build(BuildContext context) {
+    final homeProvider = Provider.of<HomePageProvider>(context);
     final _controller = PageController(initialPage: startIndex);
     return Scaffold(
       backgroundColor: Colors.black,
@@ -44,7 +42,7 @@ class _SwipingPageState extends State<SwipingPage> {
         pageController: _controller,
         builder: (context, index) {
           return PhotoViewGalleryPageOptions(
-            imageProvider: AssetImage(imagesList[index]),
+            imageProvider: AssetImage(homeProvider.memesList[index]),
             minScale: PhotoViewComputedScale.contained,
             maxScale: 50.0,
             scaleStateCycle: (scaleState) {
@@ -62,7 +60,7 @@ class _SwipingPageState extends State<SwipingPage> {
             ),
           );
         },
-        itemCount: imagesList.length,
+        itemCount: homeProvider.memesList.length,
       ),
     );
   }
