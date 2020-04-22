@@ -12,7 +12,6 @@ class SwipingPageRouteData {
 }
 
 class SwipingPage extends StatelessWidget {
-  // TODO: Change this to get memes from Provider or something
   SwipingPage({this.startIndex = 0});
 
   final int startIndex;

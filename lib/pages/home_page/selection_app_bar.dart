@@ -1,12 +1,15 @@
+import 'package:dotmeme/providers/home_page_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
-Widget selectionAppBar(){
+Widget selectionAppBar(BuildContext context) {
+  var homeProvider = Provider.of<HomePageProvider>(context);
   return AppBar(
-    title: Text('Selected ${0}'), // TODO
+    title: Text('Selected ${homeProvider.selectControl.selection.amount}'),
     leading: IconButton(
       icon: Icon(Icons.close),
       onPressed: () {
-        // TODO: Discard selection
+        homeProvider.selectControl.clear();
       },
     ),
     actions: <Widget>[

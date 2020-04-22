@@ -19,8 +19,7 @@ class _HomePageState extends State<HomePage> {
     super.initState();
   }
 
-  Widget navigationDrawer() =>
-      Drawer(
+  Widget navigationDrawer() => Drawer(
         child: ListView(
           children: <Widget>[
             // TODO: Make this appear only on debug config
@@ -41,8 +40,8 @@ class _HomePageState extends State<HomePage> {
     memesProvider.getAllMemes.then((memes) => homeProvider.memesList = memes);
 
     return Scaffold(
-      appBar: false // TODO: When user is selecting
-          ? selectionAppBar()
+      appBar: homeProvider.selectControl.selection.isSelecting
+          ? selectionAppBar(context)
           : searchAppBar(context),
       body: MemesGridView(),
       drawer: navigationDrawer(),

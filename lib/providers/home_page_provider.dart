@@ -24,6 +24,5 @@ class HomePageProvider with ChangeNotifier {
     _selectControl.addListener(() {
       notifyListeners();
     });
-
   }
 }

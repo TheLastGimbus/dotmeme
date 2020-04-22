@@ -5,17 +5,16 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class MemesGridView extends StatelessWidget {
-
   Widget _memeThumbnail(int index, String assetPath) => Hero(
-    tag: 'meme$index',
-    child: ClipRRect(
-      borderRadius: BorderRadius.circular(10),
-      child: Image.asset(
-        assetPath,
-        fit: BoxFit.cover,
-      ),
-    ),
-  );
+        tag: 'meme$index',
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(10),
+          child: Image.asset(
+            assetPath,
+            fit: BoxFit.cover,
+          ),
+        ),
+      );
 
   @override
   Widget build(BuildContext context) {
@@ -36,13 +35,15 @@ class MemesGridView extends StatelessWidget {
               : BoxDecoration(),
           padding: EdgeInsets.all(selected ? 12 : 3),
           child: GestureDetector(
-            onTap: () {
-              FocusScope.of(context).unfocus();
-              Navigator.of(context).pushNamed(
-                '/swiping_page',
-                arguments: SwipingPageRouteData(index),
-              );
-            },
+            onTap: homeProvider.selectControl.selection.isSelecting
+                ? null
+                : () {
+                    FocusScope.of(context).unfocus();
+                    Navigator.of(context).pushNamed(
+                      '/swiping_page',
+                      arguments: SwipingPageRouteData(index),
+                    );
+                  },
             child: _memeThumbnail(index, homeProvider.memesList[index]),
           ),
         );

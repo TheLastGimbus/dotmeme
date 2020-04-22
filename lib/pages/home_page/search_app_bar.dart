@@ -8,13 +8,14 @@ Widget searchAppBar(BuildContext context) {
   return AppBar(
     title: TextField(
       textInputAction: TextInputAction.search,
-      focusNode: homeProvider.searchFocusNode, // TODO
+      focusNode: homeProvider.searchFocusNode,
       minLines: 1,
       maxLines: 2,
       decoration: InputDecoration.collapsed(
           hintText: 'Search',
           hintStyle: textTheme.title.copyWith(color: Colors.white)),
-      controller: TextEditingController(), // TODO
+      // TODO
+      controller: TextEditingController(),
       cursorColor: Colors.white,
       style: textTheme.body1.copyWith(color: Colors.white),
       onChanged: (input) {
@@ -22,7 +23,7 @@ Widget searchAppBar(BuildContext context) {
       },
       onSubmitted: (input) {
         print('entered $input');
-        // TODO: focus.unfocus();
+        FocusScope.of(context).unfocus();
       },
     ),
     actions: [
@@ -32,11 +33,11 @@ Widget searchAppBar(BuildContext context) {
             ScaleTransition(child: child, scale: animation),
         child: false // TODO: When user typing
             ? IconButton(
-          icon: Icon(Icons.close),
-          onPressed: () {
-            // TODO: Clear text
-          },
-        )
+                icon: Icon(Icons.close),
+                onPressed: () {
+                  // TODO: Clear text
+                },
+              )
             : SizedBox(),
       )
     ],
