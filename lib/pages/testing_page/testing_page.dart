@@ -2,7 +2,6 @@ import 'package:dotmeme/analyze/ocr/ocr.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:tesseract_ocr/tesseract_ocr.dart';
 
 class TestingPage extends StatefulWidget {
   @override
@@ -59,17 +58,20 @@ class _TestingPageState extends State<TestingPage> {
                 },
               ),
               SizedBox(height: 30),
-              Text('Eng',
-                  style:
-                  TextStyle(fontSize: 30, backgroundColor: Colors.orange)),
+              Text(
+                'Eng',
+                style: TextStyle(fontSize: 30, backgroundColor: Colors.orange),
+              ),
               Text(_outText),
-              Text('Eng_fast',
-                  style:
-                  TextStyle(fontSize: 30, backgroundColor: Colors.orange)),
+              Text(
+                'Eng_fast',
+                style: TextStyle(fontSize: 30, backgroundColor: Colors.orange),
+              ),
               Text(_outTextFast),
-              Text('Eng_best',
-                  style:
-                  TextStyle(fontSize: 30, backgroundColor: Colors.orange)),
+              Text(
+                'Eng_best',
+                style: TextStyle(fontSize: 30, backgroundColor: Colors.orange),
+              ),
               Text(_outTextBest),
             ],
           ),

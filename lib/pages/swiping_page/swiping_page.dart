@@ -1,38 +1,46 @@
+import 'package:dotmeme/providers/home_page_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
-
-class SwipingPage extends StatefulWidget {
-  SwipingPage({@required this.imagesList, this.startIndex});
-
-  final List<String> imagesList;
-  final startIndex;
-
-  @override
-  State<StatefulWidget> createState() => _SwipingPageState(
-        imagesList: imagesList,
-        startIndex: startIndex,
-      );
-}
+import 'package:provider/provider.dart';
 
 class SwipingPageRouteData {
-  final List<String> imagesList;
-  final int startIndex;
+  SwipingPageRouteData(this.startIndex);
 
-  SwipingPageRouteData(this.imagesList, this.startIndex);
+  final int startIndex;
 }
 
-class _SwipingPageState extends State<SwipingPage> {
-  // TODO: Change this to get memes from Provider or something
-  _SwipingPageState({@required this.imagesList, this.startIndex = 0});
+class SwipingPage extends StatelessWidget {
+  SwipingPage({this.startIndex = 0});
 
-  List<String> imagesList;
   final int startIndex;
+
+  PhotoViewGalleryPageOptions _photoViewPage(int index, String assetPath) =>
+      PhotoViewGalleryPageOptions(
+        imageProvider: AssetImage(assetPath),
+        minScale: PhotoViewComputedScale.contained,
+        maxScale: 50.0,
+        scaleStateCycle: (scaleState) {
+          print('ScaleState: $scaleState');
+          if (scaleState == PhotoViewScaleState.initial) {
+            return PhotoViewScaleState.covering;
+          } else {
+            return PhotoViewScaleState.initial;
+          }
+        },
+        // User is at control ;)
+        heroAttributes: PhotoViewHeroAttributes(
+          tag: 'meme$index',
+          transitionOnUserGestures: true,
+        ),
+      );
 
   @override
   Widget build(BuildContext context) {
+    final homeProvider = Provider.of<HomePageProvider>(context);
     final _controller = PageController(initialPage: startIndex);
+
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
@@ -42,27 +50,9 @@ class _SwipingPageState extends State<SwipingPage> {
       extendBodyBehindAppBar: true,
       body: PhotoViewGallery.builder(
         pageController: _controller,
-        builder: (context, index) {
-          return PhotoViewGalleryPageOptions(
-            imageProvider: AssetImage(imagesList[index]),
-            minScale: PhotoViewComputedScale.contained,
-            maxScale: 50.0,
-            scaleStateCycle: (scaleState) {
-              print('ScaleState: $scaleState');
-              if (scaleState == PhotoViewScaleState.initial) {
-                return PhotoViewScaleState.covering;
-              } else {
-                return PhotoViewScaleState.initial;
-              }
-            },
-            // User is at control ;)
-            heroAttributes: PhotoViewHeroAttributes(
-              tag: 'meme$index',
-              transitionOnUserGestures: true,
-            ),
-          );
-        },
-        itemCount: imagesList.length,
+        builder: (context, index) =>
+            _photoViewPage(index, homeProvider.memesList[index]),
+        itemCount: homeProvider.memesList.length,
       ),
     );
   }
