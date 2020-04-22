@@ -36,6 +36,14 @@ class SwipingPage extends StatelessWidget {
         ),
       );
 
+  Widget _pageWidget(int index, String assetPath) => PhotoView(
+        imageProvider: AssetImage(assetPath),
+        heroAttributes: PhotoViewHeroAttributes(
+          tag: 'meme$index',
+          transitionOnUserGestures: true,
+        ),
+      );
+
   @override
   Widget build(BuildContext context) {
     final homeProvider = Provider.of<HomePageProvider>(context);
@@ -48,10 +56,10 @@ class SwipingPage extends StatelessWidget {
         backgroundColor: Colors.transparent,
       ),
       extendBodyBehindAppBar: true,
-      body: PhotoViewGallery.builder(
-        pageController: _controller,
-        builder: (context, index) =>
-            _photoViewPage(index, homeProvider.memesList[index]),
+      body: PageView.builder(
+        controller: _controller,
+        itemBuilder: (context, index) =>
+            _pageWidget(index, homeProvider.memesList[index]),
         itemCount: homeProvider.memesList.length,
       ),
     );
