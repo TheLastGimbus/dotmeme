@@ -1,6 +1,7 @@
 import 'package:dotmeme/providers/home_page_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:photo_manager/photo_manager.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 import 'package:provider/provider.dart';
@@ -36,11 +37,27 @@ class SwipingPage extends StatelessWidget {
         ),
       );
 
-  Widget _pageWidget(int index, String assetPath) => PhotoView(
-        imageProvider: AssetImage(assetPath),
-        heroAttributes: PhotoViewHeroAttributes(
-          tag: 'meme$index',
-          transitionOnUserGestures: true,
+  Widget _pageWidget(int index, AssetEntity assetEntity) => FutureBuilder(
+        future: assetEntity.file,
+        builder: (context, AsyncSnapshot<File> snapshot) => PhotoView(
+          imageProvider: snapshot.hasData
+              ? FileImage(snapshot.data)
+              : AssetImage('assets/example_memes/the-cpu.png'),
+          minScale: PhotoViewComputedScale.contained,
+          maxScale: 50.0,
+          scaleStateCycle: (scaleState) {
+            print('ScaleState: $scaleState');
+            if (scaleState == PhotoViewScaleState.initial) {
+              return PhotoViewScaleState.covering;
+            } else {
+              return PhotoViewScaleState.initial;
+            }
+          },
+          gaplessPlayback: !snapshot.hasData,
+          heroAttributes: PhotoViewHeroAttributes(
+            tag: 'meme$index',
+            transitionOnUserGestures: true,
+          ),
         ),
       );
 

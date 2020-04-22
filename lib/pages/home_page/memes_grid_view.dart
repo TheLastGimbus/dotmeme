@@ -1,20 +1,45 @@
+import 'dart:typed_data';
+
 import 'package:dotmeme/pages/swiping_page/swiping_page.dart';
 import 'package:dotmeme/providers/home_page_provider.dart';
 import 'package:drag_select_grid_view/drag_select_grid_view.dart';
 import 'package:flutter/material.dart';
+import 'package:photo_manager/photo_manager.dart';
 import 'package:provider/provider.dart';
 
 class MemesGridView extends StatelessWidget {
-  Widget _memeThumbnail(int index, String assetPath) => Hero(
-        tag: 'meme$index',
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(10),
-          child: Image.asset(
-            assetPath,
-            fit: BoxFit.cover,
-          ),
-        ),
-      );
+  Widget _memeThumbnail(
+      BuildContext context, int index, AssetEntity assetEntity) {
+    var homeProvider = Provider.of<HomePageProvider>(context);
+    return Hero(
+      tag: 'meme$index',
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(10),
+        child: FutureBuilder(
+            future: assetEntity.thumbDataWithSize(175, 175, quality: 50),
+            builder: (context, AsyncSnapshot<Uint8List> snapshot) =>
+                snapshot.hasData
+                    ? GestureDetector(
+                        onTap: homeProvider.selectControl.selection.isSelecting
+                            ? null
+                            : () {
+                                FocusScope.of(context).unfocus();
+                                Navigator.of(context).pushNamed(
+                                  '/swiping_page',
+                                  arguments:
+                                      SwipingPageRouteData(startIndex: index),
+                                );
+                              },
+                        child: Image.memory(
+                          snapshot.data,
+                          fit: BoxFit.cover,
+                          gaplessPlayback: true,
+                        ),
+                      )
+                    : SizedBox()),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,18 +59,7 @@ class MemesGridView extends StatelessWidget {
                   color: Theme.of(context).primaryColorLight.withOpacity(0.5))
               : BoxDecoration(),
           padding: EdgeInsets.all(selected ? 12 : 3),
-          child: GestureDetector(
-            onTap: homeProvider.selectControl.selection.isSelecting
-                ? null
-                : () {
-                    FocusScope.of(context).unfocus();
-                    Navigator.of(context).pushNamed(
-                      '/swiping_page',
-                      arguments: SwipingPageRouteData(index),
-                    );
-                  },
-            child: _memeThumbnail(index, homeProvider.memesList[index]),
-          ),
+          child: _memeThumbnail(context, index, homeProvider.memesList[index]),
         );
       },
     ));
