@@ -32,5 +32,8 @@ class MemesProvider with ChangeNotifier {
   // TODO: Change this to some fancy Meme class
   List<String> _allMemes;
 
-  get getAllMemes => _allMemes;
+  List<String> get getAllExampleMemes => _allMemes;
+
+  Future<List<String>> get getAllMemes =>
+      Future.delayed(Duration(milliseconds: 50), () => _allMemes);
 }

@@ -1,14 +1,18 @@
 import 'package:dotmeme/pages/swiping_page/swiping_page.dart';
+import 'package:dotmeme/providers/home_page_provider.dart';
 import 'package:drag_select_grid_view/drag_select_grid_view.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class MemesGridView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    var homeProvider = Provider.of<HomePageProvider>(context);
+
     return Container(
         child: DragSelectGridView(
-      itemCount: 0, // TODO
-      gridController: DragSelectGridViewController(), // TOOD
+      itemCount: homeProvider.memesList.length,
+      gridController: homeProvider.selectControl,
       gridDelegate:
           SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3),
       itemBuilder: (context, index, selected) {
@@ -32,7 +36,7 @@ class MemesGridView extends StatelessWidget {
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(10),
                 child: Image.asset(
-                  'assets/example_memes/the-cpu.png',
+                  homeProvider.memesList[index],
                   fit: BoxFit.cover,
                 ),
               ),

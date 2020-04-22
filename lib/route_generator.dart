@@ -1,5 +1,6 @@
 import 'package:dotmeme/pages/home_page/home_page.dart';
 import 'package:dotmeme/pages/swiping_page/swiping_page.dart';
+import 'package:dotmeme/providers/home_page_provider.dart';
 import 'package:dotmeme/providers/memes_provider.dart';
 import 'package:dotmeme/pages/testing_page/testing_page.dart';
 import 'package:flutter/material.dart';
@@ -15,6 +16,7 @@ class RouteGenerator {
               MultiProvider(
                 providers: [
                   ChangeNotifierProvider(create: (_) => MemesProvider()),
+                  ChangeNotifierProvider(create: (_) => HomePageProvider()),
                 ],
                 child: HomePage(),
               ),

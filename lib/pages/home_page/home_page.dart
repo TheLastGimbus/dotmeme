@@ -1,7 +1,10 @@
-import 'package:dotmeme/pages/home_page/MemesGridView.dart';
+import 'package:dotmeme/pages/home_page/memes_grid_view.dart';
 import 'package:dotmeme/pages/home_page/search_app_bar.dart';
 import 'package:dotmeme/pages/home_page/selection_app_bar.dart';
+import 'package:dotmeme/providers/home_page_provider.dart';
+import 'package:dotmeme/providers/memes_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -10,6 +13,11 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   // TODO: Clear textField focus when keyboard hidden by back press
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   Widget navigationDrawer() =>
       Drawer(
@@ -28,6 +36,10 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    var homeProvider = Provider.of<HomePageProvider>(context);
+    var memesProvider = Provider.of<MemesProvider>(context);
+    memesProvider.getAllMemes.then((memes) => homeProvider.memesList = memes);
+
     return Scaffold(
       appBar: false // TODO: When user is selecting
           ? selectionAppBar()
