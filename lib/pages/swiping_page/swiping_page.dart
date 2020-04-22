@@ -17,10 +17,31 @@ class SwipingPage extends StatelessWidget {
 
   final int startIndex;
 
+  PhotoViewGalleryPageOptions _photoViewPage(int index, String assetPath) =>
+      PhotoViewGalleryPageOptions(
+        imageProvider: AssetImage(assetPath),
+        minScale: PhotoViewComputedScale.contained,
+        maxScale: 50.0,
+        scaleStateCycle: (scaleState) {
+          print('ScaleState: $scaleState');
+          if (scaleState == PhotoViewScaleState.initial) {
+            return PhotoViewScaleState.covering;
+          } else {
+            return PhotoViewScaleState.initial;
+          }
+        },
+        // User is at control ;)
+        heroAttributes: PhotoViewHeroAttributes(
+          tag: 'meme$index',
+          transitionOnUserGestures: true,
+        ),
+      );
+
   @override
   Widget build(BuildContext context) {
     final homeProvider = Provider.of<HomePageProvider>(context);
     final _controller = PageController(initialPage: startIndex);
+
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
@@ -30,26 +51,8 @@ class SwipingPage extends StatelessWidget {
       extendBodyBehindAppBar: true,
       body: PhotoViewGallery.builder(
         pageController: _controller,
-        builder: (context, index) {
-          return PhotoViewGalleryPageOptions(
-            imageProvider: AssetImage(homeProvider.memesList[index]),
-            minScale: PhotoViewComputedScale.contained,
-            maxScale: 50.0,
-            scaleStateCycle: (scaleState) {
-              print('ScaleState: $scaleState');
-              if (scaleState == PhotoViewScaleState.initial) {
-                return PhotoViewScaleState.covering;
-              } else {
-                return PhotoViewScaleState.initial;
-              }
-            },
-            // User is at control ;)
-            heroAttributes: PhotoViewHeroAttributes(
-              tag: 'meme$index',
-              transitionOnUserGestures: true,
-            ),
-          );
-        },
+        builder: (context, index) =>
+            _photoViewPage(index, homeProvider.memesList[index]),
         itemCount: homeProvider.memesList.length,
       ),
     );
