@@ -5,25 +5,15 @@ import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 import 'package:provider/provider.dart';
 
-class SwipingPage extends StatefulWidget {
-  SwipingPage({this.startIndex});
-
-  final startIndex;
-
-  @override
-  State<StatefulWidget> createState() =>
-      _SwipingPageState(startIndex: startIndex);
-}
-
 class SwipingPageRouteData {
-  final int startIndex;
-
   SwipingPageRouteData(this.startIndex);
+
+  final int startIndex;
 }
 
-class _SwipingPageState extends State<SwipingPage> {
+class SwipingPage extends StatelessWidget {
   // TODO: Change this to get memes from Provider or something
-  _SwipingPageState({this.startIndex = 0});
+  SwipingPage({this.startIndex = 0});
 
   final int startIndex;
 
