@@ -5,20 +5,21 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class MemesGridView extends StatelessWidget {
+
+  Widget _memeThumbnail(int index, String assetPath) => Hero(
+    tag: 'meme$index',
+    child: ClipRRect(
+      borderRadius: BorderRadius.circular(10),
+      child: Image.asset(
+        assetPath,
+        fit: BoxFit.cover,
+      ),
+    ),
+  );
+
   @override
   Widget build(BuildContext context) {
     var homeProvider = Provider.of<HomePageProvider>(context);
-
-    Widget _memeThumbnail(int index, String assetPath) => Hero(
-          tag: 'meme$index',
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(10),
-            child: Image.asset(
-              assetPath,
-              fit: BoxFit.cover,
-            ),
-          ),
-        );
 
     return Container(
         child: DragSelectGridView(
