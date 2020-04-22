@@ -50,7 +50,9 @@ class _HomePageState extends State<HomePage> {
         tooltip: 'Search',
         child: Icon(Icons.search),
         onPressed: () {
-          // TODO: Focus on search
+          var focus = FocusScope.of(context);
+          focus.unfocus();
+          focus.requestFocus(homeProvider.searchFocusNode);
         },
       ),
     );

@@ -1,11 +1,14 @@
+import 'package:dotmeme/providers/home_page_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 Widget searchAppBar(BuildContext context) {
   var textTheme = Theme.of(context).textTheme;
+  var homeProvider = Provider.of<HomePageProvider>(context);
   return AppBar(
     title: TextField(
       textInputAction: TextInputAction.search,
-      focusNode: FocusNode(), // TODO
+      focusNode: homeProvider.searchFocusNode, // TODO
       minLines: 1,
       maxLines: 2,
       decoration: InputDecoration.collapsed(

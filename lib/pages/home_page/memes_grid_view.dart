@@ -36,6 +36,7 @@ class MemesGridView extends StatelessWidget {
           padding: EdgeInsets.all(selected ? 12 : 3),
           child: GestureDetector(
             onTap: () {
+              FocusScope.of(context).unfocus();
               Navigator.of(context).pushNamed(
                 '/swiping_page',
                 arguments: SwipingPageRouteData(index),
