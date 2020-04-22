@@ -26,8 +26,10 @@ class MemesGridView extends StatelessWidget {
                                 FocusScope.of(context).unfocus();
                                 Navigator.of(context).pushNamed(
                                   '/swiping_page',
-                                  arguments:
-                                      SwipingPageRouteData(startIndex: index),
+                                  arguments: SwipingPageRouteData(
+                                    startIndex: index,
+                                    startThumbnail: snapshot.data,
+                                  ),
                                 );
                               },
                         child: Image.memory(

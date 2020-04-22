@@ -14,7 +14,10 @@ class RouteGenerator {
       case '/swiping_page':
         return (args is SwipingPageRouteData)
             ? MaterialPageRoute(
-                builder: (_) => SwipingPage(startIndex: args.startIndex),
+                builder: (_) => SwipingPage(
+                  startIndex: args.startIndex,
+                  startThumbnail: args.startThumbnail,
+                ),
               )
             : _errorRoute();
       case '/testing_page':

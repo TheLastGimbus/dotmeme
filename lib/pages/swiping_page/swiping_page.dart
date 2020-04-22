@@ -1,3 +1,6 @@
+import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:dotmeme/providers/home_page_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -7,15 +10,17 @@ import 'package:photo_view/photo_view_gallery.dart';
 import 'package:provider/provider.dart';
 
 class SwipingPageRouteData {
-  SwipingPageRouteData(this.startIndex);
+  SwipingPageRouteData({this.startIndex, this.startThumbnail});
 
   final int startIndex;
+  final Uint8List startThumbnail;
 }
 
 class SwipingPage extends StatelessWidget {
-  SwipingPage({this.startIndex = 0});
+  SwipingPage({this.startIndex = 0, this.startThumbnail});
 
   final int startIndex;
+  final Uint8List startThumbnail;
 
   PhotoViewGalleryPageOptions _photoViewPage(int index, String assetPath) =>
       PhotoViewGalleryPageOptions(
@@ -42,7 +47,7 @@ class SwipingPage extends StatelessWidget {
         builder: (context, AsyncSnapshot<File> snapshot) => PhotoView(
           imageProvider: snapshot.hasData
               ? FileImage(snapshot.data)
-              : AssetImage('assets/example_memes/the-cpu.png'),
+              : MemoryImage(startThumbnail),
           minScale: PhotoViewComputedScale.contained,
           maxScale: 50.0,
           scaleStateCycle: (scaleState) {
