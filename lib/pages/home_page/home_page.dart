@@ -17,6 +17,11 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
+    Future.microtask(() {
+      var homeProvider = Provider.of<HomePageProvider>(context, listen: false);
+      var memesProvider = Provider.of<MemesProvider>(context, listen: false);
+      memesProvider.getAllMemes.then((memes) => homeProvider.memesList = memes);
+    });
   }
 
   Widget navigationDrawer() => Drawer(
@@ -36,8 +41,6 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     var homeProvider = Provider.of<HomePageProvider>(context);
-    var memesProvider = Provider.of<MemesProvider>(context);
-    memesProvider.getAllMemes.then((memes) => homeProvider.memesList = memes);
 
     return Scaffold(
       appBar: homeProvider.selectControl.selection.isSelecting
