@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:photo_view/photo_view.dart';
-import 'package:photo_view/photo_view_gallery.dart';
 import 'package:provider/provider.dart';
 
 class SwipingPageRouteData {
@@ -29,11 +28,19 @@ class SwipingPage extends StatelessWidget {
 
   Widget _loadingWidget(int index, AssetEntity assetEntity) =>
       index == startIndex
-          ? Image.memory(startThumbnail, fit: BoxFit.contain)
+          ? Image.memory(
+              startThumbnail,
+              fit: BoxFit.contain,
+              gaplessPlayback: true,
+            )
           : FutureBuilder(
               future: assetEntity.thumbData,
               builder: (context, snapshot) => snapshot.hasData
-                  ? Image.memory(snapshot.data, fit: BoxFit.contain)
+                  ? Image.memory(
+                      snapshot.data,
+                      fit: BoxFit.contain,
+                      gaplessPlayback: true,
+                    )
                   : SizedBox(),
             );
 
