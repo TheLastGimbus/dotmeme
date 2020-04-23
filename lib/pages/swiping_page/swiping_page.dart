@@ -42,27 +42,47 @@ class SwipingPage extends StatelessWidget {
         ),
       );
 
+  Future<Uint8List> _loadAssetToMemory(AssetEntity asset) async {
+    var file = await asset.file;
+    var bytes = await file.readAsBytes();
+    return bytes;
+  }
+
+  Widget _loadingWidget(int index, AssetEntity assetEntity) =>
+      index == startIndex
+          ? Image.memory(startThumbnail, fit: BoxFit.contain)
+          : FutureBuilder(
+              future: assetEntity.thumbData,
+              builder: (context, snapshot) => snapshot.hasData
+                  ? Image.memory(snapshot.data, fit: BoxFit.contain)
+                  : SizedBox(),
+            );
+
   Widget _pageWidget(int index, AssetEntity assetEntity) => FutureBuilder(
-        future: assetEntity.file,
-        builder: (context, AsyncSnapshot<File> snapshot) => PhotoView(
-          imageProvider: snapshot.hasData
-              ? FileImage(snapshot.data)
-              : MemoryImage(startThumbnail),
-          minScale: PhotoViewComputedScale.contained,
-          maxScale: 50.0,
-          scaleStateCycle: (scaleState) {
-            print('ScaleState: $scaleState');
-            if (scaleState == PhotoViewScaleState.initial) {
-              return PhotoViewScaleState.covering;
-            } else {
-              return PhotoViewScaleState.initial;
-            }
-          },
-          gaplessPlayback: !snapshot.hasData,
-          heroAttributes: PhotoViewHeroAttributes(
-            tag: 'meme$index',
-            transitionOnUserGestures: true,
-          ),
+        future: _loadAssetToMemory(assetEntity),
+        builder: (context, AsyncSnapshot<Uint8List> snapshot) => Hero(
+          tag: 'meme$index',
+          child: snapshot.hasData
+              ? PhotoView(
+                  imageProvider: MemoryImage(snapshot.data),
+                  loadingBuilder: (ctx, event) =>
+                      _loadingWidget(index, assetEntity),
+                  minScale: PhotoViewComputedScale.contained,
+                  maxScale: 50.0,
+                  scaleStateCycle: (scaleState) {
+                    print('ScaleState: $scaleState');
+                    if (scaleState == PhotoViewScaleState.initial) {
+                      return PhotoViewScaleState.covering;
+                    } else {
+                      return PhotoViewScaleState.initial;
+                    }
+                  },
+                  gaplessPlayback: true,
+                )
+              : Image.memory(
+                  startThumbnail,
+                  fit: BoxFit.contain,
+                ),
         ),
       );
 
