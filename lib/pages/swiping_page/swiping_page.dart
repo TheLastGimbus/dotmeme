@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:photo_view/photo_view.dart';
+import 'package:photo_view/photo_view_gallery.dart';
 import 'package:provider/provider.dart';
 
 class SwipingPageRouteData {
@@ -84,10 +85,12 @@ class SwipingPage extends StatelessWidget {
         backgroundColor: Colors.transparent,
       ),
       extendBodyBehindAppBar: true,
-      body: PageView.builder(
-        controller: _controller,
-        itemBuilder: (context, index) =>
-            _pageWidget(index, homeProvider.memesList[index]),
+      body: PhotoViewGallery.builder(
+        pageController: _controller,
+        builder: (context, index) => PhotoViewGalleryPageOptions.customChild(
+          child: _pageWidget(index, homeProvider.memesList[index]),
+        ),
+        gaplessPlayback: true,
         itemCount: homeProvider.memesList.length,
       ),
     );
