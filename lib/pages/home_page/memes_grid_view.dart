@@ -16,7 +16,7 @@ class MemesGridView extends StatelessWidget {
       child: ClipRRect(
         borderRadius: BorderRadius.circular(10),
         child: FutureBuilder(
-            future: assetEntity.thumbDataWithSize(175, 175, quality: 50),
+            future: assetEntity.thumbDataWithSize(150, 150, quality: 35),
             builder: (context, AsyncSnapshot<Uint8List> snapshot) =>
                 snapshot.hasData
                     ? GestureDetector(
