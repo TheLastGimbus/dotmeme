@@ -1,7 +1,5 @@
 {
   "files": [
-    "eng.traineddata",
-    "eng_fast.traineddata",
     "eng_best.traineddata"
   ]
 }

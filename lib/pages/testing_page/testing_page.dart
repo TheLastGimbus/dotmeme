@@ -9,34 +9,16 @@ class TestingPage extends StatefulWidget {
 }
 
 class _TestingPageState extends State<TestingPage> {
-  String _outText = "";
-  int _time = 0;
   String _outTextFast = "";
   int _timeFast = 0;
-  String _outTextBest = "";
-  int _timeBest = 0;
 
   void scan(String file) async {
-    _outText = '';
     _outTextFast = '';
-    _outTextBest = '';
     var watch = Stopwatch();
     watch.start();
-    _outText = await Ocr.getText(imagePath: file, language: 'eng');
-    _time = watch.elapsedMilliseconds;
-    print('eng finished! Time: $_time ms');
-    setState(() {});
-
-    watch.reset();
     _outTextFast = await Ocr.getText(imagePath: file, language: 'eng_fast');
     _timeFast = watch.elapsedMilliseconds;
     print('eng_fast finished! Time: $_timeFast ms');
-    setState(() {});
-
-    watch.reset();
-    _outTextBest = await Ocr.getText(imagePath: file, language: 'eng_best');
-    _timeBest = watch.elapsedMilliseconds;
-    print('eng_best finished! Time: $_timeBest ms');
     setState(() {});
   }
 
@@ -59,20 +41,10 @@ class _TestingPageState extends State<TestingPage> {
               ),
               SizedBox(height: 30),
               Text(
-                'Eng',
-                style: TextStyle(fontSize: 30, backgroundColor: Colors.orange),
-              ),
-              Text(_outText),
-              Text(
                 'Eng_fast',
                 style: TextStyle(fontSize: 30, backgroundColor: Colors.orange),
               ),
               Text(_outTextFast),
-              Text(
-                'Eng_best',
-                style: TextStyle(fontSize: 30, backgroundColor: Colors.orange),
-              ),
-              Text(_outTextBest),
             ],
           ),
         ),
