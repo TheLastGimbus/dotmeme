@@ -45,6 +45,9 @@ class SwipingPage extends StatelessWidget {
                   : SizedBox(),
             );
 
+  // TODO: When page is not *fully* swiped, two heroes fly on screen :/
+  // This also sometimes happens when opening end closing
+  // *some* images (random?), even if not swiped.
   Widget _pageWidget(int index, AssetEntity assetEntity) => FutureBuilder(
         future: _loadAssetToMemory(assetEntity),
         builder: (context, AsyncSnapshot<Uint8List> snapshot) => Hero(
@@ -78,6 +81,8 @@ class SwipingPage extends StatelessWidget {
     final homeProvider = Provider.of<HomePageProvider>(context);
     final _controller = PageController(initialPage: startIndex);
 
+    // TODO: Show/hide app bar and options buttons (not present yet)
+    //  on single press
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(

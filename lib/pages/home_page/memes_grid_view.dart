@@ -11,6 +11,7 @@ class MemesGridView extends StatelessWidget {
   Widget _memeThumbnail(
       BuildContext context, int index, AssetEntity assetEntity) {
     var homeProvider = Provider.of<HomePageProvider>(context);
+    // TODO: There is weird flicker when coming back from swiping
     return Hero(
       tag: 'meme$index',
       child: ClipRRect(
