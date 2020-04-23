@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:dotmeme/providers/home_page_provider.dart';
@@ -79,9 +78,9 @@ class SwipingPage extends StatelessWidget {
                   },
                   gaplessPlayback: true,
                 )
-              : Image.memory(
-                  startThumbnail,
-                  fit: BoxFit.contain,
+              : _loadingWidget(
+                  index,
+                  assetEntity,
                 ),
         ),
       );
