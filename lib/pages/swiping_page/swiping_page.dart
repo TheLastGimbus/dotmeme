@@ -21,26 +21,6 @@ class SwipingPage extends StatelessWidget {
   final int startIndex;
   final Uint8List startThumbnail;
 
-  PhotoViewGalleryPageOptions _photoViewPage(int index, String assetPath) =>
-      PhotoViewGalleryPageOptions(
-        imageProvider: AssetImage(assetPath),
-        minScale: PhotoViewComputedScale.contained,
-        maxScale: 50.0,
-        scaleStateCycle: (scaleState) {
-          print('ScaleState: $scaleState');
-          if (scaleState == PhotoViewScaleState.initial) {
-            return PhotoViewScaleState.covering;
-          } else {
-            return PhotoViewScaleState.initial;
-          }
-        },
-        // User is at control ;)
-        heroAttributes: PhotoViewHeroAttributes(
-          tag: 'meme$index',
-          transitionOnUserGestures: true,
-        ),
-      );
-
   Future<Uint8List> _loadAssetToMemory(AssetEntity asset) async {
     var file = await asset.file;
     var bytes = await file.readAsBytes();
