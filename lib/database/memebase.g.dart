@@ -1,0 +1,220 @@
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
+part of 'memebase.dart';
+
+// **************************************************************************
+// MoorGenerator
+// **************************************************************************
+
+// ignore_for_file: unnecessary_brace_in_string_interps, unnecessary_this
+class Meme extends DataClass implements Insertable<Meme> {
+  final String id;
+  final String folderId;
+  final String scannedText;
+  Meme({@required this.id, @required this.folderId, this.scannedText});
+  factory Meme.fromData(Map<String, dynamic> data, GeneratedDatabase db,
+      {String prefix}) {
+    final effectivePrefix = prefix ?? '';
+    final stringType = db.typeSystem.forDartType<String>();
+    return Meme(
+      id: stringType.mapFromDatabaseResponse(data['${effectivePrefix}id']),
+      folderId: stringType
+          .mapFromDatabaseResponse(data['${effectivePrefix}folder_id']),
+      scannedText:
+          stringType.mapFromDatabaseResponse(data['${effectivePrefix}text']),
+    );
+  }
+  factory Meme.fromJson(Map<String, dynamic> json,
+      {ValueSerializer serializer}) {
+    serializer ??= moorRuntimeOptions.defaultSerializer;
+    return Meme(
+      id: serializer.fromJson<String>(json['id']),
+      folderId: serializer.fromJson<String>(json['folderId']),
+      scannedText: serializer.fromJson<String>(json['scannedText']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer serializer}) {
+    serializer ??= moorRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'folderId': serializer.toJson<String>(folderId),
+      'scannedText': serializer.toJson<String>(scannedText),
+    };
+  }
+
+  @override
+  MemesCompanion createCompanion(bool nullToAbsent) {
+    return MemesCompanion(
+      id: id == null && nullToAbsent ? const Value.absent() : Value(id),
+      folderId: folderId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(folderId),
+      scannedText: scannedText == null && nullToAbsent
+          ? const Value.absent()
+          : Value(scannedText),
+    );
+  }
+
+  Meme copyWith({String id, String folderId, String scannedText}) => Meme(
+        id: id ?? this.id,
+        folderId: folderId ?? this.folderId,
+        scannedText: scannedText ?? this.scannedText,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('Meme(')
+          ..write('id: $id, ')
+          ..write('folderId: $folderId, ')
+          ..write('scannedText: $scannedText')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      $mrjf($mrjc(id.hashCode, $mrjc(folderId.hashCode, scannedText.hashCode)));
+  @override
+  bool operator ==(dynamic other) =>
+      identical(this, other) ||
+      (other is Meme &&
+          other.id == this.id &&
+          other.folderId == this.folderId &&
+          other.scannedText == this.scannedText);
+}
+
+class MemesCompanion extends UpdateCompanion<Meme> {
+  final Value<String> id;
+  final Value<String> folderId;
+  final Value<String> scannedText;
+  const MemesCompanion({
+    this.id = const Value.absent(),
+    this.folderId = const Value.absent(),
+    this.scannedText = const Value.absent(),
+  });
+  MemesCompanion.insert({
+    @required String id,
+    @required String folderId,
+    this.scannedText = const Value.absent(),
+  })  : id = Value(id),
+        folderId = Value(folderId);
+  MemesCompanion copyWith(
+      {Value<String> id, Value<String> folderId, Value<String> scannedText}) {
+    return MemesCompanion(
+      id: id ?? this.id,
+      folderId: folderId ?? this.folderId,
+      scannedText: scannedText ?? this.scannedText,
+    );
+  }
+}
+
+class $MemesTable extends Memes with TableInfo<$MemesTable, Meme> {
+  final GeneratedDatabase _db;
+  final String _alias;
+  $MemesTable(this._db, [this._alias]);
+  final VerificationMeta _idMeta = const VerificationMeta('id');
+  GeneratedTextColumn _id;
+  @override
+  GeneratedTextColumn get id => _id ??= _constructId();
+  GeneratedTextColumn _constructId() {
+    return GeneratedTextColumn(
+      'id',
+      $tableName,
+      false,
+    );
+  }
+
+  final VerificationMeta _folderIdMeta = const VerificationMeta('folderId');
+  GeneratedTextColumn _folderId;
+  @override
+  GeneratedTextColumn get folderId => _folderId ??= _constructFolderId();
+  GeneratedTextColumn _constructFolderId() {
+    return GeneratedTextColumn(
+      'folder_id',
+      $tableName,
+      false,
+    );
+  }
+
+  final VerificationMeta _scannedTextMeta =
+      const VerificationMeta('scannedText');
+  GeneratedTextColumn _scannedText;
+  @override
+  GeneratedTextColumn get scannedText =>
+      _scannedText ??= _constructScannedText();
+  GeneratedTextColumn _constructScannedText() {
+    return GeneratedTextColumn(
+      'text',
+      $tableName,
+      true,
+    );
+  }
+
+  @override
+  List<GeneratedColumn> get $columns => [id, folderId, scannedText];
+  @override
+  $MemesTable get asDslTable => this;
+  @override
+  String get $tableName => _alias ?? 'memes';
+  @override
+  final String actualTableName = 'memes';
+  @override
+  VerificationContext validateIntegrity(MemesCompanion d,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    if (d.id.present) {
+      context.handle(_idMeta, id.isAcceptableValue(d.id.value, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (d.folderId.present) {
+      context.handle(_folderIdMeta,
+          folderId.isAcceptableValue(d.folderId.value, _folderIdMeta));
+    } else if (isInserting) {
+      context.missing(_folderIdMeta);
+    }
+    if (d.scannedText.present) {
+      context.handle(_scannedTextMeta,
+          scannedText.isAcceptableValue(d.scannedText.value, _scannedTextMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => <GeneratedColumn>{};
+  @override
+  Meme map(Map<String, dynamic> data, {String tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
+    return Meme.fromData(data, _db, prefix: effectivePrefix);
+  }
+
+  @override
+  Map<String, Variable> entityToSql(MemesCompanion d) {
+    final map = <String, Variable>{};
+    if (d.id.present) {
+      map['id'] = Variable<String, StringType>(d.id.value);
+    }
+    if (d.folderId.present) {
+      map['folder_id'] = Variable<String, StringType>(d.folderId.value);
+    }
+    if (d.scannedText.present) {
+      map['text'] = Variable<String, StringType>(d.scannedText.value);
+    }
+    return map;
+  }
+
+  @override
+  $MemesTable createAlias(String alias) {
+    return $MemesTable(_db, alias);
+  }
+}
+
+abstract class _$Memebase extends GeneratedDatabase {
+  _$Memebase(QueryExecutor e) : super(SqlTypeSystem.defaultInstance, e);
+  $MemesTable _memes;
+  $MemesTable get memes => _memes ??= $MemesTable(this);
+  @override
+  Iterable<TableInfo> get allTables => allSchemaEntities.whereType<TableInfo>();
+  @override
+  List<DatabaseSchemaEntity> get allSchemaEntities => [memes];
+}
