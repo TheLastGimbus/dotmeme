@@ -18,7 +18,13 @@ class Memes extends Table {
   TextColumn get scannedText => text().named('text').nullable()();
 }
 
-@UseMoor(tables: [Memes])
+class Folders extends Table {
+  TextColumn get id => text()();
+
+  BoolColumn get scanningEnabled => boolean()();
+}
+
+@UseMoor(tables: [Folders, Memes])
 class Memebase extends _$Memebase {
   static const DB_FILE_NAME = 'memebase.sqlite';
 
