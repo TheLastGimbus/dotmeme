@@ -33,6 +33,12 @@ class _HomePageState extends State<HomePage> {
               onTap: () {
                 Navigator.of(context).pushNamed('/testing_page');
               },
+            ),
+            ListTile(
+              title: Text('Settings'),
+              onTap: (){
+                Navigator.of(context).pushNamed('/settings_page');
+              },
             )
           ],
         ),
