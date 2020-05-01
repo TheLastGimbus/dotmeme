@@ -19,6 +19,36 @@ class FoldersSettingsPage extends StatelessWidget {
     return names;
   }
 
+  AlertDialog _tooltipDialog() => AlertDialog(
+        title: Text('Folders settings'),
+        content: Text(
+          'Select which folders have memes. '
+          'Memes in those folders will show on main screen, '
+          'and will be scanned, so you can search through them. \n\n'
+          'DO NOT select your Camera folder here - it will only '
+          'waste space on home screen, and time on scanning.',
+        ),
+      );
+
+  AlertDialog _cameraWarningDialog({Function(bool) onContinue}) => AlertDialog(
+        title: Text('Are you sure?'),
+        content: Text(
+          'Camera folder contains photos - not memes. '
+          'They will take very long to scan, '
+          'and will make browsing memes less fun :(',
+        ),
+        actions: <Widget>[
+          FlatButton(
+            child: Text("Yup, I'm sure"),
+            onPressed: () => onContinue(true),
+          ),
+          RaisedButton(
+            child: Text('Hell no!'),
+            onPressed: () => onContinue(false),
+          ),
+        ],
+      );
+
   Widget _foldersListView(MemesProvider memesProvider, List<Folder> folders) =>
       FutureBuilder(
         future: _loadNames(),
@@ -29,7 +59,24 @@ class FoldersSettingsPage extends StatelessWidget {
                     title: Text(
                         snapshot.hasData ? snapshot.data[folder.id] : '...'),
                     onChanged: (enabled) {
-                      memesProvider.setFolderSyncEnabled(folder, enabled);
+                      if (snapshot.hasData &&
+                          enabled &&
+                          snapshot.data[folder.id] == "Camera") {
+                        showDialog(
+                          context: context,
+                          barrierDismissible: false,
+                          builder: (context) => _cameraWarningDialog(
+                            onContinue: (userAgreed) {
+                              Navigator.of(context).pop();
+                              if (userAgreed)
+                                memesProvider.setFolderSyncEnabled(
+                                    folder, enabled);
+                            },
+                          ),
+                        );
+                      } else {
+                        memesProvider.setFolderSyncEnabled(folder, enabled);
+                      }
                     },
                   ))
               .toList(),
@@ -47,18 +94,9 @@ class FoldersSettingsPage extends StatelessWidget {
             icon: Icon(Icons.help_outline),
             onPressed: () => showDialog(
               context: context,
-              builder: (context) => AlertDialog(
-                title: Text('Folders settings'),
-                content: Text(
-                  'Select which folders have memes. '
-                  'Memes in those folders will show on main screen, '
-                  'and will be scanned, so you can search through them. \n\n'
-                  'DO NOT select your Camera folder here - it will only '
-                  "waste space on home screen, and time on scanning.",
-                ),
-              ),
+              builder: (context) => _tooltipDialog(),
             ),
-          )
+          ),
         ],
       ),
       body: Center(
