@@ -11,17 +11,23 @@ part 'memebase.g.dart';
 /// This provides easy way to tell if certain field was scanned or not,
 /// without some dumb "wasScanned" booleans.
 class Memes extends Table {
-  TextColumn get id => text()();
+  TextColumn get id => text().customConstraint("UNIQUE")();
 
   TextColumn get folderId => text()();
 
   TextColumn get scannedText => text().named('text').nullable()();
+
+  @override
+  Set<Column> get primaryKey => {id};
 }
 
 class Folders extends Table {
-  TextColumn get id => text()();
+  TextColumn get id => text().customConstraint("UNIQUE")();
 
   BoolColumn get scanningEnabled => boolean()();
+
+  @override
+  Set<Column> get primaryKey => {id};
 }
 
 @UseMoor(tables: [Folders, Memes])

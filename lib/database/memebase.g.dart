@@ -7,6 +7,173 @@ part of 'memebase.dart';
 // **************************************************************************
 
 // ignore_for_file: unnecessary_brace_in_string_interps, unnecessary_this
+class Folder extends DataClass implements Insertable<Folder> {
+  final String id;
+  final bool scanningEnabled;
+  Folder({@required this.id, @required this.scanningEnabled});
+  factory Folder.fromData(Map<String, dynamic> data, GeneratedDatabase db,
+      {String prefix}) {
+    final effectivePrefix = prefix ?? '';
+    final stringType = db.typeSystem.forDartType<String>();
+    final boolType = db.typeSystem.forDartType<bool>();
+    return Folder(
+      id: stringType.mapFromDatabaseResponse(data['${effectivePrefix}id']),
+      scanningEnabled: boolType
+          .mapFromDatabaseResponse(data['${effectivePrefix}scanning_enabled']),
+    );
+  }
+  factory Folder.fromJson(Map<String, dynamic> json,
+      {ValueSerializer serializer}) {
+    serializer ??= moorRuntimeOptions.defaultSerializer;
+    return Folder(
+      id: serializer.fromJson<String>(json['id']),
+      scanningEnabled: serializer.fromJson<bool>(json['scanningEnabled']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer serializer}) {
+    serializer ??= moorRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'scanningEnabled': serializer.toJson<bool>(scanningEnabled),
+    };
+  }
+
+  @override
+  FoldersCompanion createCompanion(bool nullToAbsent) {
+    return FoldersCompanion(
+      id: id == null && nullToAbsent ? const Value.absent() : Value(id),
+      scanningEnabled: scanningEnabled == null && nullToAbsent
+          ? const Value.absent()
+          : Value(scanningEnabled),
+    );
+  }
+
+  Folder copyWith({String id, bool scanningEnabled}) => Folder(
+        id: id ?? this.id,
+        scanningEnabled: scanningEnabled ?? this.scanningEnabled,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('Folder(')
+          ..write('id: $id, ')
+          ..write('scanningEnabled: $scanningEnabled')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => $mrjf($mrjc(id.hashCode, scanningEnabled.hashCode));
+  @override
+  bool operator ==(dynamic other) =>
+      identical(this, other) ||
+      (other is Folder &&
+          other.id == this.id &&
+          other.scanningEnabled == this.scanningEnabled);
+}
+
+class FoldersCompanion extends UpdateCompanion<Folder> {
+  final Value<String> id;
+  final Value<bool> scanningEnabled;
+  const FoldersCompanion({
+    this.id = const Value.absent(),
+    this.scanningEnabled = const Value.absent(),
+  });
+  FoldersCompanion.insert({
+    @required String id,
+    @required bool scanningEnabled,
+  })  : id = Value(id),
+        scanningEnabled = Value(scanningEnabled);
+  FoldersCompanion copyWith({Value<String> id, Value<bool> scanningEnabled}) {
+    return FoldersCompanion(
+      id: id ?? this.id,
+      scanningEnabled: scanningEnabled ?? this.scanningEnabled,
+    );
+  }
+}
+
+class $FoldersTable extends Folders with TableInfo<$FoldersTable, Folder> {
+  final GeneratedDatabase _db;
+  final String _alias;
+  $FoldersTable(this._db, [this._alias]);
+  final VerificationMeta _idMeta = const VerificationMeta('id');
+  GeneratedTextColumn _id;
+  @override
+  GeneratedTextColumn get id => _id ??= _constructId();
+  GeneratedTextColumn _constructId() {
+    return GeneratedTextColumn('id', $tableName, false,
+        $customConstraints: 'UNIQUE');
+  }
+
+  final VerificationMeta _scanningEnabledMeta =
+      const VerificationMeta('scanningEnabled');
+  GeneratedBoolColumn _scanningEnabled;
+  @override
+  GeneratedBoolColumn get scanningEnabled =>
+      _scanningEnabled ??= _constructScanningEnabled();
+  GeneratedBoolColumn _constructScanningEnabled() {
+    return GeneratedBoolColumn(
+      'scanning_enabled',
+      $tableName,
+      false,
+    );
+  }
+
+  @override
+  List<GeneratedColumn> get $columns => [id, scanningEnabled];
+  @override
+  $FoldersTable get asDslTable => this;
+  @override
+  String get $tableName => _alias ?? 'folders';
+  @override
+  final String actualTableName = 'folders';
+  @override
+  VerificationContext validateIntegrity(FoldersCompanion d,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    if (d.id.present) {
+      context.handle(_idMeta, id.isAcceptableValue(d.id.value, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (d.scanningEnabled.present) {
+      context.handle(
+          _scanningEnabledMeta,
+          scanningEnabled.isAcceptableValue(
+              d.scanningEnabled.value, _scanningEnabledMeta));
+    } else if (isInserting) {
+      context.missing(_scanningEnabledMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  Folder map(Map<String, dynamic> data, {String tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
+    return Folder.fromData(data, _db, prefix: effectivePrefix);
+  }
+
+  @override
+  Map<String, Variable> entityToSql(FoldersCompanion d) {
+    final map = <String, Variable>{};
+    if (d.id.present) {
+      map['id'] = Variable<String, StringType>(d.id.value);
+    }
+    if (d.scanningEnabled.present) {
+      map['scanning_enabled'] =
+          Variable<bool, BoolType>(d.scanningEnabled.value);
+    }
+    return map;
+  }
+
+  @override
+  $FoldersTable createAlias(String alias) {
+    return $FoldersTable(_db, alias);
+  }
+}
+
 class Meme extends DataClass implements Insertable<Meme> {
   final String id;
   final String folderId;
@@ -117,11 +284,8 @@ class $MemesTable extends Memes with TableInfo<$MemesTable, Meme> {
   @override
   GeneratedTextColumn get id => _id ??= _constructId();
   GeneratedTextColumn _constructId() {
-    return GeneratedTextColumn(
-      'id',
-      $tableName,
-      false,
-    );
+    return GeneratedTextColumn('id', $tableName, false,
+        $customConstraints: 'UNIQUE');
   }
 
   final VerificationMeta _folderIdMeta = const VerificationMeta('folderId');
@@ -181,7 +345,7 @@ class $MemesTable extends Memes with TableInfo<$MemesTable, Meme> {
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => <GeneratedColumn>{};
+  Set<GeneratedColumn> get $primaryKey => {id};
   @override
   Meme map(Map<String, dynamic> data, {String tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
@@ -211,10 +375,12 @@ class $MemesTable extends Memes with TableInfo<$MemesTable, Meme> {
 
 abstract class _$Memebase extends GeneratedDatabase {
   _$Memebase(QueryExecutor e) : super(SqlTypeSystem.defaultInstance, e);
+  $FoldersTable _folders;
+  $FoldersTable get folders => _folders ??= $FoldersTable(this);
   $MemesTable _memes;
   $MemesTable get memes => _memes ??= $MemesTable(this);
   @override
   Iterable<TableInfo> get allTables => allSchemaEntities.whereType<TableInfo>();
   @override
-  List<DatabaseSchemaEntity> get allSchemaEntities => [memes];
+  List<DatabaseSchemaEntity> get allSchemaEntities => [folders, memes];
 }
