@@ -1,4 +1,5 @@
 import 'package:dotmeme/pages/home_page/home_page.dart';
+import 'package:dotmeme/pages/settings_page/settings_page.dart';
 import 'package:dotmeme/pages/swiping_page/swiping_page.dart';
 import 'package:dotmeme/pages/testing_page/testing_page.dart';
 import 'package:flutter/material.dart';
@@ -22,6 +23,8 @@ class RouteGenerator {
             : _errorRoute();
       case '/testing_page':
         return MaterialPageRoute(builder: (_) => TestingPage());
+      case '/settings_page':
+        return MaterialPageRoute(builder: (_) => SettingsPage());
 
       default:
         return _errorRoute();
