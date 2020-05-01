@@ -43,4 +43,19 @@ class Memebase extends _$Memebase {
 
   @override
   int get schemaVersion => 1;
+
+  Future createFolder(FoldersCompanion folder, {bool ignoreFail = false}) {
+    return into(folders).insert(
+      folder,
+      mode: ignoreFail ? InsertMode.insertOrIgnore : InsertMode.insert,
+    );
+  }
+
+  Future deleteFolder(FoldersCompanion folder) {
+    return delete(folders).delete(folder);
+  }
+
+  Future<List<Meme>> get getAllMemes => select(memes).get();
+
+  Future<List<Folder>> get getAllFolders => select(folders).get();
 }
