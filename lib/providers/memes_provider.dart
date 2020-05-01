@@ -21,6 +21,7 @@ class MemesProvider with ChangeNotifier {
 
   Future<List<AssetEntity>> get getAllMemes async {
     await syncFolders();
+    await syncMemes();
     var dbMemes = await db.getAllMemes;
     List<AssetEntity> memes = [];
     for (var meme in dbMemes) memes.add(await AssetEntity.fromId(meme.id));
@@ -35,7 +36,7 @@ class MemesProvider with ChangeNotifier {
     );
     for (AssetPathEntity fol in folders) {
       try {
-        db.createFolder(
+        db.addFolder(
             FoldersCompanion.insert(
               id: fol.id,
               scanningEnabled: false,
@@ -52,7 +53,37 @@ class MemesProvider with ChangeNotifier {
     }
 
     log('Folders sync finished in ${watch.elapsedMilliseconds}ms');
-    log("Folders: ${await db.getAllFolders}");
+  }
+
+  // THIS. DOESN'T. WORK
+  // Shit. I need to find some other way around this :///
+  Future syncMemes() async {
+    var watch = Stopwatch()..start();
+    var assFolders = await PhotoManager.getAssetPathList(
+      hasAll: false,
+      type: RequestType.image,
+    );
+    var dbfolders = await db.getAllFolders;
+    dbfolders.removeWhere((fol) => !fol.scanningEnabled);
+    var scanned = dbfolders.map((fol) => fol.id);
+    for (var fold in assFolders) {
+      if (scanned.contains(fold.id)) {
+        var assets = await fold.assetList;
+        assets.forEach(
+          (ass) async => await db.addMeme(
+            MemesCompanion.insert(id: ass.id, folderId: fold.id),
+            ignoreFail: true,
+          ),
+        );
+      }
+      for (var meme in await db.getAllMemes) {
+        if (!scanned.contains(meme.folderId)) {
+          db.deleteMeme(meme.createCompanion(false));
+        }
+      }
+    }
+
+    log('Memes sync finished in ${watch.elapsedMilliseconds}ms');
   }
 
   Future setFolderSyncEnabled(Folder folder, bool enabled) async {

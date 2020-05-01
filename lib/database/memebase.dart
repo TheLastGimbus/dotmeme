@@ -44,7 +44,7 @@ class Memebase extends _$Memebase {
   @override
   int get schemaVersion => 1;
 
-  Future createFolder(FoldersCompanion folder, {bool ignoreFail = false}) =>
+  Future addFolder(FoldersCompanion folder, {bool ignoreFail = false}) =>
       into(folders).insert(
         folder,
         mode: ignoreFail ? InsertMode.insertOrIgnore : InsertMode.insert,
@@ -57,6 +57,14 @@ class Memebase extends _$Memebase {
       update(folders).replace(folder);
 
   Future<List<Meme>> get getAllMemes => select(memes).get();
+
+  Future addMeme(MemesCompanion meme, {bool ignoreFail = false}) =>
+      into(memes).insert(
+        meme,
+        mode: ignoreFail ? InsertMode.insertOrIgnore : InsertMode.insert,
+      );
+
+  Future deleteMeme(MemesCompanion meme) => delete(memes).delete(meme);
 
   Future<List<Folder>> get getAllFolders => select(folders).get();
 }
