@@ -10,6 +10,7 @@ class SettingsPage extends StatelessWidget {
           children: <Widget>[
             ListTile(
               title: Text('Folders settings'),
+              subtitle: Text('Which folders contain memes'),
               onTap: () {
                 Navigator.of(context)
                     .pushNamed('/settings_page/folders_settings_page');

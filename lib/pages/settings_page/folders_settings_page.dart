@@ -42,6 +42,24 @@ class FoldersSettingsPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('Folders'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.help_outline),
+            onPressed: () => showDialog(
+              context: context,
+              builder: (context) => AlertDialog(
+                title: Text('Folders settings'),
+                content: Text(
+                  'Select which folders have memes. '
+                  'Memes in those folders will show on main screen, '
+                  'and will be scanned, so you can search through them. \n\n'
+                  'DO NOT select your Camera folder here - it will only '
+                  "waste space on home screen, and time on scanning.",
+                ),
+              ),
+            ),
+          )
+        ],
       ),
       body: Center(
         child: FutureBuilder(
