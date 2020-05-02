@@ -42,6 +42,12 @@ class _TestingPageState extends State<TestingPage> {
                 },
               ),
               RaisedButton(
+                child: Text('Test getAllMemes'),
+                onPressed: (){
+                  memesProvider.getAllMemes;
+                },
+              ),
+              RaisedButton(
                 child: Text('Pick image'),
                 onPressed: () {
                   FilePicker.getFilePath(type: FileType.image).then((path) {
