@@ -27,7 +27,7 @@ dependencies:
   tesseract_ocr: ^0.3.0
 
   file_picker: ^1.6.2
-  photo_manager: 0.5.1-dev.8
+  photo_manager: 0.5.1-dev.9
   path_provider: ^1.6.2
 
   provider: ^4.0.5

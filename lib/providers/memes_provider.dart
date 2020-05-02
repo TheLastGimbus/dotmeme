@@ -45,7 +45,7 @@ class MemesProvider with ChangeNotifier {
     );
     for (AssetPathEntity fol in folders) {
       try {
-        log('Folder: ${fol.name}, id: ${fol.id}, id to int: ${int.parse(fol.id)}');
+        print('Folder: ${fol.name}, id: ${fol.id}, id to int: ${int.parse(fol.id)}');
         db.addFolder(
             FoldersCompanion.insert(
               id: int.parse(fol.id),
@@ -54,7 +54,7 @@ class MemesProvider with ChangeNotifier {
             ignoreFail: true);
       } on SqliteException catch (e) {
         // Already exists
-        log("Folder ${fol.name} already exists");
+        print("Folder ${fol.name} already exists");
       }
     }
     for (Folder fol in await db.getAllFolders) {
@@ -63,30 +63,30 @@ class MemesProvider with ChangeNotifier {
       }
     }
 
-    log('Folders sync finished in ${watch.elapsedMilliseconds}ms');
+    print('Folders sync finished in ${watch.elapsedMilliseconds}ms');
   }
 
   // THIS. DOESN'T. WORK
   // Shit. I need to find some other way around this :///
   Future syncMemes() async {
     var watch = Stopwatch()..start();
-    var assFolders = await PhotoManager.getAssetPathList(
-      hasAll: false,
-      type: RequestType.image,
-    );
-    log("Getting asset paths took ${watch.elapsedMilliseconds}ms");
     var dbFolders = await db.getAllFoldersEnabled;
     var dbFoldersIds = dbFolders.map((f) => f.id);
-    log("Getting all folders ids took ${watch.elapsedMilliseconds}ms");
-    assFolders.removeWhere((f) => !dbFoldersIds.contains(f.id));
-    log("Removing not scannable asses took ${watch.elapsedMilliseconds}ms");
-    var assMemes = List<AssetEntity>();
-    for (var assFolder in assFolders) {
-      assMemes.addAll(await assFolder.assetList);
+    for (var folderId in dbFoldersIds) {
+      var watch = Stopwatch()..start();
+      var assFolder = await AssetPathEntity.fromId(folderId.toString());
+      print("Getting ${assFolder.name} assFolder took ${watch.elapsedMilliseconds}ms");
+      watch.reset();
+      for (var assMeme in await assFolder.assetList) {
+        db.addMeme(MemesCompanion.insert(
+          id: int.parse(assMeme.id),
+          folderId: int.parse(assFolder.id),
+        ), ignoreFail: true);
+      }
+      print("Getting ${assFolder.name} all asses took ${watch.elapsedMilliseconds}ms");
     }
-    log("Getting memes to list took ${watch.elapsedMilliseconds}ms");
 
-    log('Memes sync finished in ${watch.elapsedMilliseconds}ms');
+    print('Memes sync finished in ${watch.elapsedMilliseconds}ms');
   }
 
   Future setFolderSyncEnabled(Folder folder, bool enabled) async {
