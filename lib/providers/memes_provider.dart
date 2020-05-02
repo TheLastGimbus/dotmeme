@@ -1,6 +1,4 @@
 // This provider keeps sync of all memes list
-import 'dart:developer';
-
 import 'package:dotmeme/database/memebase.dart';
 import 'package:flutter/widgets.dart';
 import 'package:moor/moor.dart';
@@ -19,7 +17,7 @@ class MemesProvider with ChangeNotifier {
 
   Future<List<Folder>> get getAllFolders => db.getAllFolders;
 
-  Future<List<AssetEntity>> get getAllMemes async {
+  Future<List<Meme>> get getAllMemes async {
     var watch = Stopwatch()..start();
     //await syncFolders();
     //await syncMemes();
@@ -28,13 +26,8 @@ class MemesProvider with ChangeNotifier {
     //  memes.add(await AssetEntity.fromId(meme.id.toString()));
 
     var allMemes = await db.getAllMemes;
-    print("Getting memes from db took ${watch.elapsedMilliseconds}ms");
-    var allAssMemes = List<AssetEntity>();
-    for (var meme in allMemes) {
-      allAssMemes.add(await AssetEntity.fromId(meme.id.toString()));
-    }
     print("Getting all memes took ${watch.elapsedMilliseconds}ms");
-    return allAssMemes;
+    return allMemes;
   }
 
   Future syncFolders() async {

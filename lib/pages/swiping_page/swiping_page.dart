@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'package:dotmeme/database/memebase.dart';
 import 'package:dotmeme/providers/home_page_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -21,13 +22,19 @@ class SwipingPage extends StatelessWidget {
   final int startIndex;
   final Uint8List startThumbnail;
 
-  Future<Uint8List> _loadAssetToMemory(AssetEntity asset) async {
+  Future<Uint8List> _loadMemeToMemory(Meme meme) async {
+    var asset = await AssetEntity.fromId(meme.id.toString());
     var file = await asset.file;
     var bytes = await file.readAsBytes();
     return bytes;
   }
 
-  Widget _loadingWidget(int index, AssetEntity assetEntity) =>
+  Future<Uint8List> _getMemeThumbnail(Meme meme) async {
+    var asset = await AssetEntity.fromId(meme.id.toString());
+    return await asset.thumbData;
+  }
+
+  Widget _loadingWidget(int index, Meme meme) =>
       index == startIndex
           ? Image.memory(
               startThumbnail,
@@ -35,7 +42,7 @@ class SwipingPage extends StatelessWidget {
               gaplessPlayback: true,
             )
           : FutureBuilder(
-              future: assetEntity.thumbData,
+              future: _loadMemeToMemory(meme),
               builder: (context, snapshot) => snapshot.hasData
                   ? Image.memory(
                       snapshot.data,
@@ -48,15 +55,15 @@ class SwipingPage extends StatelessWidget {
   // TODO: When page is not *fully* swiped, two heroes fly on screen :/
   // This also sometimes happens when opening end closing
   // *some* images (random?), even if not swiped.
-  Widget _pageWidget(int index, AssetEntity assetEntity) => FutureBuilder(
-        future: _loadAssetToMemory(assetEntity),
+  Widget _pageWidget(int index, Meme meme) => FutureBuilder(
+        future: _loadMemeToMemory(meme),
         builder: (context, AsyncSnapshot<Uint8List> snapshot) => Hero(
           tag: 'meme$index',
           child: snapshot.hasData
               ? PhotoView(
                   imageProvider: MemoryImage(snapshot.data),
                   loadingBuilder: (ctx, event) =>
-                      _loadingWidget(index, assetEntity),
+                      _loadingWidget(index, meme),
                   minScale: PhotoViewComputedScale.contained,
                   maxScale: 50.0,
                   scaleStateCycle: (scaleState) {
@@ -71,7 +78,7 @@ class SwipingPage extends StatelessWidget {
                 )
               : _loadingWidget(
                   index,
-                  assetEntity,
+                  meme,
                 ),
         ),
       );
