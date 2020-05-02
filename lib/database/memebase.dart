@@ -58,6 +58,10 @@ class Memebase extends _$Memebase {
 
   Future<List<Meme>> get getAllMemes => select(memes).get();
 
+  Future<List<Meme>> getAllMemesFromFolder(int folderId) {
+    return (select(memes)..where((m) => m.folderId.equals(folderId))).get();
+  }
+
   Future addMeme(MemesCompanion meme, {bool ignoreFail = false}) =>
       into(memes).insert(
         meme,
@@ -66,8 +70,14 @@ class Memebase extends _$Memebase {
 
   Future deleteMeme(MemesCompanion meme) => delete(memes).delete(meme);
 
+  Future deleteAllMemesFromFolder(int folderId) =>
+      (delete(memes)..where((m) => m.folderId.equals(folderId))).go();
+
   Future<List<Folder>> get getAllFolders => select(folders).get();
 
   Future<List<Folder>> get getAllFoldersEnabled =>
       (select(folders)..where((f) => f.scanningEnabled)).get();
+
+  Future<List<Folder>> get getAllFoldersDisabled =>
+      (select(folders)..where((f) => f.scanningEnabled.not())).get();
 }

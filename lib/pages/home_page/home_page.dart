@@ -21,11 +21,6 @@ class _HomePageState extends State<HomePage> {
       var homeProvider = Provider.of<HomePageProvider>(context, listen: false);
       var memesProvider = Provider.of<MemesProvider>(context, listen: false);
       memesProvider.getAllMemes.then((memes) => homeProvider.memesList = memes);
-
-      memesProvider.addListener(() {
-        memesProvider.getAllMemes
-            .then((memes) => homeProvider.memesList = memes);
-      });
     });
   }
 

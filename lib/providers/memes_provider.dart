@@ -30,6 +30,7 @@ class MemesProvider with ChangeNotifier {
     return allMemes;
   }
 
+  // TODO: THIS
   Future syncFolders() async {
     final watch = Stopwatch()..start();
     var folders = await PhotoManager.getAssetPathList(
@@ -38,7 +39,6 @@ class MemesProvider with ChangeNotifier {
     );
     for (AssetPathEntity fol in folders) {
       try {
-        print('Folder: ${fol.name}, id: ${fol.id}, id to int: ${int.parse(fol.id)}');
         db.addFolder(
             FoldersCompanion.insert(
               id: int.parse(fol.id),
@@ -61,22 +61,36 @@ class MemesProvider with ChangeNotifier {
 
   // THIS. DOESN'T. WORK
   // Shit. I need to find some other way around this :///
+  // TODO: THIS
   Future syncMemes() async {
     var watch = Stopwatch()..start();
-    var dbFolders = await db.getAllFoldersEnabled;
-    var dbFoldersIds = dbFolders.map((f) => f.id);
+    var dbFoldersIds = (await db.getAllFoldersEnabled).map((f) => f.id);
     for (var folderId in dbFoldersIds) {
-      var watch = Stopwatch()..start();
       var assFolder = await AssetPathEntity.fromId(folderId.toString());
-      print("Getting ${assFolder.name} assFolder took ${watch.elapsedMilliseconds}ms");
-      watch.reset();
-      for (var assMeme in await assFolder.assetList) {
-        db.addMeme(MemesCompanion.insert(
-          id: int.parse(assMeme.id),
-          folderId: int.parse(assFolder.id),
-        ), ignoreFail: true);
+      var allAssMemesIds =
+          (await assFolder.assetList).map((f) => int.parse(f.id));
+      for (var assId in allAssMemesIds) {
+        try {
+          db.addMeme(
+              MemesCompanion.insert(
+                id: assId,
+                folderId: int.parse(assFolder.id),
+              ),
+              ignoreFail: true);
+        } on SqliteException catch (e) {}
       }
-      print("Getting ${assFolder.name} all asses took ${watch.elapsedMilliseconds}ms");
+
+      var allDbMemesIds =
+          (await db.getAllMemesFromFolder(int.parse(assFolder.id)))
+              .map((m) => m.folderId);
+      for (var id in allDbMemesIds) {
+        if (!allAssMemesIds.contains(id)) {
+          db.deleteMeme(MemesCompanion(id: Value(id)));
+        }
+      }
+    }
+    for(var folder in await db.getAllFoldersDisabled){
+      db.deleteAllMemesFromFolder(folder.id);
     }
 
     print('Memes sync finished in ${watch.elapsedMilliseconds}ms');
