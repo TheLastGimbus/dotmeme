@@ -62,7 +62,13 @@ class MemesGridView extends StatelessWidget {
                   color: Theme.of(context).primaryColorLight.withOpacity(0.5))
               : BoxDecoration(),
           padding: EdgeInsets.all(selected ? 12 : 3),
-          child: _memeThumbnail(context, index, homeProvider.memesList[index]),
+          child: FutureBuilder(
+            future:
+                AssetEntity.fromId(homeProvider.memesList[index].id.toString()),
+            builder: (ctx, snapshot) => snapshot.hasData
+                ? _memeThumbnail(context, index, snapshot.data)
+                : SizedBox(),
+          ),
         );
       },
     ));
