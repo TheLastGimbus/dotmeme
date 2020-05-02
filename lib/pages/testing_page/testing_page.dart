@@ -36,9 +36,9 @@ class _TestingPageState extends State<TestingPage> {
             children: <Widget>[
               RaisedButton(
                 child: Text('Test sync'),
-                onPressed: (){
-                  memesProvider.syncFolders();
-                  memesProvider.syncMemes();
+                onPressed: () async {
+                  await memesProvider.syncFolders();
+                  await memesProvider.syncMemes();
                 },
               ),
               RaisedButton(
