@@ -24,7 +24,7 @@ class MemesProvider with ChangeNotifier {
     await syncMemes();
     var dbMemes = await db.getAllMemes;
     List<AssetEntity> memes = [];
-    for (var meme in dbMemes) memes.add(await AssetEntity.fromId(meme.id));
+    for (var meme in dbMemes) memes.add(await AssetEntity.fromId(meme.id.toString()));
     return memes;
   }
 
@@ -36,18 +36,20 @@ class MemesProvider with ChangeNotifier {
     );
     for (AssetPathEntity fol in folders) {
       try {
+        log('Folder: ${fol.name}, id: ${fol.id}, id to int: ${int.parse(fol.id)}');
         db.addFolder(
             FoldersCompanion.insert(
-              id: fol.id,
+              id: int.parse(fol.id),
               scanningEnabled: false,
             ),
             ignoreFail: true);
       } on SqliteException catch (e) {
         // Already exists
+        log("Folder ${fol.name} already exists");
       }
     }
     for (Folder fol in await db.getAllFolders) {
-      if (!folders.map((f) => f.id).contains(fol.id)) {
+      if (!folders.map((f) => int.parse(f.id)).contains(fol.id)) {
         db.deleteFolder(fol.createCompanion(false));
       }
     }
@@ -65,19 +67,21 @@ class MemesProvider with ChangeNotifier {
     );
     var dbfolders = await db.getAllFolders;
     dbfolders.removeWhere((fol) => !fol.scanningEnabled);
-    var scanned = dbfolders.map((fol) => fol.id);
+    var enabledFoldersDb = dbfolders.map((fol) => fol.id);
     for (var fold in assFolders) {
-      if (scanned.contains(fold.id)) {
+      if (enabledFoldersDb.contains(int.parse(fold.id))) {
         var assets = await fold.assetList;
         assets.forEach(
-          (ass) async => await db.addMeme(
-            MemesCompanion.insert(id: ass.id, folderId: fold.id),
+          (ass) async {
+            return await db.addMeme(
+            MemesCompanion.insert(id: int.parse(ass.id), folderId: int.parse(fold.id)),
             ignoreFail: true,
-          ),
+          );
+          },
         );
       }
       for (var meme in await db.getAllMemes) {
-        if (!scanned.contains(meme.folderId)) {
+        if (!enabledFoldersDb.contains(meme.folderId)) {
           db.deleteMeme(meme.createCompanion(false));
         }
       }

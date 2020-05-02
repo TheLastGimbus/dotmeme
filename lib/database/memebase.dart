@@ -11,9 +11,9 @@ part 'memebase.g.dart';
 /// This provides easy way to tell if certain field was scanned or not,
 /// without some dumb "wasScanned" booleans.
 class Memes extends Table {
-  TextColumn get id => text().customConstraint("UNIQUE")();
+  IntColumn get id => integer().customConstraint("UNIQUE")();
 
-  TextColumn get folderId => text()();
+  IntColumn get folderId => integer()();
 
   TextColumn get scannedText => text().named('text').nullable()();
 
@@ -22,7 +22,7 @@ class Memes extends Table {
 }
 
 class Folders extends Table {
-  TextColumn get id => text().customConstraint("UNIQUE")();
+  IntColumn get id => integer().customConstraint("UNIQUE")();
 
   BoolColumn get scanningEnabled => boolean()();
 

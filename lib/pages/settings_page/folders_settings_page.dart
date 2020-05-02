@@ -57,11 +57,11 @@ class FoldersSettingsPage extends StatelessWidget {
               .map((folder) => SwitchListTile(
                     value: folder.scanningEnabled,
                     title: Text(
-                        snapshot.hasData ? snapshot.data[folder.id] : '...'),
+                        snapshot.hasData ? snapshot.data[folder.id.toString()] : '...'),
                     onChanged: (enabled) {
                       if (snapshot.hasData &&
                           enabled &&
-                          snapshot.data[folder.id] == "Camera") {
+                          snapshot.data[folder.id.toString()] == "Camera") {
                         showDialog(
                           context: context,
                           barrierDismissible: false,
