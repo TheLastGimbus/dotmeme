@@ -67,4 +67,7 @@ class Memebase extends _$Memebase {
   Future deleteMeme(MemesCompanion meme) => delete(memes).delete(meme);
 
   Future<List<Folder>> get getAllFolders => select(folders).get();
+
+  Future<List<Folder>> get getAllFoldersEnabled =>
+      (select(folders)..where((f) => f.scanningEnabled)).get();
 }

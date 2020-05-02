@@ -24,7 +24,8 @@ class MemesProvider with ChangeNotifier {
     await syncMemes();
     var dbMemes = await db.getAllMemes;
     List<AssetEntity> memes = [];
-    for (var meme in dbMemes) memes.add(await AssetEntity.fromId(meme.id.toString()));
+    for (var meme in dbMemes)
+      memes.add(await AssetEntity.fromId(meme.id.toString()));
     return memes;
   }
 
@@ -65,27 +66,17 @@ class MemesProvider with ChangeNotifier {
       hasAll: false,
       type: RequestType.image,
     );
-    var dbfolders = await db.getAllFolders;
-    dbfolders.removeWhere((fol) => !fol.scanningEnabled);
-    var enabledFoldersDb = dbfolders.map((fol) => fol.id);
-    for (var fold in assFolders) {
-      if (enabledFoldersDb.contains(int.parse(fold.id))) {
-        var assets = await fold.assetList;
-        assets.forEach(
-          (ass) async {
-            return await db.addMeme(
-            MemesCompanion.insert(id: int.parse(ass.id), folderId: int.parse(fold.id)),
-            ignoreFail: true,
-          );
-          },
-        );
-      }
-      for (var meme in await db.getAllMemes) {
-        if (!enabledFoldersDb.contains(meme.folderId)) {
-          db.deleteMeme(meme.createCompanion(false));
-        }
-      }
+    log("Getting asset paths took ${watch.elapsedMilliseconds}ms");
+    var dbFolders = await db.getAllFoldersEnabled;
+    var dbFoldersIds = dbFolders.map((f) => f.id);
+    log("Getting all folders ids took ${watch.elapsedMilliseconds}ms");
+    assFolders.removeWhere((f) => !dbFoldersIds.contains(f.id));
+    log("Removing not scannable asses took ${watch.elapsedMilliseconds}ms");
+    var assMemes = List<AssetEntity>();
+    for (var assFolder in assFolders) {
+      assMemes.addAll(await assFolder.assetList);
     }
+    log("Getting memes to list took ${watch.elapsedMilliseconds}ms");
 
     log('Memes sync finished in ${watch.elapsedMilliseconds}ms');
   }
