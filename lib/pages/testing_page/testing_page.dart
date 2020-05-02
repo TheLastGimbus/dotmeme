@@ -60,7 +60,7 @@ class _TestingPageState extends State<TestingPage> {
                 'Eng_fast',
                 style: TextStyle(fontSize: 30, backgroundColor: Colors.orange),
               ),
-              Text(_outTextFast),
+              SelectableText(_outTextFast),
             ],
           ),
         ),
