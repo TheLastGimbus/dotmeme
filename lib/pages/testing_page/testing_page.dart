@@ -1,7 +1,9 @@
 import 'package:dotmeme/analyze/ocr/ocr.dart';
+import 'package:dotmeme/providers/memes_provider.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:provider/provider.dart';
 
 class TestingPage extends StatefulWidget {
   @override
@@ -24,6 +26,7 @@ class _TestingPageState extends State<TestingPage> {
 
   @override
   Widget build(BuildContext context) {
+    var memesProvider = Provider.of<MemesProvider>(context);
     return Scaffold(
       appBar: AppBar(title: Text('Testing page')),
       body: Center(
@@ -31,6 +34,19 @@ class _TestingPageState extends State<TestingPage> {
           padding: EdgeInsets.all(15),
           child: ListView(
             children: <Widget>[
+              RaisedButton(
+                child: Text('Test sync'),
+                onPressed: (){
+                  memesProvider.syncFolders();
+                  memesProvider.syncMemes();
+                },
+              ),
+              RaisedButton(
+                child: Text('Test getAllMemes'),
+                onPressed: (){
+                  memesProvider.getAllMemes;
+                },
+              ),
               RaisedButton(
                 child: Text('Pick image'),
                 onPressed: () {

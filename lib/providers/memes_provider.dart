@@ -20,12 +20,21 @@ class MemesProvider with ChangeNotifier {
   Future<List<Folder>> get getAllFolders => db.getAllFolders;
 
   Future<List<AssetEntity>> get getAllMemes async {
-    await syncFolders();
-    await syncMemes();
-    var dbMemes = await db.getAllMemes;
-    List<AssetEntity> memes = [];
-    for (var meme in dbMemes) memes.add(await AssetEntity.fromId(meme.id));
-    return memes;
+    var watch = Stopwatch()..start();
+    //await syncFolders();
+    //await syncMemes();
+    //var dbMemes = await db.getAllMemes;
+    //for (var meme in dbMemes)
+    //  memes.add(await AssetEntity.fromId(meme.id.toString()));
+
+    var allMemes = await db.getAllMemes;
+    print("Getting memes from db took ${watch.elapsedMilliseconds}ms");
+    var allAssMemes = List<AssetEntity>();
+    for (var meme in allMemes) {
+      allAssMemes.add(await AssetEntity.fromId(meme.id.toString()));
+    }
+    print("Getting all memes took ${watch.elapsedMilliseconds}ms");
+    return allAssMemes;
   }
 
   Future syncFolders() async {
@@ -36,54 +45,48 @@ class MemesProvider with ChangeNotifier {
     );
     for (AssetPathEntity fol in folders) {
       try {
+        print('Folder: ${fol.name}, id: ${fol.id}, id to int: ${int.parse(fol.id)}');
         db.addFolder(
             FoldersCompanion.insert(
-              id: fol.id,
+              id: int.parse(fol.id),
               scanningEnabled: false,
             ),
             ignoreFail: true);
       } on SqliteException catch (e) {
         // Already exists
+        print("Folder ${fol.name} already exists");
       }
     }
     for (Folder fol in await db.getAllFolders) {
-      if (!folders.map((f) => f.id).contains(fol.id)) {
+      if (!folders.map((f) => int.parse(f.id)).contains(fol.id)) {
         db.deleteFolder(fol.createCompanion(false));
       }
     }
 
-    log('Folders sync finished in ${watch.elapsedMilliseconds}ms');
+    print('Folders sync finished in ${watch.elapsedMilliseconds}ms');
   }
 
   // THIS. DOESN'T. WORK
   // Shit. I need to find some other way around this :///
   Future syncMemes() async {
     var watch = Stopwatch()..start();
-    var assFolders = await PhotoManager.getAssetPathList(
-      hasAll: false,
-      type: RequestType.image,
-    );
-    var dbfolders = await db.getAllFolders;
-    dbfolders.removeWhere((fol) => !fol.scanningEnabled);
-    var scanned = dbfolders.map((fol) => fol.id);
-    for (var fold in assFolders) {
-      if (scanned.contains(fold.id)) {
-        var assets = await fold.assetList;
-        assets.forEach(
-          (ass) async => await db.addMeme(
-            MemesCompanion.insert(id: ass.id, folderId: fold.id),
-            ignoreFail: true,
-          ),
-        );
+    var dbFolders = await db.getAllFoldersEnabled;
+    var dbFoldersIds = dbFolders.map((f) => f.id);
+    for (var folderId in dbFoldersIds) {
+      var watch = Stopwatch()..start();
+      var assFolder = await AssetPathEntity.fromId(folderId.toString());
+      print("Getting ${assFolder.name} assFolder took ${watch.elapsedMilliseconds}ms");
+      watch.reset();
+      for (var assMeme in await assFolder.assetList) {
+        db.addMeme(MemesCompanion.insert(
+          id: int.parse(assMeme.id),
+          folderId: int.parse(assFolder.id),
+        ), ignoreFail: true);
       }
-      for (var meme in await db.getAllMemes) {
-        if (!scanned.contains(meme.folderId)) {
-          db.deleteMeme(meme.createCompanion(false));
-        }
-      }
+      print("Getting ${assFolder.name} all asses took ${watch.elapsedMilliseconds}ms");
     }
 
-    log('Memes sync finished in ${watch.elapsedMilliseconds}ms');
+    print('Memes sync finished in ${watch.elapsedMilliseconds}ms');
   }
 
   Future setFolderSyncEnabled(Folder folder, bool enabled) async {

@@ -8,16 +8,16 @@ part of 'memebase.dart';
 
 // ignore_for_file: unnecessary_brace_in_string_interps, unnecessary_this
 class Folder extends DataClass implements Insertable<Folder> {
-  final String id;
+  final int id;
   final bool scanningEnabled;
   Folder({@required this.id, @required this.scanningEnabled});
   factory Folder.fromData(Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
     final effectivePrefix = prefix ?? '';
-    final stringType = db.typeSystem.forDartType<String>();
+    final intType = db.typeSystem.forDartType<int>();
     final boolType = db.typeSystem.forDartType<bool>();
     return Folder(
-      id: stringType.mapFromDatabaseResponse(data['${effectivePrefix}id']),
+      id: intType.mapFromDatabaseResponse(data['${effectivePrefix}id']),
       scanningEnabled: boolType
           .mapFromDatabaseResponse(data['${effectivePrefix}scanning_enabled']),
     );
@@ -26,7 +26,7 @@ class Folder extends DataClass implements Insertable<Folder> {
       {ValueSerializer serializer}) {
     serializer ??= moorRuntimeOptions.defaultSerializer;
     return Folder(
-      id: serializer.fromJson<String>(json['id']),
+      id: serializer.fromJson<int>(json['id']),
       scanningEnabled: serializer.fromJson<bool>(json['scanningEnabled']),
     );
   }
@@ -34,7 +34,7 @@ class Folder extends DataClass implements Insertable<Folder> {
   Map<String, dynamic> toJson({ValueSerializer serializer}) {
     serializer ??= moorRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
-      'id': serializer.toJson<String>(id),
+      'id': serializer.toJson<int>(id),
       'scanningEnabled': serializer.toJson<bool>(scanningEnabled),
     };
   }
@@ -49,7 +49,7 @@ class Folder extends DataClass implements Insertable<Folder> {
     );
   }
 
-  Folder copyWith({String id, bool scanningEnabled}) => Folder(
+  Folder copyWith({int id, bool scanningEnabled}) => Folder(
         id: id ?? this.id,
         scanningEnabled: scanningEnabled ?? this.scanningEnabled,
       );
@@ -73,18 +73,18 @@ class Folder extends DataClass implements Insertable<Folder> {
 }
 
 class FoldersCompanion extends UpdateCompanion<Folder> {
-  final Value<String> id;
+  final Value<int> id;
   final Value<bool> scanningEnabled;
   const FoldersCompanion({
     this.id = const Value.absent(),
     this.scanningEnabled = const Value.absent(),
   });
   FoldersCompanion.insert({
-    @required String id,
+    @required int id,
     @required bool scanningEnabled,
   })  : id = Value(id),
         scanningEnabled = Value(scanningEnabled);
-  FoldersCompanion copyWith({Value<String> id, Value<bool> scanningEnabled}) {
+  FoldersCompanion copyWith({Value<int> id, Value<bool> scanningEnabled}) {
     return FoldersCompanion(
       id: id ?? this.id,
       scanningEnabled: scanningEnabled ?? this.scanningEnabled,
@@ -97,11 +97,11 @@ class $FoldersTable extends Folders with TableInfo<$FoldersTable, Folder> {
   final String _alias;
   $FoldersTable(this._db, [this._alias]);
   final VerificationMeta _idMeta = const VerificationMeta('id');
-  GeneratedTextColumn _id;
+  GeneratedIntColumn _id;
   @override
-  GeneratedTextColumn get id => _id ??= _constructId();
-  GeneratedTextColumn _constructId() {
-    return GeneratedTextColumn('id', $tableName, false,
+  GeneratedIntColumn get id => _id ??= _constructId();
+  GeneratedIntColumn _constructId() {
+    return GeneratedIntColumn('id', $tableName, false,
         $customConstraints: 'UNIQUE');
   }
 
@@ -159,7 +159,7 @@ class $FoldersTable extends Folders with TableInfo<$FoldersTable, Folder> {
   Map<String, Variable> entityToSql(FoldersCompanion d) {
     final map = <String, Variable>{};
     if (d.id.present) {
-      map['id'] = Variable<String, StringType>(d.id.value);
+      map['id'] = Variable<int, IntType>(d.id.value);
     }
     if (d.scanningEnabled.present) {
       map['scanning_enabled'] =
@@ -175,18 +175,19 @@ class $FoldersTable extends Folders with TableInfo<$FoldersTable, Folder> {
 }
 
 class Meme extends DataClass implements Insertable<Meme> {
-  final String id;
-  final String folderId;
+  final int id;
+  final int folderId;
   final String scannedText;
   Meme({@required this.id, @required this.folderId, this.scannedText});
   factory Meme.fromData(Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
     final effectivePrefix = prefix ?? '';
+    final intType = db.typeSystem.forDartType<int>();
     final stringType = db.typeSystem.forDartType<String>();
     return Meme(
-      id: stringType.mapFromDatabaseResponse(data['${effectivePrefix}id']),
-      folderId: stringType
-          .mapFromDatabaseResponse(data['${effectivePrefix}folder_id']),
+      id: intType.mapFromDatabaseResponse(data['${effectivePrefix}id']),
+      folderId:
+          intType.mapFromDatabaseResponse(data['${effectivePrefix}folder_id']),
       scannedText:
           stringType.mapFromDatabaseResponse(data['${effectivePrefix}text']),
     );
@@ -195,8 +196,8 @@ class Meme extends DataClass implements Insertable<Meme> {
       {ValueSerializer serializer}) {
     serializer ??= moorRuntimeOptions.defaultSerializer;
     return Meme(
-      id: serializer.fromJson<String>(json['id']),
-      folderId: serializer.fromJson<String>(json['folderId']),
+      id: serializer.fromJson<int>(json['id']),
+      folderId: serializer.fromJson<int>(json['folderId']),
       scannedText: serializer.fromJson<String>(json['scannedText']),
     );
   }
@@ -204,8 +205,8 @@ class Meme extends DataClass implements Insertable<Meme> {
   Map<String, dynamic> toJson({ValueSerializer serializer}) {
     serializer ??= moorRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
-      'id': serializer.toJson<String>(id),
-      'folderId': serializer.toJson<String>(folderId),
+      'id': serializer.toJson<int>(id),
+      'folderId': serializer.toJson<int>(folderId),
       'scannedText': serializer.toJson<String>(scannedText),
     };
   }
@@ -223,7 +224,7 @@ class Meme extends DataClass implements Insertable<Meme> {
     );
   }
 
-  Meme copyWith({String id, String folderId, String scannedText}) => Meme(
+  Meme copyWith({int id, int folderId, String scannedText}) => Meme(
         id: id ?? this.id,
         folderId: folderId ?? this.folderId,
         scannedText: scannedText ?? this.scannedText,
@@ -251,8 +252,8 @@ class Meme extends DataClass implements Insertable<Meme> {
 }
 
 class MemesCompanion extends UpdateCompanion<Meme> {
-  final Value<String> id;
-  final Value<String> folderId;
+  final Value<int> id;
+  final Value<int> folderId;
   final Value<String> scannedText;
   const MemesCompanion({
     this.id = const Value.absent(),
@@ -260,13 +261,13 @@ class MemesCompanion extends UpdateCompanion<Meme> {
     this.scannedText = const Value.absent(),
   });
   MemesCompanion.insert({
-    @required String id,
-    @required String folderId,
+    @required int id,
+    @required int folderId,
     this.scannedText = const Value.absent(),
   })  : id = Value(id),
         folderId = Value(folderId);
   MemesCompanion copyWith(
-      {Value<String> id, Value<String> folderId, Value<String> scannedText}) {
+      {Value<int> id, Value<int> folderId, Value<String> scannedText}) {
     return MemesCompanion(
       id: id ?? this.id,
       folderId: folderId ?? this.folderId,
@@ -280,20 +281,20 @@ class $MemesTable extends Memes with TableInfo<$MemesTable, Meme> {
   final String _alias;
   $MemesTable(this._db, [this._alias]);
   final VerificationMeta _idMeta = const VerificationMeta('id');
-  GeneratedTextColumn _id;
+  GeneratedIntColumn _id;
   @override
-  GeneratedTextColumn get id => _id ??= _constructId();
-  GeneratedTextColumn _constructId() {
-    return GeneratedTextColumn('id', $tableName, false,
+  GeneratedIntColumn get id => _id ??= _constructId();
+  GeneratedIntColumn _constructId() {
+    return GeneratedIntColumn('id', $tableName, false,
         $customConstraints: 'UNIQUE');
   }
 
   final VerificationMeta _folderIdMeta = const VerificationMeta('folderId');
-  GeneratedTextColumn _folderId;
+  GeneratedIntColumn _folderId;
   @override
-  GeneratedTextColumn get folderId => _folderId ??= _constructFolderId();
-  GeneratedTextColumn _constructFolderId() {
-    return GeneratedTextColumn(
+  GeneratedIntColumn get folderId => _folderId ??= _constructFolderId();
+  GeneratedIntColumn _constructFolderId() {
+    return GeneratedIntColumn(
       'folder_id',
       $tableName,
       false,
@@ -356,10 +357,10 @@ class $MemesTable extends Memes with TableInfo<$MemesTable, Meme> {
   Map<String, Variable> entityToSql(MemesCompanion d) {
     final map = <String, Variable>{};
     if (d.id.present) {
-      map['id'] = Variable<String, StringType>(d.id.value);
+      map['id'] = Variable<int, IntType>(d.id.value);
     }
     if (d.folderId.present) {
-      map['folder_id'] = Variable<String, StringType>(d.folderId.value);
+      map['folder_id'] = Variable<int, IntType>(d.folderId.value);
     }
     if (d.scannedText.present) {
       map['text'] = Variable<String, StringType>(d.scannedText.value);
