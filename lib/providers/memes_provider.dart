@@ -20,13 +20,21 @@ class MemesProvider with ChangeNotifier {
   Future<List<Folder>> get getAllFolders => db.getAllFolders;
 
   Future<List<AssetEntity>> get getAllMemes async {
-    await syncFolders();
-    await syncMemes();
-    var dbMemes = await db.getAllMemes;
-    List<AssetEntity> memes = [];
-    for (var meme in dbMemes)
-      memes.add(await AssetEntity.fromId(meme.id.toString()));
-    return memes;
+    var watch = Stopwatch()..start();
+    //await syncFolders();
+    //await syncMemes();
+    //var dbMemes = await db.getAllMemes;
+    //for (var meme in dbMemes)
+    //  memes.add(await AssetEntity.fromId(meme.id.toString()));
+
+    var allMemes = await db.getAllMemes;
+    print("Getting memes from db took ${watch.elapsedMilliseconds}ms");
+    var allAssMemes = List<AssetEntity>();
+    for (var meme in allMemes) {
+      allAssMemes.add(await AssetEntity.fromId(meme.id.toString()));
+    }
+    print("Getting all memes took ${watch.elapsedMilliseconds}ms");
+    return allAssMemes;
   }
 
   Future syncFolders() async {
