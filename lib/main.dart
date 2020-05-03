@@ -16,13 +16,14 @@ class MyApp extends StatelessWidget {
     BackgroundFetch.scheduleTask(TaskConfig(
       taskId: PeriodicScan.TASK_ID,
       delay: 0,
-      stopOnTerminate: true,
+      stopOnTerminate: false,
       periodic: true,
       requiresBatteryNotLow: true,
     ));
 
     Future.microtask((){
       Notifications.initializePlugin();
+      PeriodicScan.backgroundScan(PeriodicScan.TASK_ID);
     });
 
     return MultiProvider(
