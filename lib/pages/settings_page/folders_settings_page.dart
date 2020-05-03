@@ -56,8 +56,9 @@ class FoldersSettingsPage extends StatelessWidget {
           children: folders
               .map((folder) => SwitchListTile(
                     value: folder.scanningEnabled,
-                    title: Text(
-                        snapshot.hasData ? snapshot.data[folder.id.toString()] : '...'),
+                    title: Text(snapshot.hasData
+                        ? snapshot.data[folder.id.toString()]
+                        : '...'),
                     onChanged: (enabled) {
                       if (snapshot.hasData &&
                           enabled &&

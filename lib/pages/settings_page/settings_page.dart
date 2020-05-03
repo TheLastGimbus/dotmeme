@@ -12,8 +12,8 @@ class SettingsPage extends StatelessWidget {
               title: Text('Apperance'),
               subtitle: Text('Overall look of app'),
               onTap: () {
-                Navigator.of(context).pushNamed(
-                    '/settings_page/appearance_settings_page');
+                Navigator.of(context)
+                    .pushNamed('/settings_page/appearance_settings_page');
               },
             ),
             ListTile(

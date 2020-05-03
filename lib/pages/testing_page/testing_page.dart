@@ -43,7 +43,7 @@ class _TestingPageState extends State<TestingPage> {
               ),
               RaisedButton(
                 child: Text('Test getAllMemes'),
-                onPressed: (){
+                onPressed: () {
                   memesProvider.getAllMemes;
                 },
               ),

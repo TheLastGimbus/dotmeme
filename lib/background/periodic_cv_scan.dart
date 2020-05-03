@@ -1,13 +1,12 @@
 import 'package:dotmeme/analyze/ocr/ocr.dart';
-import 'package:dotmeme/notifications/notifications.dart';
 import 'package:dotmeme/providers/memes_provider.dart';
 import 'package:photo_manager/photo_manager.dart';
-
 
 class PeriodicCvScan {
   static const TAG = 'periodic_cv_scan';
 
   static const TASK_NAME_OCR = 'task_ocr_scan';
+
   static Future ocrScan({String taskName}) async {
     print("IMMM SCANNINGGGGG (REALLY!) Task name: $taskName");
     // TODO: Check for permission
@@ -17,7 +16,7 @@ class PeriodicCvScan {
     var memesToScan = await memesProvider.db.getNotScannedMemes;
     // Scan at max 20 memes at the time
     // So OS won't get mad for taking too long
-    if(memesToScan.length > 20) {
+    if (memesToScan.length > 20) {
       memesToScan.getRange(0, 19);
     }
     print('Not scanned memes: \n $memesToScan');

@@ -1,7 +1,6 @@
 import 'package:dotmeme/database/memebase.dart';
 import 'package:drag_select_grid_view/drag_select_grid_view.dart';
 import 'package:flutter/widgets.dart';
-import 'package:photo_manager/photo_manager.dart';
 
 class HomePageProvider with ChangeNotifier {
   final _selectControl = DragSelectGridViewController();

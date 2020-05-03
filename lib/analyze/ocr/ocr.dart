@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:core';
+
 import 'package:flutter/foundation.dart';
 import 'package:tesseract_ocr/tesseract_ocr.dart';
 
