@@ -1,4 +1,5 @@
 import 'package:dotmeme/pages/home_page/home_page.dart';
+import 'package:dotmeme/pages/settings_page/appearance_settings_page.dart';
 import 'package:dotmeme/pages/settings_page/folders_settings_page.dart';
 import 'package:dotmeme/pages/settings_page/settings_page.dart';
 import 'package:dotmeme/pages/swiping_page/swiping_page.dart';
@@ -28,6 +29,8 @@ class RouteGenerator {
         return MaterialPageRoute(builder: (_) => SettingsPage());
       case '/settings_page/folders_settings_page':
         return MaterialPageRoute(builder: (_) => FoldersSettingsPage());
+      case '/settings_page/appearance_settings_page':
+        return MaterialPageRoute(builder: (_) => AppearanceSettingsPage());
 
       default:
         return _errorRoute();
