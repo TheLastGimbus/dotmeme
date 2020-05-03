@@ -1,3 +1,4 @@
+import 'package:background_fetch/background_fetch.dart';
 import 'package:dotmeme/analyze/ocr/ocr.dart';
 import 'package:dotmeme/notifications/notifications.dart';
 import 'package:dotmeme/providers/memes_provider.dart';
@@ -13,6 +14,11 @@ class PeriodicScan {
     await memesProvider.syncFolders();
     await memesProvider.syncMemes();
     var memesToScan = await memesProvider.db.getNotScannedMemes;
+    // Scan at max 20 memes at the time
+    // So OS won't get mad for taking too long
+    if(memesToScan.length > 20) {
+      memesToScan.getRange(0, 19);
+    }
     print('Not scanned memes: \n $memesToScan');
     for (var meme in memesToScan) {
       try {
@@ -34,4 +40,14 @@ class PeriodicScan {
       }
     }
   }
+
+  static final taskConfig = TaskConfig(
+    taskId: PeriodicScan.TASK_ID,
+    delay: 0,
+    periodic: true,
+    stopOnTerminate: false,
+    startOnBoot: true,
+    enableHeadless: true,
+    requiresBatteryNotLow: true,
+  );
 }
