@@ -13,6 +13,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     Future.microtask(() {
       Notifications.initializePlugin();
+      Notifications.showExampleNotification();
     });
 
     return MultiProvider(

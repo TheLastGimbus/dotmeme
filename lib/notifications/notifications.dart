@@ -8,5 +8,18 @@ class Notifications {
     ));
   }
 
-  var plugin = FlutterLocalNotificationsPlugin();
+  static showExampleNotification() {
+    FlutterLocalNotificationsPlugin().show(
+        0,
+        'Example',
+        'This is example notification',
+        NotificationDetails(
+          AndroidNotificationDetails(
+            'examples',
+            'Examples',
+            'This is just throwaway channel',
+          ),
+          IOSNotificationDetails(),
+        ));
+  }
 }
