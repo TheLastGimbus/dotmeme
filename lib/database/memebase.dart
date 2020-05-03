@@ -68,6 +68,13 @@ class Memebase extends _$Memebase {
         mode: ignoreFail ? InsertMode.insertOrIgnore : InsertMode.insert,
       );
 
+  Future setMemeText(int memeId, String text) =>
+      (update(memes)..where((m) => m.id.equals(memeId)))
+          .write(MemesCompanion(scannedText: Value(text)));
+
+  Future<List<Meme>> get getNotScannedMemes =>
+      (select(memes)..where((m) => isNull(m.scannedText))).get();
+
   Future deleteMeme(MemesCompanion meme) => delete(memes).delete(meme);
 
   Future deleteAllMemesFromFolder(int folderId) =>

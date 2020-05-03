@@ -1,3 +1,6 @@
+import 'package:dotmeme/background/periodic_cv_scan.dart';
+import 'package:dotmeme/background/work_manager_utils.dart';
+import 'package:dotmeme/notifications/notifications.dart';
 import 'package:dotmeme/providers/home_page_provider.dart';
 import 'package:dotmeme/providers/memes_provider.dart';
 import 'package:dotmeme/route_generator.dart';
@@ -10,6 +13,11 @@ void main() => runApp(MyApp());
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    Future.microtask(() {
+      WorkManagerUtils.initialize();
+      Notifications.initializePlugin();
+    });
+
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => HomePageProvider()),
