@@ -31,7 +31,6 @@ class MyApp extends StatelessWidget {
       title: 'Dotmeme',
       theme: lightTheme(),
       darkTheme: darkTheme(),
-      // TODO: Add settings for this
       themeMode: Provider.of<SharedPreferencesProvider>(context).getThemeMode,
       initialRoute: '/',
       onGenerateRoute: RouteGenerator.generateRoute,
