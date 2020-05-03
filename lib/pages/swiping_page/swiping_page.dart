@@ -5,6 +5,7 @@ import 'package:dotmeme/providers/home_page_provider.dart';
 import 'package:esys_flutter_share/esys_flutter_share.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:image/image.dart' as nImage;
 import 'package:photo_manager/photo_manager.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
@@ -104,10 +105,20 @@ class SwipingPage extends StatelessWidget {
                 homeProvider.memesList[_currentPage].id.toString(),
               );
               var file = await asset.file;
+              var image = nImage.decodeNamedImage(
+                  await file.readAsBytes(), asset.title);
+              nImage.drawString(
+                image,
+                nImage.arial_24,
+                image.width ~/ 12,
+                image.height - image.height ~/ 8,
+                'Found with .meme',
+                color: Colors.white.value,
+              );
               Share.file(
                 'Shere meme',
                 asset.title,
-                await file.readAsBytes(),
+                nImage.encodeJpg(image),
                 'image/*',
               );
             },
