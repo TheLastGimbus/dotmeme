@@ -25,6 +25,7 @@ dependencies:
   cupertino_icons: ^0.1.2
 
   tesseract_ocr: ^0.3.0
+  background_fetch: ^0.5.5
 
   file_picker: ^1.6.2
   photo_manager: 0.5.1-dev.9
