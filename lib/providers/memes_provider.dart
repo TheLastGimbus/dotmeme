@@ -66,7 +66,8 @@ class MemesProvider with ChangeNotifier {
     var watch = Stopwatch()..start();
     var dbFoldersIds = (await db.getAllFoldersEnabled).map((f) => f.id);
     for (var folderId in dbFoldersIds) {
-      var assFolder = await AssetPathEntity.fromId(folderId.toString());
+      var assFolder = await AssetPathEntity.fromId(folderId.toString(),
+          type: RequestType.image);
       var allAssMemesIds =
           (await assFolder.assetList).map((f) => int.parse(f.id));
       for (var assId in allAssMemesIds) {
@@ -82,14 +83,14 @@ class MemesProvider with ChangeNotifier {
 
       var allDbMemesIds =
           (await db.getAllMemesFromFolder(int.parse(assFolder.id)))
-              .map((m) => m.folderId);
+              .map((m) => m.id);
       for (var id in allDbMemesIds) {
         if (!allAssMemesIds.contains(id)) {
           db.deleteMeme(MemesCompanion(id: Value(id)));
         }
       }
     }
-    for(var folder in await db.getAllFoldersDisabled){
+    for (var folder in await db.getAllFoldersDisabled) {
       db.deleteAllMemesFromFolder(folder.id);
     }
 
