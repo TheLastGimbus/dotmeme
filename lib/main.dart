@@ -1,4 +1,3 @@
-import 'package:dotmeme/background/periodic_cv_scan.dart';
 import 'package:dotmeme/background/work_manager_utils.dart';
 import 'package:dotmeme/notifications/notifications.dart';
 import 'package:dotmeme/providers/home_page_provider.dart';
@@ -8,7 +7,15 @@ import 'package:dotmeme/theme/themes.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-void main() => runApp(MyApp());
+void main() => runApp(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => HomePageProvider()),
+          ChangeNotifierProvider(create: (_) => MemesProvider()),
+        ],
+        child: MyApp(),
+      ),
+    );
 
 class MyApp extends StatelessWidget {
   @override
@@ -18,20 +25,14 @@ class MyApp extends StatelessWidget {
       Notifications.initializePlugin();
     });
 
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => HomePageProvider()),
-        ChangeNotifierProvider(create: (_) => MemesProvider()),
-      ],
-      child: MaterialApp(
-        title: 'Dotmeme',
-        theme: lightTheme(),
-        darkTheme: darkTheme(),
-        // TODO: Add settings for this
-        themeMode: ThemeMode.dark,
-        initialRoute: '/',
-        onGenerateRoute: RouteGenerator.generateRoute,
-      ),
+    return MaterialApp(
+      title: 'Dotmeme',
+      theme: lightTheme(),
+      darkTheme: darkTheme(),
+      // TODO: Add settings for this
+      themeMode: ThemeMode.dark,
+      initialRoute: '/',
+      onGenerateRoute: RouteGenerator.generateRoute,
     );
   }
 }
