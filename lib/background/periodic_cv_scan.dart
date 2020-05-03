@@ -1,15 +1,16 @@
-import 'package:background_fetch/background_fetch.dart';
 import 'package:dotmeme/analyze/ocr/ocr.dart';
 import 'package:dotmeme/notifications/notifications.dart';
 import 'package:dotmeme/providers/memes_provider.dart';
 import 'package:photo_manager/photo_manager.dart';
 
-class PeriodicScan {
-  static const TASK_ID = 'periodic_scan';
 
-  static void backgroundScan(String taskId) async {
-    print("IMMM SCANNINGGGGG (REALLY!)");
-    Notifications.showExampleNotification();
+class PeriodicCvScan {
+  static const TAG = 'periodic_cv_scan';
+
+  static const TASK_NAME_OCR = 'task_ocr_scan';
+  static Future ocrScan({String taskName}) async {
+    print("IMMM SCANNINGGGGG (REALLY!) Task name: $taskName");
+    // TODO: Check for permission
     var memesProvider = MemesProvider();
     await memesProvider.syncFolders();
     await memesProvider.syncMemes();
@@ -22,6 +23,8 @@ class PeriodicScan {
     print('Not scanned memes: \n $memesToScan');
     for (var meme in memesToScan) {
       try {
+        // This doesn't work for now, because photo_manager uses some
+        // Activity to get stuff
         var asset = await AssetEntity.fromId(meme.id.toString());
         if (asset.type != AssetType.image) {
           throw ("Asset is not image! "
@@ -40,14 +43,4 @@ class PeriodicScan {
       }
     }
   }
-
-  static final taskConfig = TaskConfig(
-    taskId: PeriodicScan.TASK_ID,
-    delay: 0,
-    periodic: true,
-    stopOnTerminate: false,
-    startOnBoot: true,
-    enableHeadless: true,
-    requiresBatteryNotLow: true,
-  );
 }

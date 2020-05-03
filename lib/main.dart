@@ -1,5 +1,5 @@
-import 'package:background_fetch/background_fetch.dart';
-import 'package:dotmeme/background/periodic_scan.dart';
+import 'package:dotmeme/background/periodic_cv_scan.dart';
+import 'package:dotmeme/background/work_manager_utils.dart';
 import 'package:dotmeme/notifications/notifications.dart';
 import 'package:dotmeme/providers/home_page_provider.dart';
 import 'package:dotmeme/providers/memes_provider.dart';
@@ -13,17 +13,9 @@ void main() => runApp(MyApp());
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    BackgroundFetch.scheduleTask(TaskConfig(
-      taskId: PeriodicScan.TASK_ID,
-      delay: 0,
-      stopOnTerminate: false,
-      periodic: true,
-      requiresBatteryNotLow: true,
-    ));
-
-    Future.microtask((){
+    Future.microtask(() {
+      WorkManagerUtils.initialize();
       Notifications.initializePlugin();
-      PeriodicScan.backgroundScan(PeriodicScan.TASK_ID);
     });
 
     return MultiProvider(
