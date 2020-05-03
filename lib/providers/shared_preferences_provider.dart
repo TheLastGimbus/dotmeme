@@ -7,17 +7,20 @@ class SharedPreferencesProvider with ChangeNotifier {
   SharedPreferences prefs;
 
   SharedPreferencesProvider() {
-    SharedPreferences.getInstance().then((p) => prefs = p);
+    SharedPreferences.getInstance().then((p) {
+      prefs = p;
+      notifyListeners();
+    });
   }
 
-  set setTheme(ThemeModePreference themeMode) {
+  set themePref(ThemeModePreference themeMode) {
     prefs?.setInt(Preferences.KEY_THEME_MODE, themeMode.index);
     notifyListeners();
   }
 
-  ThemeModePreference get getTheme =>
+  ThemeModePreference get themePref =>
       ThemeModePreference.values[prefs?.getInt(Preferences.KEY_THEME_MODE) ??
           ThemeModePreference.SYSTEM.index];
 
-  ThemeMode get getThemeMode => ThemeMode.values[getTheme.index];
+  ThemeMode get getThemeMode => ThemeMode.values[themePref.index];
 }
