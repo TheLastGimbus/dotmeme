@@ -11,8 +11,6 @@ import 'package:provider/provider.dart';
 void main() => runApp(
       MultiProvider(
         providers: [
-          ChangeNotifierProvider(create: (_) => HomePageProvider()),
-          ChangeNotifierProvider(create: (_) => MemesProvider()),
           ChangeNotifierProvider(create: (_) => SharedPreferencesProvider()),
         ],
         child: MyApp(),
@@ -27,13 +25,19 @@ class MyApp extends StatelessWidget {
       Notifications.initializePlugin();
     });
 
-    return MaterialApp(
-      title: 'Dotmeme',
-      theme: lightTheme(),
-      darkTheme: darkTheme(),
-      themeMode: Provider.of<SharedPreferencesProvider>(context).getThemeMode,
-      initialRoute: '/',
-      onGenerateRoute: RouteGenerator.generateRoute,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => HomePageProvider()),
+        ChangeNotifierProvider(create: (_) => MemesProvider()),
+      ],
+      child: MaterialApp(
+        title: 'Dotmeme',
+        theme: lightTheme(),
+        darkTheme: darkTheme(),
+        themeMode: Provider.of<SharedPreferencesProvider>(context).getThemeMode,
+        initialRoute: '/',
+        onGenerateRoute: RouteGenerator.generateRoute,
+      ),
     );
   }
 }
