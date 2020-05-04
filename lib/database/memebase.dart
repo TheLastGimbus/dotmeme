@@ -67,7 +67,7 @@ class Memebase extends _$Memebase {
   Future deleteFolder(FoldersCompanion folder) =>
       delete(folders).delete(folder);
 
-  Future updateFolder(FoldersCompanion folder) =>
+  Future updateFolder(Folder folder) =>
       update(folders).replace(folder);
 
   Future<List<Meme>> get getAllMemes => select(memes).get();
@@ -101,4 +101,8 @@ class Memebase extends _$Memebase {
 
   Future<List<Folder>> get getAllFoldersDisabled =>
       (select(folders)..where((f) => f.scanningEnabled.not())).get();
+}
+
+extension on DateTime{
+  static get never => DateTime.fromMillisecondsSinceEpoch(0);
 }
