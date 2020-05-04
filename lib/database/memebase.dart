@@ -81,6 +81,13 @@ class Memebase extends _$Memebase {
         mode: ignoreFail ? InsertMode.insertOrIgnore : InsertMode.insert,
       );
 
+  Future addMultipleMemes(List<MemesCompanion> newMemes) =>
+      batch((b) => b.insertAll(
+            memes,
+            newMemes,
+            mode: InsertMode.insertOrIgnore,
+          ));
+
   Future setMemeText(int memeId, String text) =>
       (update(memes)..where((m) => m.id.equals(memeId)))
           .write(MemesCompanion(scannedText: Value(text)));
