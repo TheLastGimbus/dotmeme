@@ -1,7 +1,6 @@
 // This provider keeps sync of all memes list
 import 'package:dotmeme/database/memebase.dart';
 import 'package:flutter/widgets.dart';
-import 'package:moor/moor.dart';
 import 'package:moor_ffi/database.dart';
 import 'package:photo_manager/photo_manager.dart';
 
@@ -64,43 +63,51 @@ class MemesProvider with ChangeNotifier {
   // TODO: THIS
   Future syncMemes() async {
     var watch = Stopwatch()..start();
-    var dbFoldersIds = (await db.getAllFoldersEnabled).map((f) => f.id);
-    for (var folderId in dbFoldersIds) {
-      var assFolder = await AssetPathEntity.fromId(folderId.toString(),
-          type: RequestType.image);
-      var allAssMemesIds =
-          (await assFolder.assetList).map((f) => int.parse(f.id));
-      for (var assId in allAssMemesIds) {
-        try {
-          db.addMeme(
-              MemesCompanion.insert(
-                id: assId,
-                folderId: int.parse(assFolder.id),
-              ),
-              ignoreFail: true);
-        } on SqliteException catch (e) {}
-      }
+    var dbFolders = await db.getAllFoldersEnabled;
+    for (var dbFolder in dbFolders) {
+      var syncStartTime = DateTime.now();
+      var watch = Stopwatch()..start();
+      var assFolder = await AssetPathEntity.fromId(
+        dbFolder.id.toString(),
+        filterOption: FilterOptionGroup()
+          ..dateTimeCond = DateTimeCond(
+            min: dbFolder.lastSync,
+            max: DateTime.now(),
+          ),
+        type: RequestType.image,
+      );
+      print('Getting foler ${dbFolder.id} from ${dbFolder.lastSync} '
+          'took ${watch.elapsedMilliseconds}ms');
+      watch.reset();
+      // Quick fix for nulls
+      // TODO: Change this is chinesee guy fixes it
+      if (assFolder.assetCount == null || assFolder.assetCount == 0) continue;
+      var newAssMemes = await assFolder.assetList;
 
-      var allDbMemesIds =
-          (await db.getAllMemesFromFolder(int.parse(assFolder.id)))
-              .map((m) => m.id);
-      for (var id in allDbMemesIds) {
-        if (!allAssMemesIds.contains(id)) {
-          db.deleteMeme(MemesCompanion(id: Value(id)));
-        }
-      }
+      var newDbMemes = newAssMemes.map((m) => MemesCompanion.insert(
+            id: int.parse(m.id),
+            folderId: int.parse(assFolder.id),
+          )).toList();
+      db.addMultipleMemes(newDbMemes);
+
+      await db.updateFolder(dbFolder.copyWith(lastSync: syncStartTime));
+      print(
+          'Syncing folder ${dbFolder.id} took ${watch.elapsedMilliseconds}ms');
     }
+    var w = Stopwatch()..start();
     for (var folder in await db.getAllFoldersDisabled) {
-      db.deleteAllMemesFromFolder(folder.id);
+      await db.deleteAllMemesFromFolder(folder.id);
+      await db.updateFolder(
+        folder.copyWith(lastSync: DateTime.fromMillisecondsSinceEpoch(0)),
+      );
     }
+    print('Delete not used folders: ${w.elapsedMilliseconds}ms');
 
     print('Memes sync finished in ${watch.elapsedMilliseconds}ms');
   }
 
   Future setFolderSyncEnabled(Folder folder, bool enabled) async {
-    await db.updateFolder(folder
-        .createCompanion(false)
-        .copyWith(scanningEnabled: Value(enabled)));
+    await db.updateFolder(folder.copyWith(scanningEnabled: enabled));
     notifyListeners();
   }
 }
