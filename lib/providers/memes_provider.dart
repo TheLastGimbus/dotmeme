@@ -63,10 +63,12 @@ class MemesProvider with ChangeNotifier {
   // TODO: THIS
   Future syncMemes() async {
     var watch = Stopwatch()..start();
-    var dbFolders = await db.getAllFoldersEnabled;
-    for (var dbFolder in dbFolders) {
-      var syncStartTime = DateTime.now();
-      var watch = Stopwatch()..start();
+    var syncStartTime = DateTime.now();
+
+    var allDbFolders = await db.getAllFoldersEnabled;
+    var allNewDbMemes = List<MemesCompanion>();
+
+    for (var dbFolder in allDbFolders) {
       var assFolder = await AssetPathEntity.fromId(
         dbFolder.id.toString(),
         filterOption: FilterOptionGroup()
@@ -76,24 +78,28 @@ class MemesProvider with ChangeNotifier {
           ),
         type: RequestType.image,
       );
-      print('Getting foler ${dbFolder.id} from ${dbFolder.lastSync} '
-          'took ${watch.elapsedMilliseconds}ms');
-      watch.reset();
       // Quick fix for nulls
       // TODO: Change this is chinesee guy fixes it
       if (assFolder.assetCount == null || assFolder.assetCount == 0) continue;
-      var newAssMemes = await assFolder.assetList;
+      var newAssFolderMemes = await assFolder.assetList;
 
-      var newDbMemes = newAssMemes.map((m) => MemesCompanion.insert(
-            id: int.parse(m.id),
-            folderId: int.parse(assFolder.id),
-          )).toList();
-      db.addMultipleMemes(newDbMemes);
-
-      await db.updateFolder(dbFolder.copyWith(lastSync: syncStartTime));
-      print(
-          'Syncing folder ${dbFolder.id} took ${watch.elapsedMilliseconds}ms');
+      allNewDbMemes.addAll(
+        newAssFolderMemes
+            .map((m) => MemesCompanion.insert(
+                  id: int.parse(m.id),
+                  folderId: int.parse(assFolder.id),
+                ))
+            .toList(),
+      );
     }
+    await db.addMultipleMemes(allNewDbMemes);
+    var foldersWithUpdatedTimes = allDbFolders
+        .map(
+          (f) => f.copyWith(lastSync: syncStartTime),
+        )
+        .toList();
+    await db.updateMultipleFolders(foldersWithUpdatedTimes);
+
     var w = Stopwatch()..start();
     for (var folder in await db.getAllFoldersDisabled) {
       await db.deleteAllMemesFromFolder(folder.id);
