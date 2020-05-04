@@ -26,6 +26,10 @@ class Folders extends Table {
 
   BoolColumn get scanningEnabled => boolean()();
 
+  // Party like it's 1/1/1970
+  DateTimeColumn get lastSync => dateTime()
+      .withDefault(Constant(DateTime.fromMillisecondsSinceEpoch(0)))();
+
   @override
   Set<Column> get primaryKey => {id};
 }
@@ -42,7 +46,17 @@ class Memebase extends _$Memebase {
         }));
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
+
+  @override
+  MigrationStrategy get migration => MigrationStrategy(onCreate: (Migrator m) {
+        return m.createAll();
+      }, onUpgrade: (Migrator m, int from, int to) async {
+        if (from == 1) {
+          // we added the dueDate property in the change from version 1
+          await m.addColumn(folders, folders.lastSync);
+        }
+      });
 
   Future addFolder(FoldersCompanion folder, {bool ignoreFail = false}) =>
       into(folders).insert(
