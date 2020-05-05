@@ -23,7 +23,7 @@ class MemesProvider with ChangeNotifier {
     return allMemes;
   }
 
-  // TODO: THIS
+  /// This also deletes memes from folders that stopped existing
   Future syncFolders() async {
     final watch = Stopwatch()..start();
     var dbFolders = await db.getAllFolders;
@@ -51,6 +51,7 @@ class MemesProvider with ChangeNotifier {
     for (var dbFolder in dbFolders) {
       if (!assFoldersIds.contains(dbFolder.id)) {
         await db.deleteFolder(dbFolder.createCompanion(false));
+        await db.deleteAllMemesFromFolder(dbFolder.id);
       }
     }
 

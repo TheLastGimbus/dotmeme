@@ -126,6 +126,7 @@ class Memebase extends _$Memebase {
     var enabledIds = (await getAllFoldersEnabled).map((f) => f.id).toList();
     var disabledIds = disabledFolders.map((f) => f.id).toList();
 
+    // Also remove all form non-existing
     var allFoldersIds = (disabledIds + enabledIds);
 
     await (delete(memes)
