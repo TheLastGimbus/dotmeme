@@ -71,6 +71,8 @@ class MemesProvider with ChangeNotifier {
     var allDbFolders = await db.getAllFoldersEnabled;
     var allNewDbMemes = List<MemesCompanion>();
 
+    var allDbUpdatedFolders = Set<Folder>();
+
     for (var dbFolder in allDbFolders) {
       var assFolder = await AssetPathEntity.fromId(
         dbFolder.id.toString(),
@@ -90,6 +92,9 @@ class MemesProvider with ChangeNotifier {
       // Quick fix for nulls
       // TODO: Change this is chinesee guy fixes it
       if (assFolder.assetCount == null || assFolder.assetCount == 0) continue;
+
+      allDbUpdatedFolders.add(dbFolder);
+
       var newAssFolderMemes = await assFolder.assetList;
 
       allNewDbMemes.addAll(
@@ -119,7 +124,7 @@ class MemesProvider with ChangeNotifier {
     // TODO: Delete non-existing memes
 
     // Update folders' lastSync dates to when scanning begun
-    var foldersWithUpdatedTimes = allDbFolders
+    var foldersWithUpdatedTimes = allDbUpdatedFolders
         .map(
           (f) => f.copyWith(lastSync: syncStartTime),
     )
