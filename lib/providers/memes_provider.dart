@@ -93,6 +93,8 @@ class MemesProvider with ChangeNotifier {
       );
     }
     await db.addMultipleMemes(allNewDbMemes);
+
+    // Update folders' lastSync dates to when scanning begun
     var foldersWithUpdatedTimes = allDbFolders
         .map(
           (f) => f.copyWith(lastSync: syncStartTime),
@@ -100,9 +102,10 @@ class MemesProvider with ChangeNotifier {
         .toList();
     await db.updateMultipleFolders(foldersWithUpdatedTimes);
 
-    var w = Stopwatch()..start();
+    // Delete all memes that are from folders that were disabled
     await db.deleteAllMemesFromDisabledFolders();
-    print('Delete not used folders: ${w.elapsedMilliseconds}ms');
+
+    // TODO: Delete non-existing memes
 
     print('Memes sync finished in ${watch.elapsedMilliseconds}ms');
   }
