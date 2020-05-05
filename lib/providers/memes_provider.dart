@@ -36,11 +36,11 @@ class MemesProvider with ChangeNotifier {
 
     if (setEquals(dbFoldersIds, assFoldersIds)) return;
 
-    var foldersToAdd = List<FoldersCompanion>();
+    var foldersToAdd = List<Folder>();
     for (var assFol in assFolders) {
       var assId = int.parse(assFol.id);
       if (!dbFoldersIds.contains(assId)) {
-        foldersToAdd.add(FoldersCompanion.insert(
+        foldersToAdd.add(Folder(
           id: assId,
           scanningEnabled: false,
         ));
@@ -50,7 +50,7 @@ class MemesProvider with ChangeNotifier {
 
     for (var dbFolder in dbFolders) {
       if (!assFoldersIds.contains(dbFolder.id)) {
-        await db.deleteFolder(dbFolder.createCompanion(false));
+        await db.deleteFolder(dbFolder);
         await db.deleteAllMemesFromFolder(dbFolder.id);
       }
     }
@@ -67,7 +67,7 @@ class MemesProvider with ChangeNotifier {
     var allAssFolders = List<AssetPathEntity>();
 
     var allDbFolders = await db.getAllFoldersEnabled;
-    var allNewDbMemes = List<MemesCompanion>();
+    var allNewDbMemes = List<Meme>();
 
     var allDbUpdatedFolders = Set<Folder>();
 
@@ -98,7 +98,7 @@ class MemesProvider with ChangeNotifier {
 
       allNewDbMemes.addAll(
         newAssFolderMemes
-            .map((m) => MemesCompanion.insert(
+            .map((m) => Meme(
                   id: int.parse(m.id),
                   folderId: int.parse(limitedAssFolder.id),
                 ))
@@ -127,7 +127,7 @@ class MemesProvider with ChangeNotifier {
         // Just need to check every one myself
         for (var meme in dbMemes) {
           if (!assIds.contains(meme.id)) {
-            await db.deleteMeme(meme.createCompanion(false));
+            await db.deleteMeme(meme);
           }
         }
       }

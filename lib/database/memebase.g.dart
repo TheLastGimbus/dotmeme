@@ -29,6 +29,21 @@ class Folder extends DataClass implements Insertable<Folder> {
           .mapFromDatabaseResponse(data['${effectivePrefix}last_sync']),
     );
   }
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (!nullToAbsent || id != null) {
+      map['id'] = Variable<int>(id);
+    }
+    if (!nullToAbsent || scanningEnabled != null) {
+      map['scanning_enabled'] = Variable<bool>(scanningEnabled);
+    }
+    if (!nullToAbsent || lastSync != null) {
+      map['last_sync'] = Variable<DateTime>(lastSync);
+    }
+    return map;
+  }
+
   factory Folder.fromJson(Map<String, dynamic> json,
       {ValueSerializer serializer}) {
     serializer ??= moorRuntimeOptions.defaultSerializer;
@@ -46,19 +61,6 @@ class Folder extends DataClass implements Insertable<Folder> {
       'scanningEnabled': serializer.toJson<bool>(scanningEnabled),
       'lastSync': serializer.toJson<DateTime>(lastSync),
     };
-  }
-
-  @override
-  FoldersCompanion createCompanion(bool nullToAbsent) {
-    return FoldersCompanion(
-      id: id == null && nullToAbsent ? const Value.absent() : Value(id),
-      scanningEnabled: scanningEnabled == null && nullToAbsent
-          ? const Value.absent()
-          : Value(scanningEnabled),
-      lastSync: lastSync == null && nullToAbsent
-          ? const Value.absent()
-          : Value(lastSync),
-    );
   }
 
   Folder copyWith({int id, bool scanningEnabled, DateTime lastSync}) => Folder(
@@ -98,11 +100,22 @@ class FoldersCompanion extends UpdateCompanion<Folder> {
     this.lastSync = const Value.absent(),
   });
   FoldersCompanion.insert({
-    @required int id,
+    this.id = const Value.absent(),
     @required bool scanningEnabled,
     this.lastSync = const Value.absent(),
-  })  : id = Value(id),
-        scanningEnabled = Value(scanningEnabled);
+  }) : scanningEnabled = Value(scanningEnabled);
+  static Insertable<Folder> custom({
+    Expression<int> id,
+    Expression<bool> scanningEnabled,
+    Expression<DateTime> lastSync,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (scanningEnabled != null) 'scanning_enabled': scanningEnabled,
+      if (lastSync != null) 'last_sync': lastSync,
+    });
+  }
+
   FoldersCompanion copyWith(
       {Value<int> id, Value<bool> scanningEnabled, Value<DateTime> lastSync}) {
     return FoldersCompanion(
@@ -110,6 +123,21 @@ class FoldersCompanion extends UpdateCompanion<Folder> {
       scanningEnabled: scanningEnabled ?? this.scanningEnabled,
       lastSync: lastSync ?? this.lastSync,
     );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (scanningEnabled.present) {
+      map['scanning_enabled'] = Variable<bool>(scanningEnabled.value);
+    }
+    if (lastSync.present) {
+      map['last_sync'] = Variable<DateTime>(lastSync.value);
+    }
+    return map;
   }
 }
 
@@ -158,25 +186,24 @@ class $FoldersTable extends Folders with TableInfo<$FoldersTable, Folder> {
   @override
   final String actualTableName = 'folders';
   @override
-  VerificationContext validateIntegrity(FoldersCompanion d,
+  VerificationContext validateIntegrity(Insertable<Folder> instance,
       {bool isInserting = false}) {
     final context = VerificationContext();
-    if (d.id.present) {
-      context.handle(_idMeta, id.isAcceptableValue(d.id.value, _idMeta));
-    } else if (isInserting) {
-      context.missing(_idMeta);
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id'], _idMeta));
     }
-    if (d.scanningEnabled.present) {
+    if (data.containsKey('scanning_enabled')) {
       context.handle(
           _scanningEnabledMeta,
-          scanningEnabled.isAcceptableValue(
-              d.scanningEnabled.value, _scanningEnabledMeta));
+          scanningEnabled.isAcceptableOrUnknown(
+              data['scanning_enabled'], _scanningEnabledMeta));
     } else if (isInserting) {
       context.missing(_scanningEnabledMeta);
     }
-    if (d.lastSync.present) {
+    if (data.containsKey('last_sync')) {
       context.handle(_lastSyncMeta,
-          lastSync.isAcceptableValue(d.lastSync.value, _lastSyncMeta));
+          lastSync.isAcceptableOrUnknown(data['last_sync'], _lastSyncMeta));
     }
     return context;
   }
@@ -187,22 +214,6 @@ class $FoldersTable extends Folders with TableInfo<$FoldersTable, Folder> {
   Folder map(Map<String, dynamic> data, {String tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
     return Folder.fromData(data, _db, prefix: effectivePrefix);
-  }
-
-  @override
-  Map<String, Variable> entityToSql(FoldersCompanion d) {
-    final map = <String, Variable>{};
-    if (d.id.present) {
-      map['id'] = Variable<int, IntType>(d.id.value);
-    }
-    if (d.scanningEnabled.present) {
-      map['scanning_enabled'] =
-          Variable<bool, BoolType>(d.scanningEnabled.value);
-    }
-    if (d.lastSync.present) {
-      map['last_sync'] = Variable<DateTime, DateTimeType>(d.lastSync.value);
-    }
-    return map;
   }
 
   @override
@@ -229,6 +240,21 @@ class Meme extends DataClass implements Insertable<Meme> {
           stringType.mapFromDatabaseResponse(data['${effectivePrefix}text']),
     );
   }
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (!nullToAbsent || id != null) {
+      map['id'] = Variable<int>(id);
+    }
+    if (!nullToAbsent || folderId != null) {
+      map['folder_id'] = Variable<int>(folderId);
+    }
+    if (!nullToAbsent || scannedText != null) {
+      map['text'] = Variable<String>(scannedText);
+    }
+    return map;
+  }
+
   factory Meme.fromJson(Map<String, dynamic> json,
       {ValueSerializer serializer}) {
     serializer ??= moorRuntimeOptions.defaultSerializer;
@@ -246,19 +272,6 @@ class Meme extends DataClass implements Insertable<Meme> {
       'folderId': serializer.toJson<int>(folderId),
       'scannedText': serializer.toJson<String>(scannedText),
     };
-  }
-
-  @override
-  MemesCompanion createCompanion(bool nullToAbsent) {
-    return MemesCompanion(
-      id: id == null && nullToAbsent ? const Value.absent() : Value(id),
-      folderId: folderId == null && nullToAbsent
-          ? const Value.absent()
-          : Value(folderId),
-      scannedText: scannedText == null && nullToAbsent
-          ? const Value.absent()
-          : Value(scannedText),
-    );
   }
 
   Meme copyWith({int id, int folderId, String scannedText}) => Meme(
@@ -298,11 +311,22 @@ class MemesCompanion extends UpdateCompanion<Meme> {
     this.scannedText = const Value.absent(),
   });
   MemesCompanion.insert({
-    @required int id,
+    this.id = const Value.absent(),
     @required int folderId,
     this.scannedText = const Value.absent(),
-  })  : id = Value(id),
-        folderId = Value(folderId);
+  }) : folderId = Value(folderId);
+  static Insertable<Meme> custom({
+    Expression<int> id,
+    Expression<int> folderId,
+    Expression<String> scannedText,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (folderId != null) 'folder_id': folderId,
+      if (scannedText != null) 'text': scannedText,
+    });
+  }
+
   MemesCompanion copyWith(
       {Value<int> id, Value<int> folderId, Value<String> scannedText}) {
     return MemesCompanion(
@@ -310,6 +334,21 @@ class MemesCompanion extends UpdateCompanion<Meme> {
       folderId: folderId ?? this.folderId,
       scannedText: scannedText ?? this.scannedText,
     );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (folderId.present) {
+      map['folder_id'] = Variable<int>(folderId.value);
+    }
+    if (scannedText.present) {
+      map['text'] = Variable<String>(scannedText.value);
+    }
+    return map;
   }
 }
 
@@ -361,23 +400,22 @@ class $MemesTable extends Memes with TableInfo<$MemesTable, Meme> {
   @override
   final String actualTableName = 'memes';
   @override
-  VerificationContext validateIntegrity(MemesCompanion d,
+  VerificationContext validateIntegrity(Insertable<Meme> instance,
       {bool isInserting = false}) {
     final context = VerificationContext();
-    if (d.id.present) {
-      context.handle(_idMeta, id.isAcceptableValue(d.id.value, _idMeta));
-    } else if (isInserting) {
-      context.missing(_idMeta);
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id'], _idMeta));
     }
-    if (d.folderId.present) {
+    if (data.containsKey('folder_id')) {
       context.handle(_folderIdMeta,
-          folderId.isAcceptableValue(d.folderId.value, _folderIdMeta));
+          folderId.isAcceptableOrUnknown(data['folder_id'], _folderIdMeta));
     } else if (isInserting) {
       context.missing(_folderIdMeta);
     }
-    if (d.scannedText.present) {
+    if (data.containsKey('text')) {
       context.handle(_scannedTextMeta,
-          scannedText.isAcceptableValue(d.scannedText.value, _scannedTextMeta));
+          scannedText.isAcceptableOrUnknown(data['text'], _scannedTextMeta));
     }
     return context;
   }
@@ -388,21 +426,6 @@ class $MemesTable extends Memes with TableInfo<$MemesTable, Meme> {
   Meme map(Map<String, dynamic> data, {String tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
     return Meme.fromData(data, _db, prefix: effectivePrefix);
-  }
-
-  @override
-  Map<String, Variable> entityToSql(MemesCompanion d) {
-    final map = <String, Variable>{};
-    if (d.id.present) {
-      map['id'] = Variable<int, IntType>(d.id.value);
-    }
-    if (d.folderId.present) {
-      map['folder_id'] = Variable<int, IntType>(d.folderId.value);
-    }
-    if (d.scannedText.present) {
-      map['text'] = Variable<String, StringType>(d.scannedText.value);
-    }
-    return map;
   }
 
   @override

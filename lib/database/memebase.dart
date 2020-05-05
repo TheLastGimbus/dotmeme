@@ -64,15 +64,14 @@ class Memebase extends _$Memebase {
         mode: ignoreFail ? InsertMode.insertOrIgnore : InsertMode.insert,
       );
 
-  Future addMultipleFolders(List<FoldersCompanion> newFolders) =>
+  Future addMultipleFolders(List<Folder> newFolders) =>
       batch((b) => b.insertAll(
-        folders,
-        newFolders,
-        mode: InsertMode.insertOrIgnore,
-      ));
+            folders,
+            newFolders,
+            mode: InsertMode.insertOrIgnore,
+          ));
 
-  Future deleteFolder(FoldersCompanion folder) =>
-      delete(folders).delete(folder);
+  Future deleteFolder(Folder folder) => delete(folders).delete(folder);
 
   Future updateFolder(Folder folder) => update(folders).replace(folder);
 
@@ -101,12 +100,11 @@ class Memebase extends _$Memebase {
         mode: ignoreFail ? InsertMode.insertOrIgnore : InsertMode.insert,
       );
 
-  Future addMultipleMemes(List<MemesCompanion> newMemes) =>
-      batch((b) => b.insertAll(
-            memes,
-            newMemes,
-            mode: InsertMode.insertOrIgnore,
-          ));
+  Future addMultipleMemes(List<Meme> newMemes) => batch((b) => b.insertAll(
+        memes,
+        newMemes,
+        mode: InsertMode.insertOrIgnore,
+      ));
 
   Future setMemeText(int memeId, String text) =>
       (update(memes)..where((m) => m.id.equals(memeId)))
@@ -115,7 +113,7 @@ class Memebase extends _$Memebase {
   Future<List<Meme>> get getNotScannedMemes =>
       (select(memes)..where((m) => isNull(m.scannedText))).get();
 
-  Future deleteMeme(MemesCompanion meme) => delete(memes).delete(meme);
+  Future deleteMeme(Meme meme) => delete(memes).delete(meme);
 
   Future deleteAllMemesFromFolder(int folderId) =>
       (delete(memes)..where((m) => m.folderId.equals(folderId))).go();
