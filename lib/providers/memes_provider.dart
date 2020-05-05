@@ -101,12 +101,7 @@ class MemesProvider with ChangeNotifier {
     await db.updateMultipleFolders(foldersWithUpdatedTimes);
 
     var w = Stopwatch()..start();
-    for (var folder in await db.getAllFoldersDisabled) {
-      await db.deleteAllMemesFromFolder(folder.id);
-      await db.updateFolder(
-        folder.copyWith(lastSync: DateTime.fromMillisecondsSinceEpoch(0)),
-      );
-    }
+    await db.deleteAllMemesFromDisabledFolders();
     print('Delete not used folders: ${w.elapsedMilliseconds}ms');
 
     print('Memes sync finished in ${watch.elapsedMilliseconds}ms');
