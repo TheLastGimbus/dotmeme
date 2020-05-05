@@ -65,6 +65,9 @@ class MemesProvider with ChangeNotifier {
     var watch = Stopwatch()..start();
     var syncStartTime = DateTime.now();
 
+    // This is used to optimize deleting
+    var allAssWholeFolders = List<AssetPathEntity>();
+
     var allDbFolders = await db.getAllFoldersEnabled;
     var allNewDbMemes = List<MemesCompanion>();
 
@@ -78,6 +81,12 @@ class MemesProvider with ChangeNotifier {
           ),
         type: RequestType.image,
       );
+
+      allAssWholeFolders.add(await AssetPathEntity.fromId(
+        dbFolder.id.toString(),
+        type: RequestType.image,
+      ));
+
       // Quick fix for nulls
       // TODO: Change this is chinesee guy fixes it
       if (assFolder.assetCount == null || assFolder.assetCount == 0) continue;
@@ -104,6 +113,16 @@ class MemesProvider with ChangeNotifier {
 
     // Delete all memes that are from folders that were disabled
     await db.deleteAllMemesFromDisabledFolders();
+
+    var allDeviceMemesCount = 0;
+    allAssWholeFolders.forEach((f) => allDeviceMemesCount += f.assetCount);
+    var dbCount = await db.getAllMemesCount;
+    if(allDeviceMemesCount != dbCount){
+      // TODO: If not equal, delete
+      for(var fol in allDbFolders){
+        var count = await db.getAllMemesCountInFolder(fol.id);
+      }
+    }
 
     // TODO: Delete non-existing memes
 

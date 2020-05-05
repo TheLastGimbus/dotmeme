@@ -74,6 +74,15 @@ class Memebase extends _$Memebase {
 
   Future<List<Meme>> get getAllMemes => select(memes).get();
 
+  Future<int> get getAllMemesCount async {
+    var res = await (selectOnly(memes)..addColumns([countAll()])).getSingle();
+    return res.read(countAll());
+  }
+
+  Future<int> getAllMemesCountInFolder(int folderId) async {
+    // TODO
+  }
+
   Future<List<Meme>> getAllMemesFromFolder(int folderId) =>
       (select(memes)..where((m) => m.folderId.equals(folderId))).get();
 
