@@ -66,7 +66,7 @@ class MemesProvider with ChangeNotifier {
     var syncStartTime = DateTime.now();
 
     // This is used to optimize deleting
-    var allAssWholeFolders = List<AssetPathEntity>();
+    var allAssFullFolders = List<AssetPathEntity>();
 
     var allDbFolders = await db.getAllFoldersEnabled;
     var allNewDbMemes = List<MemesCompanion>();
@@ -82,7 +82,7 @@ class MemesProvider with ChangeNotifier {
         type: RequestType.image,
       );
 
-      allAssWholeFolders.add(await AssetPathEntity.fromId(
+      allAssFullFolders.add(await AssetPathEntity.fromId(
         dbFolder.id.toString(),
         type: RequestType.image,
       ));
@@ -103,19 +103,11 @@ class MemesProvider with ChangeNotifier {
     }
     await db.addMultipleMemes(allNewDbMemes);
 
-    // Update folders' lastSync dates to when scanning begun
-    var foldersWithUpdatedTimes = allDbFolders
-        .map(
-          (f) => f.copyWith(lastSync: syncStartTime),
-        )
-        .toList();
-    await db.updateMultipleFolders(foldersWithUpdatedTimes);
-
     // Delete all memes that are from folders that were disabled
     await db.deleteAllMemesFromDisabledFolders();
 
     var allDeviceMemesCount = 0;
-    allAssWholeFolders.forEach((f) => allDeviceMemesCount += f.assetCount);
+    allAssFullFolders.forEach((f) => allDeviceMemesCount += f.assetCount);
     var dbCount = await db.getAllMemesCount;
     if(allDeviceMemesCount != dbCount){
       // TODO: If not equal, delete
@@ -125,6 +117,14 @@ class MemesProvider with ChangeNotifier {
     }
 
     // TODO: Delete non-existing memes
+
+    // Update folders' lastSync dates to when scanning begun
+    var foldersWithUpdatedTimes = allDbFolders
+        .map(
+          (f) => f.copyWith(lastSync: syncStartTime),
+    )
+        .toList();
+    await db.updateMultipleFolders(foldersWithUpdatedTimes);
 
     print('Memes sync finished in ${watch.elapsedMilliseconds}ms');
   }
