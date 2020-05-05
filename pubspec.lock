@@ -203,7 +203,7 @@ packages:
       name: file_picker
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.6.2"
+    version: "1.9.0+1"
   fixnum:
     dependency: transitive
     description:
@@ -222,7 +222,7 @@ packages:
       name: flutter_local_notifications
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.4.2"
+    version: "1.4.3"
   flutter_local_notifications_platform_interface:
     dependency: transitive
     description:
@@ -400,7 +400,7 @@ packages:
       name: path_provider
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.6.5"
+    version: "1.6.7"
   path_provider_macos:
     dependency: transitive
     description:
@@ -470,7 +470,7 @@ packages:
       name: provider
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "4.0.5"
+    version: "4.0.5+1"
   pub_semver:
     dependency: transitive
     description:
