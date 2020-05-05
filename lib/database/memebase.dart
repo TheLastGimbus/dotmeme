@@ -79,7 +79,6 @@ class Memebase extends _$Memebase {
     return res.read(countAll());
   }
 
-  // TODO: Make it work
   Future<int> getAllMemesCountInFolder(int folderId) async {
     var count = countAll(filter: memes.folderId.equals(folderId));
     var res = await (selectOnly(memes)..addColumns([count])).getSingle();
@@ -88,9 +87,6 @@ class Memebase extends _$Memebase {
 
   Future<List<Meme>> getAllMemesFromFolder(int folderId) =>
       (select(memes)..where((m) => m.folderId.equals(folderId))).get();
-
-  Future deleteAllMemesNotInIdsList(List<int> ids) =>
-      (delete(memes)..where((m) => m.id.isNotIn(ids))).go();
 
   Future addMeme(MemesCompanion meme, {bool ignoreFail = false}) =>
       into(memes).insert(

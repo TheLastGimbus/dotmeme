@@ -66,7 +66,7 @@ class MemesProvider with ChangeNotifier {
     var syncStartTime = DateTime.now();
 
     // This is used to optimize deleting
-    var allAssFullFolders = List<AssetPathEntity>();
+    var allAssFolders = List<AssetPathEntity>();
 
     var allDbFolders = await db.getAllFoldersEnabled;
     var allNewDbMemes = List<MemesCompanion>();
@@ -74,7 +74,7 @@ class MemesProvider with ChangeNotifier {
     var allDbUpdatedFolders = Set<Folder>();
 
     for (var dbFolder in allDbFolders) {
-      var assFolder = await AssetPathEntity.fromId(
+      var limitedAssFolder = await AssetPathEntity.fromId(
         dbFolder.id.toString(),
         filterOption: FilterOptionGroup()
           ..dateTimeCond = DateTimeCond(
@@ -84,24 +84,25 @@ class MemesProvider with ChangeNotifier {
         type: RequestType.image,
       );
 
-      allAssFullFolders.add(await AssetPathEntity.fromId(
+      allAssFolders.add(await AssetPathEntity.fromId(
         dbFolder.id.toString(),
         type: RequestType.image,
       ));
 
       // Quick fix for nulls
       // TODO: Change this is chinesee guy fixes it
-      if (assFolder.assetCount == null || assFolder.assetCount == 0) continue;
+      if (limitedAssFolder.assetCount == null ||
+          limitedAssFolder.assetCount == 0) continue;
 
       allDbUpdatedFolders.add(dbFolder);
 
-      var newAssFolderMemes = await assFolder.assetList;
+      var newAssFolderMemes = await limitedAssFolder.assetList;
 
       allNewDbMemes.addAll(
         newAssFolderMemes
             .map((m) => MemesCompanion.insert(
                   id: int.parse(m.id),
-                  folderId: int.parse(assFolder.id),
+                  folderId: int.parse(limitedAssFolder.id),
                 ))
             .toList(),
       );
@@ -111,23 +112,36 @@ class MemesProvider with ChangeNotifier {
     // Delete all memes that are from folders that were disabled
     await db.deleteAllMemesFromDisabledFolders();
 
-    var allDeviceMemesCount = 0;
-    allAssFullFolders.forEach((f) => allDeviceMemesCount += f.assetCount);
-    var dbCount = await db.getAllMemesCount;
-    if(allDeviceMemesCount != dbCount){
-      // TODO: If not equal, delete
-      for(var fol in allDbFolders){
-        var count = await db.getAllMemesCountInFolder(fol.id);
+    // Delete all memes that were deleted from device
+    for (var dbFol in allDbFolders) {
+      // First - check if there is a difference in ".count()"
+      var count = await db.getAllMemesCountInFolder(dbFol.id);
+      var assFolder =
+          allAssFolders.firstWhere((f) => int.parse(f.id) == dbFol.id);
+      if (count != assFolder.assetCount) {
+        // Delete all memes that are in database, but not in AssetPath
+        // aka those who were deleted
+        var allAssMemes = await assFolder.assetList;
+        var assIds = allAssMemes.map((m) => int.parse(m.id)).toList();
+        var dbMemes = await db.getAllMemesFromFolder(dbFol.id);
+
+        // Sorry, I did not found any good way to do this DB-style
+        // Just need to check every one myself
+        for (var meme in dbMemes) {
+          if (!assIds.contains(meme.id)) {
+            await db.deleteMeme(meme.createCompanion(false));
+          }
+        }
       }
     }
 
-    // TODO: Delete non-existing memes
+    // TODO: Delete memes from non-existing folders
 
     // Update folders' lastSync dates to when scanning begun
     var foldersWithUpdatedTimes = allDbUpdatedFolders
         .map(
           (f) => f.copyWith(lastSync: syncStartTime),
-    )
+        )
         .toList();
     await db.updateMultipleFolders(foldersWithUpdatedTimes);
 
