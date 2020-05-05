@@ -64,6 +64,13 @@ class Memebase extends _$Memebase {
         mode: ignoreFail ? InsertMode.insertOrIgnore : InsertMode.insert,
       );
 
+  Future addMultipleFolders(List<FoldersCompanion> newFolders) =>
+      batch((b) => b.insertAll(
+        folders,
+        newFolders,
+        mode: InsertMode.insertOrIgnore,
+      ));
+
   Future deleteFolder(FoldersCompanion folder) =>
       delete(folders).delete(folder);
 
