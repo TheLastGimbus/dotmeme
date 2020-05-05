@@ -26,6 +26,10 @@ class Folders extends Table {
 
   BoolColumn get scanningEnabled => boolean()();
 
+  // Party like it's 1/1/1970
+  DateTimeColumn get lastSync => dateTime()
+      .withDefault(Constant(DateTime.fromMillisecondsSinceEpoch(0)))();
+
   @override
   Set<Column> get primaryKey => {id};
 }
@@ -42,7 +46,17 @@ class Memebase extends _$Memebase {
         }));
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
+
+  @override
+  MigrationStrategy get migration => MigrationStrategy(onCreate: (Migrator m) {
+        return m.createAll();
+      }, onUpgrade: (Migrator m, int from, int to) async {
+        if (from == 1) {
+          // we added the dueDate property in the change from version 1
+          await m.addColumn(folders, folders.lastSync);
+        }
+      });
 
   Future addFolder(FoldersCompanion folder, {bool ignoreFail = false}) =>
       into(folders).insert(
@@ -50,23 +64,49 @@ class Memebase extends _$Memebase {
         mode: ignoreFail ? InsertMode.insertOrIgnore : InsertMode.insert,
       );
 
+  Future addMultipleFolders(List<FoldersCompanion> newFolders) =>
+      batch((b) => b.insertAll(
+        folders,
+        newFolders,
+        mode: InsertMode.insertOrIgnore,
+      ));
+
   Future deleteFolder(FoldersCompanion folder) =>
       delete(folders).delete(folder);
 
-  Future updateFolder(FoldersCompanion folder) =>
-      update(folders).replace(folder);
+  Future updateFolder(Folder folder) => update(folders).replace(folder);
+
+  Future updateMultipleFolders(List<Folder> updateFolders) =>
+      batch((b) => b.replaceAll(folders, updateFolders));
 
   Future<List<Meme>> get getAllMemes => select(memes).get();
 
-  Future<List<Meme>> getAllMemesFromFolder(int folderId) {
-    return (select(memes)..where((m) => m.folderId.equals(folderId))).get();
+  Future<int> get getAllMemesCount async {
+    var res = await (selectOnly(memes)..addColumns([countAll()])).getSingle();
+    return res.read(countAll());
   }
+
+  Future<int> getAllMemesCountInFolder(int folderId) async {
+    var count = countAll(filter: memes.folderId.equals(folderId));
+    var res = await (selectOnly(memes)..addColumns([count])).getSingle();
+    return res.read(count);
+  }
+
+  Future<List<Meme>> getAllMemesFromFolder(int folderId) =>
+      (select(memes)..where((m) => m.folderId.equals(folderId))).get();
 
   Future addMeme(MemesCompanion meme, {bool ignoreFail = false}) =>
       into(memes).insert(
         meme,
         mode: ignoreFail ? InsertMode.insertOrIgnore : InsertMode.insert,
       );
+
+  Future addMultipleMemes(List<MemesCompanion> newMemes) =>
+      batch((b) => b.insertAll(
+            memes,
+            newMemes,
+            mode: InsertMode.insertOrIgnore,
+          ));
 
   Future setMemeText(int memeId, String text) =>
       (update(memes)..where((m) => m.id.equals(memeId)))
@@ -79,6 +119,31 @@ class Memebase extends _$Memebase {
 
   Future deleteAllMemesFromFolder(int folderId) =>
       (delete(memes)..where((m) => m.folderId.equals(folderId))).go();
+
+  /// Also deletes all from non-existing folders
+  Future deleteAllMemesFromDisabledFolders() async {
+    var disabledFolders = await getAllFoldersDisabled;
+    var enabledIds = (await getAllFoldersEnabled).map((f) => f.id).toList();
+    var disabledIds = disabledFolders.map((f) => f.id).toList();
+
+    // Also remove all form non-existing
+    var allFoldersIds = (disabledIds + enabledIds);
+
+    await (delete(memes)
+          ..where(
+            (m) =>
+                m.folderId.isIn(disabledIds) |
+                m.folderId.isNotIn(allFoldersIds),
+          ))
+        .go();
+    await updateMultipleFolders(
+      disabledFolders
+          .map((f) => f.copyWith(
+                lastSync: DateTime.fromMillisecondsSinceEpoch(0),
+              ))
+          .toList(),
+    );
+  }
 
   Future<List<Folder>> get getAllFolders => select(folders).get();
 
