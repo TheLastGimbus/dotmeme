@@ -113,11 +113,21 @@ class Memebase extends _$Memebase {
   Future deleteAllMemesFromFolder(int folderId) =>
       (delete(memes)..where((m) => m.folderId.equals(folderId))).go();
 
+  /// Also deletes all from non-existing folders
   Future deleteAllMemesFromDisabledFolders() async {
-    var disabledFolders =
-        await (select(folders)..where((f) => f.scanningEnabled.not())).get();
+    var disabledFolders = await getAllFoldersDisabled;
+    var enabledIds = (await getAllFoldersEnabled).map((f) => f.id).toList();
     var disabledIds = disabledFolders.map((f) => f.id).toList();
-    await (delete(memes)..where((m) => m.folderId.isIn(disabledIds))).go();
+
+    var allFoldersIds = (disabledIds + enabledIds);
+
+    await (delete(memes)
+          ..where(
+            (m) =>
+                m.folderId.isIn(disabledIds) |
+                m.folderId.isNotIn(allFoldersIds),
+          ))
+        .go();
     await updateMultipleFolders(
       disabledFolders
           .map((f) => f.copyWith(

@@ -135,8 +135,6 @@ class MemesProvider with ChangeNotifier {
       }
     }
 
-    // TODO: Delete memes from non-existing folders
-
     // Update folders' lastSync dates to when scanning begun
     var foldersWithUpdatedTimes = allDbUpdatedFolders
         .map(
