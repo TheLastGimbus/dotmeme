@@ -6,6 +6,7 @@ import 'package:esys_flutter_share/esys_flutter_share.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:image/image.dart' as nImage;
+import 'package:path/path.dart' as path;
 import 'package:photo_manager/photo_manager.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
@@ -23,8 +24,6 @@ class SwipingPage extends StatelessWidget {
 
   final int startIndex;
   final Uint8List startThumbnail;
-
-  int _currentPage = 0;
 
   Future<Uint8List> _loadMemeToMemory(Meme meme) async {
     var asset = await AssetEntity.fromId(meme.id.toString());
@@ -45,7 +44,7 @@ class SwipingPage extends StatelessWidget {
           gaplessPlayback: true,
         )
       : FutureBuilder(
-          future: _loadMemeToMemory(meme),
+          future: _getMemeThumbnail(meme),
           builder: (context, snapshot) => snapshot.hasData
               ? Image.memory(
                   snapshot.data,
@@ -60,36 +59,23 @@ class SwipingPage extends StatelessWidget {
   // *some* images (random?), even if not swiped.
   Widget _pageWidget(int index, Meme meme) => FutureBuilder(
         future: _loadMemeToMemory(meme),
-        builder: (context, AsyncSnapshot<Uint8List> snapshot) => Hero(
-          tag: 'meme$index',
-          child: snapshot.hasData
-              ? PhotoView(
-                  imageProvider: MemoryImage(snapshot.data),
-                  loadingBuilder: (ctx, event) => _loadingWidget(index, meme),
-                  minScale: PhotoViewComputedScale.contained,
-                  maxScale: 50.0,
-                  scaleStateCycle: (scaleState) {
-                    print('ScaleState: $scaleState');
-                    if (scaleState == PhotoViewScaleState.initial) {
-                      return PhotoViewScaleState.covering;
-                    } else {
-                      return PhotoViewScaleState.initial;
-                    }
-                  },
-                  gaplessPlayback: true,
-                )
-              : _loadingWidget(
-                  index,
-                  meme,
-                ),
-        ),
+        builder: (context, AsyncSnapshot<Uint8List> snapshot) =>
+            snapshot.hasData
+                ? Image(
+                    image: MemoryImage(snapshot.data),
+                    fit: BoxFit.contain,
+                    gaplessPlayback: true,
+                  )
+                : _loadingWidget(
+                    index,
+                    meme,
+                  ),
       );
 
   @override
   Widget build(BuildContext context) {
     final homeProvider = Provider.of<HomePageProvider>(context);
     final _controller = PageController(initialPage: startIndex);
-    _currentPage = startIndex;
 
     // TODO: Show/hide app bar and options buttons (not present yet)
     //  on single press
@@ -102,7 +88,7 @@ class SwipingPage extends StatelessWidget {
             icon: Icon(Icons.share),
             onPressed: () async {
               var asset = await AssetEntity.fromId(
-                homeProvider.memesList[_currentPage].id.toString(),
+                homeProvider.memesList[_controller.page.round()].id.toString(),
               );
               var file = await asset.file;
               var image = nImage.decodeNamedImage(
@@ -119,7 +105,7 @@ class SwipingPage extends StatelessWidget {
                 'Shere meme',
                 asset.title,
                 nImage.encodeJpg(image),
-                'image/*',
+                'image/${path.extension(asset.title).replaceFirst('.', '')}',
               );
             },
           )
@@ -131,9 +117,18 @@ class SwipingPage extends StatelessWidget {
         pageController: _controller,
         builder: (context, index) => PhotoViewGalleryPageOptions.customChild(
           child: _pageWidget(index, homeProvider.memesList[index]),
+          minScale: PhotoViewComputedScale.contained,
+          maxScale: 50.0,
+          scaleStateCycle: (scaleState) {
+            print('ScaleState: $scaleState');
+            if (scaleState == PhotoViewScaleState.initial) {
+              return PhotoViewScaleState.covering;
+            } else {
+              return PhotoViewScaleState.initial;
+            }
+          },
         ),
         gaplessPlayback: true,
-        onPageChanged: (now) => _currentPage = now,
         itemCount: homeProvider.memesList.length,
       ),
     );
