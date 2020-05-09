@@ -45,7 +45,7 @@ class SwipingPage extends StatelessWidget {
           gaplessPlayback: true,
         )
       : FutureBuilder(
-          future: _loadMemeToMemory(meme),
+          future: _getMemeThumbnail(meme),
           builder: (context, snapshot) => snapshot.hasData
               ? Image.memory(
                   snapshot.data,
