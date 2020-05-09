@@ -1,4 +1,7 @@
+import 'dart:typed_data';
+
 import 'package:dotmeme/providers/home_page_provider.dart';
+import 'package:esys_flutter_share/esys_flutter_share.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:provider/provider.dart';
@@ -14,7 +17,16 @@ Widget selectionAppBar(BuildContext context) {
       },
     ),
     actions: <Widget>[
-      IconButton(icon: Icon(Icons.share)),
+      IconButton(icon: Icon(Icons.share), onPressed: () async {
+        var memesIds = homeProvider.selectControl.selection.selectedIndexes
+            .map((index) => homeProvider.memesList[index].id);
+        var bytesMap = Map<String, Uint8List>();
+        for(var id in memesIds){
+          var asset = await AssetEntity.fromId(id.toString());
+          bytesMap[asset.title] = await asset.originBytes;
+        }
+        Share.files('Share memes', bytesMap, 'image/*');
+      },),
       IconButton(
         icon: Icon(Icons.delete),
         onPressed: () {
