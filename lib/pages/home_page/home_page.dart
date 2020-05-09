@@ -17,10 +17,12 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(() {
+    Future.microtask(() async {
       var homeProvider = Provider.of<HomePageProvider>(context, listen: false);
       var memesProvider = Provider.of<MemesProvider>(context, listen: false);
-      memesProvider.getAllMemes.then((memes) => homeProvider.memesList = memes);
+      homeProvider.memesList = await memesProvider.getAllMemes;
+      await memesProvider.syncMemes();
+      homeProvider.memesList = await memesProvider.getAllMemes;
     });
   }
 
