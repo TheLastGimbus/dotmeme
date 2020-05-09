@@ -115,6 +115,14 @@ class Memebase extends _$Memebase {
 
   Future deleteMeme(Meme meme) => delete(memes).delete(meme);
 
+  Future<void> deleteMultipleMemes(List<Meme> toDelete) => (delete(memes)
+        ..where(
+          (m) => m.id.isIn(
+            toDelete.map((m) => m.id).toList(),
+          ),
+        ))
+      .go();
+
   Future deleteAllMemesFromFolder(int folderId) =>
       (delete(memes)..where((m) => m.folderId.equals(folderId))).go();
 

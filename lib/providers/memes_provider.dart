@@ -145,6 +145,10 @@ class MemesProvider with ChangeNotifier {
     print('Memes sync finished in ${watch.elapsedMilliseconds}ms');
   }
 
+  Future deleteMemes(List<Meme> toDelete) async {
+    db.deleteMultipleMemes(toDelete);
+  }
+
   Future setFolderSyncEnabled(Folder folder, bool enabled) async {
     await db.updateFolder(folder.copyWith(scanningEnabled: enabled));
     notifyListeners();
