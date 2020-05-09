@@ -17,16 +17,19 @@ Widget selectionAppBar(BuildContext context) {
       },
     ),
     actions: <Widget>[
-      IconButton(icon: Icon(Icons.share), onPressed: () async {
-        var memesIds = homeProvider.selectControl.selection.selectedIndexes
-            .map((index) => homeProvider.memesList[index].id);
-        var bytesMap = Map<String, Uint8List>();
-        for(var id in memesIds){
-          var asset = await AssetEntity.fromId(id.toString());
-          bytesMap[asset.title] = await asset.originBytes;
-        }
-        Share.files('Share memes', bytesMap, 'image/*');
-      },),
+      IconButton(
+        icon: Icon(Icons.share),
+        onPressed: () async {
+          var memesIds = homeProvider.selectControl.selection.selectedIndexes
+              .map((index) => homeProvider.memesList[index].id);
+          var bytesMap = Map<String, Uint8List>();
+          for (var id in memesIds) {
+            var asset = await AssetEntity.fromId(id.toString());
+            bytesMap[asset.title] = await asset.originBytes;
+          }
+          Share.files('Share memes', bytesMap, 'image/*');
+        },
+      ),
       IconButton(
         icon: Icon(Icons.delete),
         onPressed: () {
