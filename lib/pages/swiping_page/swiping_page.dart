@@ -60,29 +60,26 @@ class SwipingPage extends StatelessWidget {
   // *some* images (random?), even if not swiped.
   Widget _pageWidget(int index, Meme meme) => FutureBuilder(
         future: _loadMemeToMemory(meme),
-        builder: (context, AsyncSnapshot<Uint8List> snapshot) => Hero(
-          tag: 'meme$index',
-          child: snapshot.hasData
-              ? PhotoView(
-                  imageProvider: MemoryImage(snapshot.data),
-                  loadingBuilder: (ctx, event) => _loadingWidget(index, meme),
-                  minScale: PhotoViewComputedScale.contained,
-                  maxScale: 50.0,
-                  scaleStateCycle: (scaleState) {
-                    print('ScaleState: $scaleState');
-                    if (scaleState == PhotoViewScaleState.initial) {
-                      return PhotoViewScaleState.covering;
-                    } else {
-                      return PhotoViewScaleState.initial;
-                    }
-                  },
-                  gaplessPlayback: true,
-                )
-              : _loadingWidget(
-                  index,
-                  meme,
-                ),
-        ),
+        builder: (context, AsyncSnapshot<Uint8List> snapshot) => snapshot.hasData
+            ? PhotoView(
+                imageProvider: MemoryImage(snapshot.data),
+                loadingBuilder: (ctx, event) => _loadingWidget(index, meme),
+                minScale: PhotoViewComputedScale.contained,
+                maxScale: 50.0,
+                scaleStateCycle: (scaleState) {
+                  print('ScaleState: $scaleState');
+                  if (scaleState == PhotoViewScaleState.initial) {
+                    return PhotoViewScaleState.covering;
+                  } else {
+                    return PhotoViewScaleState.initial;
+                  }
+                },
+                gaplessPlayback: true,
+              )
+            : _loadingWidget(
+                index,
+                meme,
+              ),
       );
 
   @override

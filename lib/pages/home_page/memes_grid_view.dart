@@ -12,35 +12,32 @@ class MemesGridView extends StatelessWidget {
       BuildContext context, int index, AssetEntity assetEntity) {
     var homeProvider = Provider.of<HomePageProvider>(context);
     // TODO: There is weird flicker when coming back from swiping
-    return Hero(
-      tag: 'meme$index',
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(10),
-        child: FutureBuilder(
-            future: assetEntity.thumbDataWithSize(150, 150, quality: 35),
-            builder: (context, AsyncSnapshot<Uint8List> snapshot) =>
-                snapshot.hasData
-                    ? GestureDetector(
-                        onTap: homeProvider.selectControl.selection.isSelecting
-                            ? null
-                            : () {
-                                FocusScope.of(context).unfocus();
-                                Navigator.of(context).pushNamed(
-                                  '/swiping_page',
-                                  arguments: SwipingPageRouteData(
-                                    startIndex: index,
-                                    startThumbnail: snapshot.data,
-                                  ),
-                                );
-                              },
-                        child: Image.memory(
-                          snapshot.data,
-                          fit: BoxFit.cover,
-                          gaplessPlayback: true,
-                        ),
-                      )
-                    : SizedBox()),
-      ),
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(10),
+      child: FutureBuilder(
+          future: assetEntity.thumbDataWithSize(150, 150, quality: 35),
+          builder: (context, AsyncSnapshot<Uint8List> snapshot) =>
+              snapshot.hasData
+                  ? GestureDetector(
+                      onTap: homeProvider.selectControl.selection.isSelecting
+                          ? null
+                          : () {
+                              FocusScope.of(context).unfocus();
+                              Navigator.of(context).pushNamed(
+                                '/swiping_page',
+                                arguments: SwipingPageRouteData(
+                                  startIndex: index,
+                                  startThumbnail: snapshot.data,
+                                ),
+                              );
+                            },
+                      child: Image.memory(
+                        snapshot.data,
+                        fit: BoxFit.cover,
+                        gaplessPlayback: true,
+                      ),
+                    )
+                  : SizedBox()),
     );
   }
 
