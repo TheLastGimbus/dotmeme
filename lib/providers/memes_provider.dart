@@ -59,6 +59,7 @@ class MemesProvider with ChangeNotifier {
   }
 
   /// THIS WORKS!!!
+  // TODO: Sort by date
   Future syncMemes() async {
     var watch = Stopwatch()..start();
     var syncStartTime = DateTime.now();

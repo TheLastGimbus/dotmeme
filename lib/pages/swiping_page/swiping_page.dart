@@ -57,6 +57,7 @@ class SwipingPage extends StatelessWidget {
   // TODO: When page is not *fully* swiped, two heroes fly on screen :/
   // This also sometimes happens when opening end closing
   // *some* images (random?), even if not swiped.
+  // TODO: Hero, pls :c
   Widget _pageWidget(int index, Meme meme) => FutureBuilder(
         future: _loadMemeToMemory(meme),
         builder: (context, AsyncSnapshot<Uint8List> snapshot) =>

@@ -27,6 +27,8 @@ Widget selectionAppBar(BuildContext context) {
             var asset = await AssetEntity.fromId(id.toString());
             bytesMap[asset.title] = await asset.originBytes;
           }
+          // TODO: Need to change from 'image/*' to something else
+          // when I introduce videos
           Share.files('Share memes', bytesMap, 'image/*');
         },
       ),

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:provider/provider.dart';
 
+// TODO: Deal somehow with those annoying folders from camera
 class FoldersSettingsPage extends StatelessWidget {
   // Workaround for now :/
   // This needs to be enough until photo_manager creator will fix
