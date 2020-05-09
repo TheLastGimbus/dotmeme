@@ -151,6 +151,9 @@ class Memebase extends _$Memebase {
     );
   }
 
+  Future<Folder> getFolderById(int id) =>
+      (select(folders)..where((f) => f.id.equals(id))).getSingle();
+
   Future<List<Folder>> get getAllFolders => select(folders).get();
 
   Future<List<Folder>> get getAllFoldersEnabled =>
