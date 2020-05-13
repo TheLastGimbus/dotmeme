@@ -46,15 +46,14 @@ class Memebase extends _$Memebase {
         }));
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 1;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(onCreate: (Migrator m) {
         return m.createAll();
       }, onUpgrade: (Migrator m, int from, int to) async {
         if (from == 1) {
-          // we added the dueDate property in the change from version 1
-          await m.addColumn(folders, folders.lastSync);
+          // Use it some day
         }
       });
 
