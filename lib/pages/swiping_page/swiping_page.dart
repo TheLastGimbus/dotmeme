@@ -19,12 +19,17 @@ class SwipingPageRouteData {
   final Uint8List startThumbnail;
 }
 
-class SwipingPage extends StatelessWidget {
+class SwipingPage extends StatefulWidget {
   SwipingPage({this.startIndex = 0, this.startThumbnail});
 
   final int startIndex;
   final Uint8List startThumbnail;
 
+  @override
+  _SwipingPageState createState() => _SwipingPageState();
+}
+
+class _SwipingPageState extends State<SwipingPage> {
   Future<Uint8List> _loadMemeToMemory(Meme meme) async {
     var asset = await AssetEntity.fromId(meme.id.toString());
     var file = await asset.file;
@@ -37,9 +42,9 @@ class SwipingPage extends StatelessWidget {
     return await asset.thumbData;
   }
 
-  Widget _loadingWidget(int index, Meme meme) => index == startIndex
+  Widget _loadingWidget(int index, Meme meme) => index == widget.startIndex
       ? Image.memory(
-          startThumbnail,
+          widget.startThumbnail,
           fit: BoxFit.contain,
           gaplessPlayback: true,
         )
@@ -54,10 +59,6 @@ class SwipingPage extends StatelessWidget {
               : SizedBox(),
         );
 
-  // TODO: When page is not *fully* swiped, two heroes fly on screen :/
-  // This also sometimes happens when opening end closing
-  // *some* images (random?), even if not swiped.
-  // TODO: Hero, pls :c
   Widget _pageWidget(int index, Meme meme) => FutureBuilder(
         future: _loadMemeToMemory(meme),
         builder: (context, AsyncSnapshot<Uint8List> snapshot) =>
@@ -76,7 +77,7 @@ class SwipingPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final homeProvider = Provider.of<HomePageProvider>(context);
-    final _controller = PageController(initialPage: startIndex);
+    final _controller = PageController(initialPage: widget.startIndex);
 
     // TODO: Show/hide app bar and options buttons (not present yet)
     //  on single press
