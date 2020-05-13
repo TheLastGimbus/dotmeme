@@ -16,9 +16,6 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   // TODO: Clear textField focus when keyboard hidden by back press
 
-  // +++++ NOW +++++
-  // TODO: Sync when changing settings
-  // +++++ NOW +++++
   void onMemesUpdate(HomePageProvider home, MemesProvider memes) async {
     home.memesList = await memes.getAllMemes;
   }
@@ -32,6 +29,7 @@ class _HomePageState extends State<HomePage> {
       onMemesUpdate() async {
         homeProvider.memesList = await memesProvider.getAllMemes;
       }
+
       onMemesUpdate();
       memesProvider.addListener(onMemesUpdate);
 
