@@ -6,6 +6,11 @@ import 'package:provider/provider.dart';
 
 // TODO: Deal somehow with those annoying folders from camera
 class FoldersSettingsPage extends StatelessWidget {
+  Future<List<Folder>> _loadFolders(MemesProvider memesP) async {
+    await memesP.syncFolders();
+    return memesP.getAllFolders;
+  }
+
   // Workaround for now :/
   // This needs to be enough until photo_manager creator will fix
   Future<Map<String, String>> _loadNames() async {
@@ -88,7 +93,6 @@ class FoldersSettingsPage extends StatelessWidget {
   }
 
   Widget _foldersListView(MemesProvider memesProvider, List<Folder> folders) =>
-      // TODO: Change this to FutureBuild every switch individually
       FutureBuilder(
         future: _loadNames(),
         builder: (context, snapshot) => ListView(
@@ -123,7 +127,7 @@ class FoldersSettingsPage extends StatelessWidget {
       ),
       body: Center(
         child: FutureBuilder(
-          future: memesProvider.getAllFolders,
+          future: _loadFolders(memesProvider),
           builder: (ctx, AsyncSnapshot<List<Folder>> snapshot) =>
               snapshot.hasData
                   ? _foldersListView(memesProvider, snapshot.data)
