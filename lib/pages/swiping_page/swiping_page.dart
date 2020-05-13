@@ -135,6 +135,7 @@ class _SwipingPageState extends State<SwipingPage> {
           },
           minScale: PhotoViewComputedScale.contained,
           maxScale: 50.0,
+          // TODO: Scaling doesnt work
           scaleStateCycle: (scaleState) {
             print('ScaleState: $scaleState');
             if (scaleState == PhotoViewScaleState.initial) {
