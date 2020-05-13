@@ -51,6 +51,7 @@ class FoldersSettingsPage extends StatelessWidget {
       );
 
   Widget _foldersListView(MemesProvider memesProvider, List<Folder> folders) =>
+      // TODO: Change this to FutureBuild every switch individually
       FutureBuilder(
         future: _loadNames(),
         builder: (context, snapshot) => ListView(
@@ -61,6 +62,10 @@ class FoldersSettingsPage extends StatelessWidget {
                         ? snapshot.data[folder.id.toString()]
                         : '...'),
                     onChanged: (enabled) {
+                      // If folder is really large, there will be a little lag
+                      // on switch. Although user will touch this, like,
+                      // 1-3 times in his/her life. So maybe bother with this
+                      // some day if you are really bored
                       toggleFolder() {
                         // TODO: Add some warning if folder has a lot scanned
                         memesProvider.setFolderSyncEnabled(
