@@ -50,48 +50,56 @@ class FoldersSettingsPage extends StatelessWidget {
         ],
       );
 
+  Widget _folderSwitchTile(BuildContext context, MemesProvider memesProvider,
+      Folder folder, String folderName) {
+    return SwitchListTile(
+      value: folder.scanningEnabled,
+      title: Text(folderName),
+      onChanged: (enabled) {
+        // If folder is really large, there will be a little lag
+        // on switch. Although user will touch this, like,
+        // 1-3 times in his/her life. So maybe bother with this
+        // some day if you are really bored
+        toggleFolder() {
+          // TODO: Add some warning if folder has a lot scanned
+          memesProvider.setFolderSyncEnabled(
+            folder,
+            enabled,
+            deleteIfDisabled: true,
+          );
+        }
+
+        if (folderName == "Camera") {
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (context) => _cameraWarningDialog(
+              onContinue: (userAgreed) {
+                Navigator.of(context).pop();
+                if (userAgreed) toggleFolder();
+              },
+            ),
+          );
+        } else {
+          toggleFolder();
+        }
+      },
+    );
+  }
+
   Widget _foldersListView(MemesProvider memesProvider, List<Folder> folders) =>
       // TODO: Change this to FutureBuild every switch individually
       FutureBuilder(
         future: _loadNames(),
         builder: (context, snapshot) => ListView(
           children: folders
-              .map((folder) => SwitchListTile(
-                    value: folder.scanningEnabled,
-                    title: Text(snapshot.hasData
+              .map((folder) => _folderSwitchTile(
+                    context,
+                    memesProvider,
+                    folder,
+                    snapshot.hasData
                         ? snapshot.data[folder.id.toString()]
-                        : '...'),
-                    onChanged: (enabled) {
-                      // If folder is really large, there will be a little lag
-                      // on switch. Although user will touch this, like,
-                      // 1-3 times in his/her life. So maybe bother with this
-                      // some day if you are really bored
-                      toggleFolder() {
-                        // TODO: Add some warning if folder has a lot scanned
-                        memesProvider.setFolderSyncEnabled(
-                          folder,
-                          enabled,
-                          deleteIfDisabled: true,
-                        );
-                      }
-
-                      if (snapshot.hasData &&
-                          enabled &&
-                          snapshot.data[folder.id.toString()] == "Camera") {
-                        showDialog(
-                          context: context,
-                          barrierDismissible: false,
-                          builder: (context) => _cameraWarningDialog(
-                            onContinue: (userAgreed) {
-                              Navigator.of(context).pop();
-                              if (userAgreed) toggleFolder();
-                            },
-                          ),
-                        );
-                      } else {
-                        toggleFolder();
-                      }
-                    },
+                        : '...',
                   ))
               .toList(),
         ),
