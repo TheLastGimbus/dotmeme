@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:dotmeme/providers/home_page_provider.dart';
+import 'package:dotmeme/providers/memes_provider.dart';
 import 'package:esys_flutter_share/esys_flutter_share.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_manager/photo_manager.dart';
@@ -8,6 +9,8 @@ import 'package:provider/provider.dart';
 
 Widget selectionAppBar(BuildContext context) {
   var homeProvider = Provider.of<HomePageProvider>(context);
+  var memesProvider = Provider.of<MemesProvider>(context);
+
   return AppBar(
     title: Text('Selected ${homeProvider.selectControl.selection.amount}'),
     leading: IconButton(
@@ -34,11 +37,15 @@ Widget selectionAppBar(BuildContext context) {
       ),
       IconButton(
         icon: Icon(Icons.delete),
-        onPressed: () {
-          var idsToDelete = homeProvider.selectControl.selection.selectedIndexes
-              .map((index) => homeProvider.memesList[index].id.toString())
-              .toList();
-          PhotoManager.editor.deleteWithIds(idsToDelete);
+        onPressed: () async {
+          var selectedMemes = homeProvider
+              .selectControl.selection.selectedIndexes
+              .map((index) => homeProvider.memesList[index]);
+          var idsToDelete = selectedMemes.map((m) => m.id.toString());
+          PhotoManager.editor.deleteWithIds(idsToDelete.toList());
+          memesProvider.deleteMemes(selectedMemes.toList());
+          homeProvider.memesList = await memesProvider.getAllMemes;
+          homeProvider.selectControl.clear();
         },
       ),
       IconButton(icon: Icon(Icons.more_vert)),

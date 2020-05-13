@@ -645,7 +645,7 @@ packages:
     source: hosted
     version: "2.0.8"
   watcher:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: watcher
       url: "https://pub.dartlang.org"

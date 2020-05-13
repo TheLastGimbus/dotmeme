@@ -11,6 +11,8 @@ import 'package:photo_manager/photo_manager.dart';
 /// This provider carries database object, and should be only one that has it
 /// Maybe in future, I will divide this to different provider with one top
 /// database provider.
+///
+/// It calls notifyListeners on top methods which could edit whole memes list
 class MemesProvider with ChangeNotifier {
   final db = Memebase();
 
@@ -143,10 +145,89 @@ class MemesProvider with ChangeNotifier {
     await db.updateMultipleFolders(foldersWithUpdatedTimes);
 
     print('Memes sync finished in ${watch.elapsedMilliseconds}ms');
+    notifyListeners();
   }
 
-  Future setFolderSyncEnabled(Folder folder, bool enabled) async {
-    await db.updateFolder(folder.copyWith(scanningEnabled: enabled));
+  /// This is to sync only new memes in certain folder.
+  /// Mainly to use with file watcher
+  Future syncNewMemesInFolder(int folderId) async {
+    var watch = Stopwatch()..start();
+    var syncStartTime = DateTime.now();
+
+    var allNewDbMemes = List<Meme>();
+    var dbFolder = await db.getFolderById(folderId);
+
+    var limitedAssFolder = await AssetPathEntity.fromId(
+      dbFolder.id.toString(),
+      filterOption: FilterOptionGroup()
+        ..dateTimeCond = DateTimeCond(
+          min: dbFolder.lastSync,
+          max: DateTime.now(),
+        ),
+      type: RequestType.image,
+    );
+
+    // Quick fix for nulls
+    // TODO: Change this is chinesee guy fixes it
+    if (limitedAssFolder.assetCount == null || limitedAssFolder.assetCount == 0)
+      return;
+
+    var newAssFolderMemes = await limitedAssFolder.assetList;
+
+    allNewDbMemes.addAll(
+      newAssFolderMemes
+          .map((m) => Meme(
+                id: int.parse(m.id),
+                folderId: int.parse(limitedAssFolder.id),
+              ))
+          .toList(),
+    );
+    await db.addMultipleMemes(allNewDbMemes);
+
+    await db.updateFolder(dbFolder.copyWith(lastSync: syncStartTime));
+
+    print('Memes NEW-ONLY sync finished in ${watch.elapsedMilliseconds}ms');
     notifyListeners();
+  }
+
+  /// This is to sync only deleted memes in certain folder.
+  /// Mainly to use with file watcher
+  Future syncDeletedMemesInFolder(int folderId) async {
+    var assFolder = await AssetPathEntity.fromId(folderId.toString(),
+        type: RequestType.image);
+    // Delete all memes that are in database, but not in AssetPath
+    // aka those who were deleted
+    var allAssMemes = await assFolder.assetList;
+    var assIds = allAssMemes.map((m) => int.parse(m.id)).toList();
+    var dbMemes = await db.getAllMemesFromFolder(folderId);
+
+    // Sorry, I did not found any good way to do this DB-style
+    // Just need to check every one myself
+    for (var meme in dbMemes) {
+      if (!assIds.contains(meme.id)) {
+        await db.deleteMeme(meme);
+      }
+    }
+    notifyListeners();
+  }
+
+  Future deleteMemes(List<Meme> toDelete) async {
+    db.deleteMultipleMemes(toDelete);
+    notifyListeners();
+  }
+
+  Future setFolderSyncEnabled(Folder folder, bool enabled,
+      {bool deleteIfDisabled = false}) async {
+    await db.updateFolder(folder.copyWith(
+      scanningEnabled: enabled,
+      lastSync: DateTime.fromMillisecondsSinceEpoch(0),
+    ));
+    if (enabled) {
+      await syncNewMemesInFolder(folder.id);
+      // It already notified listeners
+    } else {
+      await db.deleteAllMemesFromFolder(folder.id);
+      notifyListeners();
+    }
   }
 }
