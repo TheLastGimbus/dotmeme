@@ -61,7 +61,7 @@ class FoldersSettingsPage extends StatelessWidget {
                         ? snapshot.data[folder.id.toString()]
                         : '...'),
                     onChanged: (enabled) {
-                      disableFolder() {
+                      toggleFolder() {
                         // TODO: Add some warning if folder has a lot scanned
                         memesProvider.setFolderSyncEnabled(
                           folder,
@@ -79,12 +79,12 @@ class FoldersSettingsPage extends StatelessWidget {
                           builder: (context) => _cameraWarningDialog(
                             onContinue: (userAgreed) {
                               Navigator.of(context).pop();
-                              if (userAgreed) disableFolder();
+                              if (userAgreed) toggleFolder();
                             },
                           ),
                         );
                       } else {
-                        disableFolder();
+                        toggleFolder();
                       }
                     },
                   ))

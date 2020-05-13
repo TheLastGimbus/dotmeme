@@ -26,7 +26,11 @@ class _HomePageState extends State<HomePage> {
     Future.microtask(() async {
       var homeProvider = Provider.of<HomePageProvider>(context, listen: false);
       var memesProvider = Provider.of<MemesProvider>(context, listen: false);
-      homeProvider.memesList = await memesProvider.getAllMemes;
+      onMemesUpdate() async {
+        homeProvider.memesList = await memesProvider.getAllMemes;
+      }
+      onMemesUpdate();
+      memesProvider.addListener(onMemesUpdate);
 
       // Add file watchers
       for (var folder in await memesProvider.getAllFolders) {
@@ -88,7 +92,6 @@ class _HomePageState extends State<HomePage> {
       }
 
       await memesProvider.syncMemes();
-      homeProvider.memesList = await memesProvider.getAllMemes;
     });
   }
 

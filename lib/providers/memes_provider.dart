@@ -143,6 +143,7 @@ class MemesProvider with ChangeNotifier {
     await db.updateMultipleFolders(foldersWithUpdatedTimes);
 
     print('Memes sync finished in ${watch.elapsedMilliseconds}ms');
+    notifyListeners();
   }
 
   /// This is to sync only new memes in certain folder.
@@ -184,6 +185,7 @@ class MemesProvider with ChangeNotifier {
     await db.updateFolder(dbFolder.copyWith(lastSync: syncStartTime));
 
     print('Memes NEW-ONLY sync finished in ${watch.elapsedMilliseconds}ms');
+    notifyListeners();
   }
 
   /// This is to sync only deleted memes in certain folder.
@@ -210,9 +212,17 @@ class MemesProvider with ChangeNotifier {
     db.deleteMultipleMemes(toDelete);
   }
 
-  Future setFolderSyncEnabled(Folder folder, bool enabled, {bool deleteIfDisabled = false}) async {
-    await db.updateFolder(folder.copyWith(scanningEnabled: enabled));
-    await db.deleteAllMemesFromFolder(folder.id);
-    notifyListeners();
+  Future setFolderSyncEnabled(Folder folder, bool enabled,
+      {bool deleteIfDisabled = false}) async {
+    await db.updateFolder(folder.copyWith(
+      scanningEnabled: enabled,
+      lastSync: DateTime.fromMillisecondsSinceEpoch(0),
+    ));
+    if (enabled) {
+      await syncNewMemesInFolder(folder.id);
+    } else {
+      await db.deleteAllMemesFromFolder(folder.id);
+      notifyListeners();
+    }
   }
 }
