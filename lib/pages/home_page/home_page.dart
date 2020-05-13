@@ -19,6 +19,9 @@ class _HomePageState extends State<HomePage> {
   // +++++ NOW +++++
   // TODO: Sync when changing settings
   // +++++ NOW +++++
+  void onMemesUpdate(HomePageProvider home, MemesProvider memes) async {
+    home.memesList = await memes.getAllMemes;
+  }
 
   @override
   void initState() {
@@ -52,8 +55,8 @@ class _HomePageState extends State<HomePage> {
           }
           newSyncGoing = true;
           print('NewSync running...');
+          // It calls notifyListeners, so we don't need to re-get all memes
           await memesProvider.syncNewMemesInFolder(folder.id);
-          homeProvider.memesList = await memesProvider.getAllMemes;
           newSyncGoing = false;
           if (newSyncScheduled) {
             newSyncScheduled = false;
@@ -68,8 +71,8 @@ class _HomePageState extends State<HomePage> {
           }
           deleteSyncGoing = true;
           print('DeleteSync running...');
+          // It calls notifyListeners, so we don't need to re-get all memes
           await memesProvider.syncDeletedMemesInFolder(folder.id);
-          homeProvider.memesList = await memesProvider.getAllMemes;
           deleteSyncGoing = false;
           if (deleteSyncScheduled) {
             deleteSyncScheduled = false;

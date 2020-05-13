@@ -11,6 +11,8 @@ import 'package:photo_manager/photo_manager.dart';
 /// This provider carries database object, and should be only one that has it
 /// Maybe in future, I will divide this to different provider with one top
 /// database provider.
+///
+/// It calls notifyListeners on top methods which could edit whole memes list
 class MemesProvider with ChangeNotifier {
   final db = Memebase();
 
@@ -206,10 +208,12 @@ class MemesProvider with ChangeNotifier {
         await db.deleteMeme(meme);
       }
     }
+    notifyListeners();
   }
 
   Future deleteMemes(List<Meme> toDelete) async {
     db.deleteMultipleMemes(toDelete);
+    notifyListeners();
   }
 
   Future setFolderSyncEnabled(Folder folder, bool enabled,
@@ -220,6 +224,7 @@ class MemesProvider with ChangeNotifier {
     ));
     if (enabled) {
       await syncNewMemesInFolder(folder.id);
+      // It already notified listeners
     } else {
       await db.deleteAllMemesFromFolder(folder.id);
       notifyListeners();
