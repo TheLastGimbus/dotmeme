@@ -50,12 +50,15 @@ class MemesProvider with ChangeNotifier {
     }
     await db.addMultipleFolders(foldersToAdd);
 
+    var deleted = false;
     for (var dbFolder in dbFolders) {
       if (!assFoldersIds.contains(dbFolder.id)) {
         await db.deleteFolder(dbFolder);
         await db.deleteAllMemesFromFolder(dbFolder.id);
+        deleted = true;
       }
     }
+    if(deleted) notifyListeners();
 
     print('Folders sync finished in ${watch.elapsedMilliseconds}ms');
   }
