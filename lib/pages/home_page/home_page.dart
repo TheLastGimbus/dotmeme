@@ -17,7 +17,6 @@ class _HomePageState extends State<HomePage> {
   // TODO: Clear textField focus when keyboard hidden by back press
 
   // +++++ NOW +++++
-  // TODO: Add file listeners
   // TODO: Sync when changing settings
   // +++++ NOW +++++
 

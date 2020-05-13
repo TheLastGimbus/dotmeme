@@ -210,8 +210,9 @@ class MemesProvider with ChangeNotifier {
     db.deleteMultipleMemes(toDelete);
   }
 
-  Future setFolderSyncEnabled(Folder folder, bool enabled) async {
+  Future setFolderSyncEnabled(Folder folder, bool enabled, {bool deleteIfDisabled = false}) async {
     await db.updateFolder(folder.copyWith(scanningEnabled: enabled));
+    await db.deleteAllMemesFromFolder(folder.id);
     notifyListeners();
   }
 }
