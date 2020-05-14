@@ -79,7 +79,13 @@ class Memebase extends _$Memebase {
   Future updateMultipleFolders(List<Folder> updateFolders) =>
       batch((b) => b.replaceAll(folders, updateFolders));
 
-  Future<List<Meme>> get getAllMemes => select(memes).get();
+  Future<List<Meme>> get getAllMemes => (select(memes)
+        ..orderBy(
+          ([
+            (m) => OrderingTerm(expression: m.modificationDate, mode: OrderingMode.desc),
+          ]),
+        ))
+      .get();
 
   Future<int> get getAllMemesCount async {
     var res = await (selectOnly(memes)..addColumns([countAll()])).getSingle();

@@ -58,7 +58,7 @@ class MemesProvider with ChangeNotifier {
         deleted = true;
       }
     }
-    if(deleted) notifyListeners();
+    if (deleted) notifyListeners();
 
     print('Folders sync finished in ${watch.elapsedMilliseconds}ms');
   }
@@ -107,6 +107,7 @@ class MemesProvider with ChangeNotifier {
             .map((m) => Meme(
                   id: int.parse(m.id),
                   folderId: int.parse(limitedAssFolder.id),
+                  modificationDate: m.modifiedDateTime,
                 ))
             .toList(),
       );
@@ -182,6 +183,7 @@ class MemesProvider with ChangeNotifier {
           .map((m) => Meme(
                 id: int.parse(m.id),
                 folderId: int.parse(limitedAssFolder.id),
+                modificationDate: m.modifiedDateTime,
               ))
           .toList(),
     );
