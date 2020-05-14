@@ -17,6 +17,8 @@ class Memes extends Table {
 
   TextColumn get scannedText => text().named('text').nullable()();
 
+  DateTimeColumn get modificationDate => dateTime()();
+
   @override
   Set<Column> get primaryKey => {id};
 }
