@@ -17,6 +17,8 @@ class Memes extends Table {
 
   TextColumn get scannedText => text().named('text').nullable()();
 
+  DateTimeColumn get modificationDate => dateTime()();
+
   @override
   Set<Column> get primaryKey => {id};
 }
@@ -46,15 +48,14 @@ class Memebase extends _$Memebase {
         }));
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 1;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(onCreate: (Migrator m) {
         return m.createAll();
       }, onUpgrade: (Migrator m, int from, int to) async {
         if (from == 1) {
-          // we added the dueDate property in the change from version 1
-          await m.addColumn(folders, folders.lastSync);
+          // Use it some day
         }
       });
 
@@ -78,7 +79,13 @@ class Memebase extends _$Memebase {
   Future updateMultipleFolders(List<Folder> updateFolders) =>
       batch((b) => b.replaceAll(folders, updateFolders));
 
-  Future<List<Meme>> get getAllMemes => select(memes).get();
+  Future<List<Meme>> get getAllMemes => (select(memes)
+        ..orderBy(
+          ([
+            (m) => OrderingTerm(expression: m.modificationDate, mode: OrderingMode.desc),
+          ]),
+        ))
+      .get();
 
   Future<int> get getAllMemesCount async {
     var res = await (selectOnly(memes)..addColumns([countAll()])).getSingle();

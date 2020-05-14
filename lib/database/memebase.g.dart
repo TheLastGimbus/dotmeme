@@ -226,18 +226,26 @@ class Meme extends DataClass implements Insertable<Meme> {
   final int id;
   final int folderId;
   final String scannedText;
-  Meme({@required this.id, @required this.folderId, this.scannedText});
+  final DateTime modificationDate;
+  Meme(
+      {@required this.id,
+      @required this.folderId,
+      this.scannedText,
+      @required this.modificationDate});
   factory Meme.fromData(Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
     final effectivePrefix = prefix ?? '';
     final intType = db.typeSystem.forDartType<int>();
     final stringType = db.typeSystem.forDartType<String>();
+    final dateTimeType = db.typeSystem.forDartType<DateTime>();
     return Meme(
       id: intType.mapFromDatabaseResponse(data['${effectivePrefix}id']),
       folderId:
           intType.mapFromDatabaseResponse(data['${effectivePrefix}folder_id']),
       scannedText:
           stringType.mapFromDatabaseResponse(data['${effectivePrefix}text']),
+      modificationDate: dateTimeType
+          .mapFromDatabaseResponse(data['${effectivePrefix}modification_date']),
     );
   }
   @override
@@ -252,6 +260,9 @@ class Meme extends DataClass implements Insertable<Meme> {
     if (!nullToAbsent || scannedText != null) {
       map['text'] = Variable<String>(scannedText);
     }
+    if (!nullToAbsent || modificationDate != null) {
+      map['modification_date'] = Variable<DateTime>(modificationDate);
+    }
     return map;
   }
 
@@ -262,6 +273,7 @@ class Meme extends DataClass implements Insertable<Meme> {
       id: serializer.fromJson<int>(json['id']),
       folderId: serializer.fromJson<int>(json['folderId']),
       scannedText: serializer.fromJson<String>(json['scannedText']),
+      modificationDate: serializer.fromJson<DateTime>(json['modificationDate']),
     );
   }
   @override
@@ -271,68 +283,89 @@ class Meme extends DataClass implements Insertable<Meme> {
       'id': serializer.toJson<int>(id),
       'folderId': serializer.toJson<int>(folderId),
       'scannedText': serializer.toJson<String>(scannedText),
+      'modificationDate': serializer.toJson<DateTime>(modificationDate),
     };
   }
 
-  Meme copyWith({int id, int folderId, String scannedText}) => Meme(
+  Meme copyWith(
+          {int id,
+          int folderId,
+          String scannedText,
+          DateTime modificationDate}) =>
+      Meme(
         id: id ?? this.id,
         folderId: folderId ?? this.folderId,
         scannedText: scannedText ?? this.scannedText,
+        modificationDate: modificationDate ?? this.modificationDate,
       );
   @override
   String toString() {
     return (StringBuffer('Meme(')
           ..write('id: $id, ')
           ..write('folderId: $folderId, ')
-          ..write('scannedText: $scannedText')
+          ..write('scannedText: $scannedText, ')
+          ..write('modificationDate: $modificationDate')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode =>
-      $mrjf($mrjc(id.hashCode, $mrjc(folderId.hashCode, scannedText.hashCode)));
+  int get hashCode => $mrjf($mrjc(
+      id.hashCode,
+      $mrjc(folderId.hashCode,
+          $mrjc(scannedText.hashCode, modificationDate.hashCode))));
   @override
   bool operator ==(dynamic other) =>
       identical(this, other) ||
       (other is Meme &&
           other.id == this.id &&
           other.folderId == this.folderId &&
-          other.scannedText == this.scannedText);
+          other.scannedText == this.scannedText &&
+          other.modificationDate == this.modificationDate);
 }
 
 class MemesCompanion extends UpdateCompanion<Meme> {
   final Value<int> id;
   final Value<int> folderId;
   final Value<String> scannedText;
+  final Value<DateTime> modificationDate;
   const MemesCompanion({
     this.id = const Value.absent(),
     this.folderId = const Value.absent(),
     this.scannedText = const Value.absent(),
+    this.modificationDate = const Value.absent(),
   });
   MemesCompanion.insert({
     this.id = const Value.absent(),
     @required int folderId,
     this.scannedText = const Value.absent(),
-  }) : folderId = Value(folderId);
+    @required DateTime modificationDate,
+  })  : folderId = Value(folderId),
+        modificationDate = Value(modificationDate);
   static Insertable<Meme> custom({
     Expression<int> id,
     Expression<int> folderId,
     Expression<String> scannedText,
+    Expression<DateTime> modificationDate,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (folderId != null) 'folder_id': folderId,
       if (scannedText != null) 'text': scannedText,
+      if (modificationDate != null) 'modification_date': modificationDate,
     });
   }
 
   MemesCompanion copyWith(
-      {Value<int> id, Value<int> folderId, Value<String> scannedText}) {
+      {Value<int> id,
+      Value<int> folderId,
+      Value<String> scannedText,
+      Value<DateTime> modificationDate}) {
     return MemesCompanion(
       id: id ?? this.id,
       folderId: folderId ?? this.folderId,
       scannedText: scannedText ?? this.scannedText,
+      modificationDate: modificationDate ?? this.modificationDate,
     );
   }
 
@@ -347,6 +380,9 @@ class MemesCompanion extends UpdateCompanion<Meme> {
     }
     if (scannedText.present) {
       map['text'] = Variable<String>(scannedText.value);
+    }
+    if (modificationDate.present) {
+      map['modification_date'] = Variable<DateTime>(modificationDate.value);
     }
     return map;
   }
@@ -391,8 +427,23 @@ class $MemesTable extends Memes with TableInfo<$MemesTable, Meme> {
     );
   }
 
+  final VerificationMeta _modificationDateMeta =
+      const VerificationMeta('modificationDate');
+  GeneratedDateTimeColumn _modificationDate;
   @override
-  List<GeneratedColumn> get $columns => [id, folderId, scannedText];
+  GeneratedDateTimeColumn get modificationDate =>
+      _modificationDate ??= _constructModificationDate();
+  GeneratedDateTimeColumn _constructModificationDate() {
+    return GeneratedDateTimeColumn(
+      'modification_date',
+      $tableName,
+      false,
+    );
+  }
+
+  @override
+  List<GeneratedColumn> get $columns =>
+      [id, folderId, scannedText, modificationDate];
   @override
   $MemesTable get asDslTable => this;
   @override
@@ -416,6 +467,14 @@ class $MemesTable extends Memes with TableInfo<$MemesTable, Meme> {
     if (data.containsKey('text')) {
       context.handle(_scannedTextMeta,
           scannedText.isAcceptableOrUnknown(data['text'], _scannedTextMeta));
+    }
+    if (data.containsKey('modification_date')) {
+      context.handle(
+          _modificationDateMeta,
+          modificationDate.isAcceptableOrUnknown(
+              data['modification_date'], _modificationDateMeta));
+    } else if (isInserting) {
+      context.missing(_modificationDateMeta);
     }
     return context;
   }
