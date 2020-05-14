@@ -74,7 +74,7 @@ class FoldersSettingsPage extends StatelessWidget {
           );
         }
 
-        if (folderName == "Camera") {
+        if (enabled && folderName == "Camera") {
           showDialog(
             context: context,
             barrierDismissible: false,
