@@ -19,7 +19,6 @@ class _AppearanceSettingsPageState extends State<AppearanceSettingsPage> {
         child: ListView(
           children: <Widget>[
             ListTile(title: Text('App theme:')),
-            // TODO: Try out ExpansionPanelList.radio()
             RadioListTile(
               title: Text('Follow system'),
               value: ThemeModePreference.SYSTEM,

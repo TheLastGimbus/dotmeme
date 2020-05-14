@@ -82,7 +82,8 @@ class Memebase extends _$Memebase {
   Future<List<Meme>> get getAllMemes => (select(memes)
         ..orderBy(
           ([
-            (m) => OrderingTerm(expression: m.modificationDate, mode: OrderingMode.desc),
+            (m) => OrderingTerm(
+                expression: m.modificationDate, mode: OrderingMode.desc),
           ]),
         ))
       .get();
@@ -94,6 +95,14 @@ class Memebase extends _$Memebase {
 
   Future<int> getAllMemesCountInFolder(int folderId) async {
     var count = countAll(filter: memes.folderId.equals(folderId));
+    var res = await (selectOnly(memes)..addColumns([count])).getSingle();
+    return res.read(count);
+  }
+
+  Future<int> getAllMemesScannedCountInFolder(int folderId) async {
+    var count = countAll(
+      filter: memes.folderId.equals(folderId) & memes.scannedText.equals(null),
+    );
     var res = await (selectOnly(memes)..addColumns([count])).getSingle();
     return res.read(count);
   }

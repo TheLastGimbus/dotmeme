@@ -55,6 +55,25 @@ class FoldersSettingsPage extends StatelessWidget {
         ],
       );
 
+  AlertDialog _lotScannedWarningDialog({Function(bool) onContinue}) =>
+      AlertDialog(
+        title: Text('This folder has a lot of scanned memes!'),
+        content: Text(
+          'All meme data will be removed, and you will have to scan them again, '
+          'if you want to search them! Are you sure you want to disable it? ',
+        ),
+        actions: <Widget>[
+          FlatButton(
+            child: Text('Yes, they are not funny'),
+            onPressed: () => onContinue(true),
+          ),
+          RaisedButton(
+            child: Text('No, keep them!'),
+            onPressed: () => onContinue(false),
+          ),
+        ],
+      );
+
   Widget _folderSwitchTile(BuildContext context, MemesProvider memesProvider,
       Folder folder, String folderName) {
     return SwitchListTile(
@@ -65,13 +84,29 @@ class FoldersSettingsPage extends StatelessWidget {
         // on switch. Although user will touch this, like,
         // 1-3 times in his/her life. So maybe bother with this
         // some day if you are really bored
-        toggleFolder() {
-          // TODO: Add some warning if folder has a lot scanned
-          memesProvider.setFolderSyncEnabled(
-            folder,
-            enabled,
-            deleteIfDisabled: true,
-          );
+        safeToggleFolder() async {
+          if (!enabled &&
+              await memesProvider.getScannedMemesCount(folder.id) >= 30) {
+            showDialog(
+              context: context,
+              builder: (context) => _lotScannedWarningDialog(
+                onContinue: (delete) {
+                  Navigator.of(context).pop();
+                  if (delete)
+                    memesProvider.setFolderSyncEnabled(
+                      folder,
+                      enabled,
+                      deleteIfDisabled: true,
+                    );
+                },
+              ),
+            );
+          } else
+            memesProvider.setFolderSyncEnabled(
+              folder,
+              enabled,
+              deleteIfDisabled: true,
+            );
         }
 
         if (enabled && folderName == "Camera") {
@@ -81,13 +116,12 @@ class FoldersSettingsPage extends StatelessWidget {
             builder: (context) => _cameraWarningDialog(
               onContinue: (userAgreed) {
                 Navigator.of(context).pop();
-                if (userAgreed) toggleFolder();
+                if (userAgreed) safeToggleFolder();
               },
             ),
           );
-        } else {
-          toggleFolder();
-        }
+        } else
+          safeToggleFolder();
       },
     );
   }

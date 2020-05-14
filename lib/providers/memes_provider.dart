@@ -64,7 +64,6 @@ class MemesProvider with ChangeNotifier {
   }
 
   /// THIS WORKS!!!
-  // TODO: Sort by date
   Future syncMemes() async {
     var watch = Stopwatch()..start();
     var syncStartTime = DateTime.now();
@@ -216,6 +215,13 @@ class MemesProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  Future<int> getScannedMemesCount(int folderId) async {
+    var watch = Stopwatch()..start();
+    var c = await db.getAllMemesScannedCountInFolder(folderId);
+    print('Counting took ${watch.elapsedMilliseconds}ms, counted: $c');
+    return c;
+  }
+
   Future deleteMemes(List<Meme> toDelete) async {
     db.deleteMultipleMemes(toDelete);
     notifyListeners();
@@ -230,7 +236,7 @@ class MemesProvider with ChangeNotifier {
     if (enabled) {
       await syncNewMemesInFolder(folder.id);
       // It already notified listeners
-    } else {
+    } else if (deleteIfDisabled) {
       await db.deleteAllMemesFromFolder(folder.id);
       notifyListeners();
     }
