@@ -1,5 +1,6 @@
 // This provider keeps sync of all memes list
 import 'package:dotmeme/database/memebase.dart';
+import 'package:fimber/fimber.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:photo_manager/photo_manager.dart';
@@ -15,13 +16,14 @@ import 'package:photo_manager/photo_manager.dart';
 /// It calls notifyListeners on top methods which could edit whole memes list
 class MemesProvider with ChangeNotifier {
   final db = Memebase();
+  final fim = FimberLog('MemesProvider');
 
   Future<List<Folder>> get getAllFolders => db.getAllFolders;
 
   Future<List<Meme>> get getAllMemes async {
     var watch = Stopwatch()..start();
     var allMemes = await db.getAllMemes;
-    print("Getting all memes took ${watch.elapsedMilliseconds}ms");
+    fim.v("Getting all memes took ${watch.elapsedMilliseconds}ms");
     return allMemes;
   }
 
@@ -60,7 +62,7 @@ class MemesProvider with ChangeNotifier {
     }
     if (deleted) notifyListeners();
 
-    print('Folders sync finished in ${watch.elapsedMilliseconds}ms');
+    fim.v('Folders sync finished in ${watch.elapsedMilliseconds}ms');
   }
 
   /// THIS WORKS!!!
@@ -147,7 +149,7 @@ class MemesProvider with ChangeNotifier {
         .toList();
     await db.updateMultipleFolders(foldersWithUpdatedTimes);
 
-    print('Memes sync finished in ${watch.elapsedMilliseconds}ms');
+    fim.v('Memes sync finished in ${watch.elapsedMilliseconds}ms');
     notifyListeners();
   }
 
@@ -190,7 +192,7 @@ class MemesProvider with ChangeNotifier {
 
     await db.updateFolder(dbFolder.copyWith(lastSync: syncStartTime));
 
-    print('Memes NEW-ONLY sync finished in ${watch.elapsedMilliseconds}ms');
+    fim.v('Memes NEW-ONLY sync finished in ${watch.elapsedMilliseconds}ms');
     notifyListeners();
   }
 
@@ -218,7 +220,7 @@ class MemesProvider with ChangeNotifier {
   Future<int> getScannedMemesCount(int folderId) async {
     var watch = Stopwatch()..start();
     var c = await db.getAllMemesScannedCountInFolder(folderId);
-    print('Counting took ${watch.elapsedMilliseconds}ms, counted: $c');
+    fim.v('Counting took ${watch.elapsedMilliseconds}ms, counted: $c');
     return c;
   }
 

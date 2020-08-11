@@ -39,6 +39,7 @@ dependencies:
   shared_preferences: ^0.5.8
   watcher: ^0.9.7+15
 
+  fimber: ^0.4.4
   moor: ^3.3.1
   moor_ffi: ^0.8.0
 

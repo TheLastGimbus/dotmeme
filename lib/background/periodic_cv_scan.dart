@@ -1,5 +1,6 @@
 import 'package:dotmeme/analyze/ocr/ocr.dart';
 import 'package:dotmeme/providers/memes_provider.dart';
+import 'package:fimber/fimber_base.dart';
 import 'package:photo_manager/photo_manager.dart';
 
 class PeriodicCvScan {
@@ -8,7 +9,9 @@ class PeriodicCvScan {
   static const TASK_NAME_OCR = 'task_ocr_scan';
 
   static Future ocrScan({String taskName}) async {
-    print("IMMM SCANNINGGGGG (REALLY!) Task name: $taskName");
+    final fim = FimberLog("PeriodicCVScan");
+
+    fim.i("IMMM SCANNINGGGGG (REALLY!) Task name: $taskName");
     // TODO: Check for permission
     var memesProvider = MemesProvider();
     await memesProvider.syncFolders();
@@ -19,7 +22,7 @@ class PeriodicCvScan {
     if (memesToScan.length > 20) {
       memesToScan.getRange(0, 19);
     }
-    print('Not scanned memes: \n $memesToScan');
+    fim.d('Not scanned memes: \n $memesToScan');
     for (var meme in memesToScan) {
       try {
         // This doesn't work for now, because photo_manager uses some
@@ -37,7 +40,7 @@ class PeriodicCvScan {
       } catch (e) {
         // Sadly, we can't catch fatal exceptions from Tesseract :c
         // I need to contribute some to it
-        print("Couldn't scan image ${meme.id}:");
+        fim.e("Couldn't scan image ${meme.id}:");
         print(e);
       }
     }

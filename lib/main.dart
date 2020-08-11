@@ -5,17 +5,24 @@ import 'package:dotmeme/providers/memes_provider.dart';
 import 'package:dotmeme/providers/shared_preferences_provider.dart';
 import 'package:dotmeme/route_generator.dart';
 import 'package:dotmeme/theme/themes.dart';
+import 'package:fimber/fimber.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-void main() => runApp(
-      MultiProvider(
-        providers: [
-          ChangeNotifierProvider(create: (_) => SharedPreferencesProvider()),
-        ],
-        child: MyApp(),
-      ),
-    );
+void main() {
+  Fimber.plantTree(DebugTree(
+    logLevels: ["D", "I", "W", "E", "V"],
+    useColors: true,
+  ));
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => SharedPreferencesProvider()),
+      ],
+      child: MyApp(),
+    ),
+  );
+}
 
 class MyApp extends StatelessWidget {
   @override
