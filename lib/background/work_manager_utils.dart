@@ -1,8 +1,11 @@
 import 'package:dotmeme/background/periodic_cv_scan.dart';
+import 'package:fimber/fimber.dart';
 import 'package:workmanager/workmanager.dart';
 
 void callbackDispatcher() {
   Workmanager.executeTask((task, inputData) async {
+    final fim = FimberLog("Background");
+    fim.i("Background task will be executed, task name: $task");
     //simpleTask will be emitted here.
     switch (task) {
       case PeriodicCvScan.TASK_NAME_OCR:

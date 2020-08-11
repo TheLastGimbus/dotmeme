@@ -1,3 +1,5 @@
+import 'dart:isolate';
+
 import 'package:dotmeme/analyze/ocr/ocr.dart';
 import 'package:dotmeme/providers/memes_provider.dart';
 import 'package:fimber/fimber_base.dart';
@@ -12,6 +14,7 @@ class PeriodicCvScan {
     final fim = FimberLog("PeriodicCVScan");
 
     fim.i("IMMM SCANNINGGGGG (REALLY!) Task name: $taskName");
+    fim.d("Isolate hash: ${Isolate.current.hashCode}");
     // TODO: Check for permission
     var memesProvider = MemesProvider();
     await memesProvider.syncFolders();
@@ -33,15 +36,14 @@ class PeriodicCvScan {
               "Videos and others are not supported for now!");
         }
         var file = await asset.file;
-        print('Scanning ${file.path}');
+        fim.d('Scanning ${file.path}');
         var text = await Ocr.getText(imagePath: file.path);
-        print('Text: $text');
+        fim.d('Text: $text');
         memesProvider.db.setMemeText(meme.id, text);
       } catch (e) {
         // Sadly, we can't catch fatal exceptions from Tesseract :c
         // I need to contribute some to it
-        fim.e("Couldn't scan image ${meme.id}:");
-        print(e);
+        fim.e("Couldn't scan image ${meme.id}:", ex: e);
       }
     }
   }

@@ -1,4 +1,5 @@
 import 'package:dotmeme/analyze/ocr/ocr.dart';
+import 'package:dotmeme/background/periodic_cv_scan.dart';
 import 'package:dotmeme/providers/memes_provider.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -53,6 +54,12 @@ class _TestingPageState extends State<TestingPage> {
                   FilePicker.getFilePath(type: FileType.image).then((path) {
                     scan(path);
                   });
+                },
+              ),
+              RaisedButton(
+                child: Text('Test background scan (not really in background)'),
+                onPressed: () {
+                  PeriodicCvScan.ocrScan(taskName: "TEST SCAN");
                 },
               ),
               SizedBox(height: 30),
