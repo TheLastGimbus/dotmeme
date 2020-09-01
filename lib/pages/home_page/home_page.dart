@@ -3,6 +3,7 @@ import 'package:dotmeme/pages/home_page/search_app_bar.dart';
 import 'package:dotmeme/pages/home_page/selection_app_bar.dart';
 import 'package:dotmeme/providers/home_page_provider.dart';
 import 'package:dotmeme/providers/memes_provider.dart';
+import 'package:fimber/fimber.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:provider/provider.dart';
@@ -15,6 +16,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   // TODO: Clear textField focus when keyboard hidden by back press
+  final fim = FimberLog("HomePage");
 
   void onMemesUpdate(HomePageProvider home, MemesProvider memes) async {
     home.memesList = await memes.getAllMemes;
@@ -52,7 +54,7 @@ class _HomePageState extends State<HomePage> {
             return;
           }
           newSyncGoing = true;
-          print('NewSync running...');
+          fim.v('NewSync running...');
           // It calls notifyListeners, so we don't need to re-get all memes
           await memesProvider.syncNewMemesInFolder(folder.id);
           newSyncGoing = false;
@@ -68,7 +70,7 @@ class _HomePageState extends State<HomePage> {
             return;
           }
           deleteSyncGoing = true;
-          print('DeleteSync running...');
+          fim.v('DeleteSync running...');
           // It calls notifyListeners, so we don't need to re-get all memes
           await memesProvider.syncDeletedMemesInFolder(folder.id);
           deleteSyncGoing = false;
@@ -80,7 +82,7 @@ class _HomePageState extends State<HomePage> {
 
         var watcher = DirectoryWatcher(file.parent.path);
         watcher.events.listen((event) async {
-          print(event);
+          fim.v(event.toString());
           if (event.type == ChangeType.ADD) {
             newSync();
           } else if (event.type == ChangeType.REMOVE) {
