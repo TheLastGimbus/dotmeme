@@ -5,6 +5,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:provider/provider.dart';
+import 'package:workmanager/workmanager.dart';
 
 class TestingPage extends StatefulWidget {
   @override
@@ -61,6 +62,20 @@ class _TestingPageState extends State<TestingPage> {
                 onPressed: () {
                   PeriodicCvScan.ocrScan(taskName: "TEST SCAN");
                 },
+              ),
+              RaisedButton(
+                child: Text('Schedule one-time scan task'),
+                onPressed: () => Workmanager.registerOneOffTask(
+                  "one-time-scan-test",
+                  PeriodicCvScan.TASK_NAME_OCR,
+                  existingWorkPolicy: ExistingWorkPolicy.replace,
+                ),
+                onLongPress: () => Workmanager.registerOneOffTask(
+                  "one-time-scan-test",
+                  PeriodicCvScan.TASK_NAME_OCR,
+                  existingWorkPolicy: ExistingWorkPolicy.replace,
+                  initialDelay: Duration(seconds: 10),
+                ),
               ),
               SizedBox(height: 30),
               Text(
