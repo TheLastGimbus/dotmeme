@@ -28,6 +28,7 @@ dependencies:
   workmanager: ^0.2.3
   flutter_local_notifications: ^1.4.4+2
   permission_handler: 5.0.1+1
+  image: ^2.1.18
 
   file_picker: ^1.13.3
   photo_manager: 0.5.1-dev.9
