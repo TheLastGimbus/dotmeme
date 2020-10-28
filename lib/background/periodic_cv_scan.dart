@@ -1,8 +1,10 @@
 import 'dart:isolate';
 
 import 'package:dotmeme/analyze/ocr/ocr.dart';
+import 'package:dotmeme/notifications/notifications.dart';
 import 'package:dotmeme/providers/memes_provider.dart';
 import 'package:fimber/fimber_base.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:photo_manager/photo_manager.dart';
 
 class PeriodicCvScan {
@@ -16,6 +18,11 @@ class PeriodicCvScan {
     fim.i("IMMM SCANNINGGGGG (REALLY!) Task name: $taskName");
     fim.d("Isolate hash: ${Isolate.current.hashCode}");
     // TODO: Check for permission
+
+    var status = await Permission.storage.status;
+    fim.d("Storage permission: ${status.toString()}");
+    Notifications.showNotification("Permission status", status.toString());
+
     var memesProvider = MemesProvider();
     await memesProvider.syncFolders();
     await memesProvider.syncMemes();
