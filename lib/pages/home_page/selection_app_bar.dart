@@ -12,7 +12,7 @@ Widget selectionAppBar(BuildContext context) {
   var memesProvider = Provider.of<MemesProvider>(context);
 
   return AppBar(
-    title: Text('Selected ${homeProvider.selectControl.selection.amount}'),
+    title: Text('Selected ${homeProvider.selectControl.value.amount}'),
     leading: IconButton(
       icon: Icon(Icons.close),
       onPressed: () {
@@ -23,7 +23,7 @@ Widget selectionAppBar(BuildContext context) {
       IconButton(
         icon: Icon(Icons.share),
         onPressed: () async {
-          var memesIds = homeProvider.selectControl.selection.selectedIndexes
+          var memesIds = homeProvider.selectControl.value.selectedIndexes
               .map((index) => homeProvider.memesList[index].id);
           var bytesMap = Map<String, Uint8List>();
           for (var id in memesIds) {
@@ -38,8 +38,7 @@ Widget selectionAppBar(BuildContext context) {
       IconButton(
         icon: Icon(Icons.delete),
         onPressed: () async {
-          var selectedMemes = homeProvider
-              .selectControl.selection.selectedIndexes
+          var selectedMemes = homeProvider.selectControl.value.selectedIndexes
               .map((index) => homeProvider.memesList[index]);
           var idsToDelete = selectedMemes.map((m) => m.id.toString());
           PhotoManager.editor.deleteWithIds(idsToDelete.toList());

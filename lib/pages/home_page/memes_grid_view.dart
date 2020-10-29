@@ -19,7 +19,7 @@ class MemesGridView extends StatelessWidget {
           builder: (context, AsyncSnapshot<Uint8List> snapshot) =>
               snapshot.hasData
                   ? GestureDetector(
-                      onTap: homeProvider.selectControl.selection.isSelecting
+                      onTap: homeProvider.selectControl.value.isSelecting
                           ? null
                           : () {
                               FocusScope.of(context).unfocus();

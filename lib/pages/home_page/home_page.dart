@@ -124,7 +124,7 @@ class _HomePageState extends State<HomePage> {
     var homeProvider = Provider.of<HomePageProvider>(context);
 
     return Scaffold(
-      appBar: homeProvider.selectControl.selection.isSelecting
+      appBar: homeProvider.selectControl.value.isSelecting
           ? selectionAppBar(context)
           : searchAppBar(context),
       body: MemesGridView(),
