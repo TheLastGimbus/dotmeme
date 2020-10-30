@@ -19,6 +19,9 @@ void callbackDispatcher() {
 class WorkManagerUtils {
   static initialize() {
     Workmanager.initialize(callbackDispatcher, isInDebugMode: true);
+    Workmanager.cancelAll();
+    return;
+
     Workmanager.registerPeriodicTask(
       "1",
       PeriodicCvScan.TASK_NAME_OCR,
