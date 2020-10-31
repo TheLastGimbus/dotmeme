@@ -20,14 +20,17 @@ import 'package:watcher/watcher.dart';
 class MemesProvider with ChangeNotifier {
   final db = Memebase();
   final fim = FimberLog('MemesProvider');
-  StreamSubscription<WatchEvent> _folderWatchSubscription;
+  List<StreamSubscription<WatchEvent>> _folderWatchSubscriptions = [];
 
   MemesProvider() {
     _setupWatchers();
   }
 
   Future<void> _setupWatchers() async {
-    await _folderWatchSubscription?.cancel();
+    for (var el in _folderWatchSubscriptions) {
+      await el.cancel();
+    }
+    _folderWatchSubscriptions = [];
     fim.v("Setting up file watchers");
     // Add file watchers
     for (var folder in await db.getAllFoldersEnabled) {
@@ -77,8 +80,9 @@ class MemesProvider with ChangeNotifier {
       // CHANGE THIS IF CHINESE GUY DOES SOMETHING ABOUT THIS
       final folderPath = "/storage/emulated/0/" + singleAss.relativePath;
       fim.v("Setting folder: $folderPath");
+
       var watcher = DirectoryWatcher(folderPath);
-      _folderWatchSubscription = watcher.events.listen((event) async {
+      _folderWatchSubscriptions.add(watcher.events.listen((event) async {
         fim.v(event.toString());
         if (event.type == ChangeType.ADD) {
           newSync();
@@ -88,7 +92,7 @@ class MemesProvider with ChangeNotifier {
           newSync();
           deleteSync();
         }
-      });
+      }));
     }
   }
 
