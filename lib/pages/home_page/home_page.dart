@@ -5,9 +5,7 @@ import 'package:dotmeme/providers/home_page_provider.dart';
 import 'package:dotmeme/providers/memes_provider.dart';
 import 'package:fimber/fimber.dart';
 import 'package:flutter/material.dart';
-import 'package:photo_manager/photo_manager.dart';
 import 'package:provider/provider.dart';
-import 'package:watcher/watcher.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -34,65 +32,6 @@ class _HomePageState extends State<HomePage> {
 
       onMemesUpdate();
       memesProvider.addListener(onMemesUpdate);
-
-      // Add file watchers
-      for (var folder in await memesProvider.getAllFolders) {
-        var assPath = await AssetPathEntity.fromId(folder.id.toString());
-        var singleAss =
-            (await assPath.getAssetListRange(start: 0, end: 1)).first;
-        if (singleAss == null) continue;
-        var file = await singleAss.file;
-
-        var newSyncGoing = false;
-        var newSyncScheduled = false;
-        var deleteSyncGoing = false;
-        var deleteSyncScheduled = false;
-
-        newSync() async {
-          if (newSyncGoing) {
-            newSyncScheduled = true;
-            return;
-          }
-          newSyncGoing = true;
-          fim.v('NewSync running...');
-          // It calls notifyListeners, so we don't need to re-get all memes
-          await memesProvider.syncNewMemesInFolder(folder.id);
-          newSyncGoing = false;
-          if (newSyncScheduled) {
-            newSyncScheduled = false;
-            newSync();
-          }
-        }
-
-        deleteSync() async {
-          if (deleteSyncGoing) {
-            deleteSyncScheduled = true;
-            return;
-          }
-          deleteSyncGoing = true;
-          fim.v('DeleteSync running...');
-          // It calls notifyListeners, so we don't need to re-get all memes
-          await memesProvider.syncDeletedMemesInFolder(folder.id);
-          deleteSyncGoing = false;
-          if (deleteSyncScheduled) {
-            deleteSyncScheduled = false;
-            deleteSync();
-          }
-        }
-
-        var watcher = DirectoryWatcher(file.parent.path);
-        watcher.events.listen((event) async {
-          fim.v(event.toString());
-          if (event.type == ChangeType.ADD) {
-            newSync();
-          } else if (event.type == ChangeType.REMOVE) {
-            deleteSync();
-          } else {
-            newSync();
-            deleteSync();
-          }
-        });
-      }
 
       await memesProvider.syncMemes();
       await memesProvider.syncFolders();

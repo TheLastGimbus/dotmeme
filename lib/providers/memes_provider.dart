@@ -1,9 +1,12 @@
 // This provider keeps sync of all memes list
+import 'dart:async';
+
 import 'package:dotmeme/database/memebase.dart';
 import 'package:fimber/fimber.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:photo_manager/photo_manager.dart';
+import 'package:watcher/watcher.dart';
 
 /// This is the way you should access memes.
 /// Get all of them, search them, get only from certain folder.
@@ -17,6 +20,74 @@ import 'package:photo_manager/photo_manager.dart';
 class MemesProvider with ChangeNotifier {
   final db = Memebase();
   final fim = FimberLog('MemesProvider');
+  StreamSubscription<WatchEvent> _folderWatchSubscription;
+
+  MemesProvider() {
+    _setupWatchers();
+  }
+
+  Future<void> _setupWatchers() async {
+    await _folderWatchSubscription?.cancel();
+    fim.v("Setting up file watchers");
+    // Add file watchers
+    for (var folder in await db.getAllFoldersEnabled) {
+      var assPath = await AssetPathEntity.fromId(folder.id.toString());
+      var singleAss = (await assPath.getAssetListRange(start: 0, end: 1)).first;
+      if (singleAss == null) continue;
+      var file = await singleAss.file;
+
+      var newSyncGoing = false;
+      var newSyncScheduled = false;
+      var deleteSyncGoing = false;
+      var deleteSyncScheduled = false;
+
+      newSync() async {
+        if (newSyncGoing) {
+          newSyncScheduled = true;
+          return;
+        }
+        newSyncGoing = true;
+        fim.v('NewSync running...');
+        // It calls notifyListeners
+        await syncNewMemesInFolder(folder.id);
+        newSyncGoing = false;
+        if (newSyncScheduled) {
+          newSyncScheduled = false;
+          newSync();
+        }
+      }
+
+      deleteSync() async {
+        if (deleteSyncGoing) {
+          deleteSyncScheduled = true;
+          return;
+        }
+        deleteSyncGoing = true;
+        fim.v('DeleteSync running...');
+        // It calls notifyListeners
+        await syncDeletedMemesInFolder(folder.id);
+        deleteSyncGoing = false;
+        if (deleteSyncScheduled) {
+          deleteSyncScheduled = false;
+          deleteSync();
+        }
+      }
+
+      fim.v("Setting folder: ${file.parent.path}");
+      var watcher = DirectoryWatcher(file.parent.path);
+      _folderWatchSubscription = watcher.events.listen((event) async {
+        fim.v(event.toString());
+        if (event.type == ChangeType.ADD) {
+          newSync();
+        } else if (event.type == ChangeType.REMOVE) {
+          deleteSync();
+        } else {
+          newSync();
+          deleteSync();
+        }
+      });
+    }
+  }
 
   Future<List<Folder>> get getAllFolders => db.getAllFolders;
 
@@ -242,5 +313,6 @@ class MemesProvider with ChangeNotifier {
       await db.deleteAllMemesFromFolder(folder.id);
       notifyListeners();
     }
+    await _setupWatchers();
   }
 }
