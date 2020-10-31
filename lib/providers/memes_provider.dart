@@ -34,7 +34,6 @@ class MemesProvider with ChangeNotifier {
       var assPath = await AssetPathEntity.fromId(folder.id.toString());
       var singleAss = (await assPath.getAssetListRange(start: 0, end: 1)).first;
       if (singleAss == null) continue;
-      var file = await singleAss.file;
 
       var newSyncGoing = false;
       var newSyncScheduled = false;
@@ -73,8 +72,12 @@ class MemesProvider with ChangeNotifier {
         }
       }
 
-      fim.v("Setting folder: ${file.parent.path}");
-      var watcher = DirectoryWatcher(file.parent.path);
+      // TODO: THIS SHOULD NOT BE HERE
+      // THIS WON'T WORK FOR PEOPLE WITH SD CARD
+      // CHANGE THIS IF CHINESE GUY DOES SOMETHING ABOUT THIS
+      final folderPath = "/storage/emulated/0/" + singleAss.relativePath;
+      fim.v("Setting folder: $folderPath");
+      var watcher = DirectoryWatcher(folderPath);
       _folderWatchSubscription = watcher.events.listen((event) async {
         fim.v(event.toString());
         if (event.type == ChangeType.ADD) {
