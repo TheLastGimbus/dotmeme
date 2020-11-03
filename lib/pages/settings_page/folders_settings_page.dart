@@ -4,25 +4,38 @@ import 'package:flutter/material.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:provider/provider.dart';
 
-// TODO: Deal somehow with those annoying folders from camera
-class FoldersSettingsPage extends StatelessWidget {
-  Future<List<Folder>> _loadFolders(MemesProvider memesP) async {
-    await memesP.syncFolders();
-    return memesP.getAllFolders;
-  }
+class _FolderData {
+  final Folder folder;
+  final String name;
+  final int assetCount;
 
-  // Workaround for now :/
-  // This needs to be enough until photo_manager creator will fix
-  Future<Map<String, String>> _loadNames() async {
+  _FolderData(this.folder, this.name, this.assetCount);
+}
+
+// TODO: Deal somehow with those annoying folders from camera
+// Sorting from biggest to smallest kinda solves this?
+class FoldersSettingsPage extends StatelessWidget {
+  Future<List<_FolderData>> _loadFoldersData(MemesProvider memesP) async {
+    await memesP.syncFolders();
+    var allDbFolders = await memesP.getAllFolders;
+
+    // Before you ask - it seems to be more efficient to load
+    // *all* "AssetFolder"s, and then cherry pick one, instead of loading each
+    // one by id. Here you have it - Android :)
     var assFolders = await PhotoManager.getAssetPathList(
       hasAll: false,
       type: RequestType.image,
     );
-    var names = Map<String, String>();
-    for (var ass in assFolders) {
-      names[ass.id] = ass.name;
-    }
-    return names;
+
+    return allDbFolders.map(
+      (e) {
+        var af = assFolders.firstWhere((ass) => ass.id == e.id.toString());
+        return _FolderData(e, af.name, af.assetCount);
+      },
+    ).toList()
+      ..sort(
+        (a, b) => b.assetCount.compareTo(a.assetCount),
+      );
   }
 
   AlertDialog _tooltipDialog() => AlertDialog(
@@ -75,10 +88,11 @@ class FoldersSettingsPage extends StatelessWidget {
       );
 
   Widget _folderSwitchTile(BuildContext context, MemesProvider memesProvider,
-      Folder folder, String folderName) {
+      Folder folder, String folderName, int assetCount) {
     return SwitchListTile(
       value: folder.scanningEnabled,
       title: Text(folderName),
+      subtitle: Text(assetCount.toString()),
       onChanged: (enabled) {
         // If folder is really large, there will be a little lag
         // on switch. Although user will touch this, like,
@@ -126,21 +140,24 @@ class FoldersSettingsPage extends StatelessWidget {
     );
   }
 
-  Widget _foldersListView(MemesProvider memesProvider, List<Folder> folders) =>
+  Widget _foldersListView(MemesProvider memesProvider) =>
       FutureBuilder(
-        future: _loadNames(),
-        builder: (context, snapshot) => ListView(
-          children: folders
-              .map((folder) => _folderSwitchTile(
-                    context,
-                    memesProvider,
-                    folder,
-                    snapshot.hasData
-                        ? snapshot.data[folder.id.toString()]
-                        : '...',
-                  ))
-              .toList(),
-        ),
+        future: _loadFoldersData(memesProvider),
+        builder: (context, AsyncSnapshot<List<_FolderData>> snapshot) =>
+        snapshot.hasData
+            ? ListView(
+          children: [
+            for (var data in snapshot.data)
+              _folderSwitchTile(
+                context,
+                memesProvider,
+                data.folder,
+                data.name,
+                data.assetCount,
+              )
+          ],
+        )
+            : Text('...'),
       );
 
   @override
@@ -160,13 +177,7 @@ class FoldersSettingsPage extends StatelessWidget {
         ],
       ),
       body: Center(
-        child: FutureBuilder(
-          future: _loadFolders(memesProvider),
-          builder: (ctx, AsyncSnapshot<List<Folder>> snapshot) =>
-              snapshot.hasData
-                  ? _foldersListView(memesProvider, snapshot.data)
-                  : Text('Wait...'),
-        ),
+        child: _foldersListView(memesProvider),
       ),
     );
   }
