@@ -20,22 +20,35 @@ import 'package:watcher/watcher.dart';
 class MemesProvider with ChangeNotifier {
   final db = Memebase();
   final fim = FimberLog('MemesProvider');
-  List<StreamSubscription<WatchEvent>> _folderWatchSubscriptions = [];
+
+  /// Map of file watchers' steams. Key is folder id.
+  Map<String, StreamSubscription<WatchEvent>> _folderWatchSubscriptions = {};
 
   MemesProvider() {
     _setupWatchers();
   }
 
+  /// Set up file watchers that will call re-sync functions when some changes
+  /// in enabled folders will be detected.
+  ///
+  /// This function is pretty bad, and will take some time, so call it once,
+  /// or never :)
+  ///
+  /// As always - I'm waiting for Chinese guy to implement this in library
   Future<void> _setupWatchers() async {
-    for (var el in _folderWatchSubscriptions) {
-      await el.cancel();
-    }
-    _folderWatchSubscriptions = [];
+    var timer = Stopwatch()..start();
     fim.v("Setting up file watchers");
     // Add file watchers
-    for (var folder in await db.getAllFoldersEnabled) {
-      var assPath = await AssetPathEntity.fromId(folder.id.toString());
+
+    var assFolders = await PhotoManager.getAssetPathList(
+      hasAll: false,
+      type: RequestType.image,
+    );
+
+    for (var folder in await db.getAllFolders) {
+      var assPath = assFolders.firstWhere((e) => e.id == folder.id.toString());
       var singleAss = (await assPath.getAssetListRange(start: 0, end: 1)).first;
+      // We can't do our hackery thing if there is no single asset
       if (singleAss == null) continue;
 
       var newSyncGoing = false;
@@ -82,7 +95,8 @@ class MemesProvider with ChangeNotifier {
       fim.v("Setting folder: $folderPath");
 
       var watcher = DirectoryWatcher(folderPath);
-      _folderWatchSubscriptions.add(watcher.events.listen((event) async {
+      _folderWatchSubscriptions[folder.id.toString()] =
+          (watcher.events.listen((event) async {
         fim.v(event.toString());
         if (event.type == ChangeType.ADD) {
           newSync();
@@ -93,7 +107,11 @@ class MemesProvider with ChangeNotifier {
           deleteSync();
         }
       }));
+      if (!folder.scanningEnabled) {
+        _folderWatchSubscriptions[folder.id.toString()].pause();
+      }
     }
+    fim.d("Setting up watchers took ${timer.elapsedMilliseconds}ms");
   }
 
   Future<List<Folder>> get getAllFolders => db.getAllFolders;
@@ -320,6 +338,11 @@ class MemesProvider with ChangeNotifier {
       await db.deleteAllMemesFromFolder(folder.id);
       notifyListeners();
     }
-    await _setupWatchers();
+
+    /// See _setupWatchers()
+    if (enabled)
+      _folderWatchSubscriptions[folder.id.toString()].resume();
+    else
+      _folderWatchSubscriptions[folder.id.toString()].pause();
   }
 }
