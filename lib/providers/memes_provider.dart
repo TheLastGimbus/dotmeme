@@ -24,10 +24,6 @@ class MemesProvider with ChangeNotifier {
   /// Map of file watchers' steams. Key is folder id.
   Map<String, StreamSubscription<WatchEvent>> _folderWatchSubscriptions = {};
 
-  MemesProvider() {
-    _setupWatchers();
-  }
-
   /// Set up file watchers that will call re-sync functions when some changes
   /// in enabled folders will be detected.
   ///
@@ -35,7 +31,7 @@ class MemesProvider with ChangeNotifier {
   /// or never :)
   ///
   /// As always - I'm waiting for Chinese guy to implement this in library
-  Future<void> _setupWatchers() async {
+  Future<void> setupWatchers() async {
     var timer = Stopwatch()..start();
     fim.v("Setting up file watchers");
     // Add file watchers

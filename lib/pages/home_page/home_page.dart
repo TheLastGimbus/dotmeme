@@ -35,6 +35,7 @@ class _HomePageState extends State<HomePage> {
 
       await memesProvider.syncMemes();
       await memesProvider.syncFolders();
+      memesProvider.setupWatchers();
     });
   }
 
