@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:provider/provider.dart';
 
+/// Small helper class to carry data, only to use in here
 class _FolderData {
   final Folder folder;
   final String name;
@@ -14,7 +15,16 @@ class _FolderData {
 
 // TODO: Deal somehow with those annoying folders from camera
 // Sorting from biggest to smallest kinda solves this?
+/// This is folders settings page. For now, it consists of simple
+/// switch tile list of folders. You simple disable or enable folder for it
+/// to show up in list and be scanned. Maybe in future some more precise
+/// settings will be needed - how those settings will be navigated isn't yet
+/// known.
 class FoldersSettingsPage extends StatelessWidget {
+  /// This loads data about folders from Chinese library - what are names,
+  /// what is assetCount etc.
+  ///
+  /// Returns [_FolderData] list
   Future<List<_FolderData>> _loadFoldersData(MemesProvider memesP) async {
     await memesP.syncFolders();
     var allDbFolders = await memesP.getAllFolders;
@@ -38,6 +48,7 @@ class FoldersSettingsPage extends StatelessWidget {
       );
   }
 
+  /// This is dialog that shows what the hell those settings mean
   AlertDialog _tooltipDialog() => AlertDialog(
         title: Text('Folders settings'),
         content: Text(
@@ -49,6 +60,8 @@ class FoldersSettingsPage extends StatelessWidget {
         ),
       );
 
+  /// This dialog warns you that you've enabled "Camera" folder, and asks you
+  /// if you are sure
   AlertDialog _cameraWarningDialog({Function(bool) onContinue}) => AlertDialog(
         title: Text('Are you sure?'),
         content: Text(
@@ -68,6 +81,8 @@ class FoldersSettingsPage extends StatelessWidget {
         ],
       );
 
+  /// This dialog warns you that the folder you are about to disable has a lot
+  /// of scanned memes, and their data will be deleted once you disable it
   AlertDialog _lotScannedWarningDialog({Function(bool) onContinue}) =>
       AlertDialog(
         title: Text('This folder has a lot of scanned memes!'),
