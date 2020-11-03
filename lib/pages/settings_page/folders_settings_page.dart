@@ -140,24 +140,23 @@ class FoldersSettingsPage extends StatelessWidget {
     );
   }
 
-  Widget _foldersListView(MemesProvider memesProvider) =>
-      FutureBuilder(
+  Widget _foldersListView(MemesProvider memesProvider) => FutureBuilder(
         future: _loadFoldersData(memesProvider),
         builder: (context, AsyncSnapshot<List<_FolderData>> snapshot) =>
-        snapshot.hasData
-            ? ListView(
-          children: [
-            for (var data in snapshot.data)
-              _folderSwitchTile(
-                context,
-                memesProvider,
-                data.folder,
-                data.name,
-                data.assetCount,
-              )
-          ],
-        )
-            : Text('...'),
+            snapshot.hasData
+                ? ListView(
+                    children: [
+                      for (var data in snapshot.data)
+                        _folderSwitchTile(
+                          context,
+                          memesProvider,
+                          data.folder,
+                          data.name,
+                          data.assetCount,
+                        )
+                    ],
+                  )
+                : Text('...'),
       );
 
   @override
