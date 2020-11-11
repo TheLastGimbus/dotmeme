@@ -102,20 +102,11 @@ class _SwipingPageState extends State<SwipingPage> {
                           .toString(),
                     );
                     var file = await asset.file;
-                    var image = nImage.decodeNamedImage(
-                        await file.readAsBytes(), asset.title);
-                    nImage.drawString(
-                      image,
-                      nImage.arial_24,
-                      image.width ~/ 12,
-                      image.height - image.height ~/ 8,
-                      'Found with .meme',
-                      color: Colors.white.value,
-                    );
+                    var bytes = await file.readAsBytes();
                     Share.file(
                       'Shere meme',
                       asset.title,
-                      nImage.encodeJpg(image),
+                      bytes,
                       'image/${path.extension(asset.title).replaceFirst('.', '')}',
                     );
                   },
