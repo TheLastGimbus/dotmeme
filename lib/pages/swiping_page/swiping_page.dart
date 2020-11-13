@@ -104,32 +104,32 @@ class _SwipingPageState extends State<SwipingPage> {
         fullscreen ? [SystemUiOverlay.bottom] : SystemUiOverlay.values);
 
     bottomBar() => Container(
-      decoration: BoxDecoration(
-        boxShadow: [BoxShadow(color: Colors.black26)],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          IconButton(
-            icon: Icon(Icons.share),
-            onPressed: () async {
-              var asset = await AssetEntity.fromId(
-                homeProvider.memesList[_controller.page.round()].id
-                    .toString(),
-              );
-              var file = await asset.file;
-              var bytes = await file.readAsBytes();
-              Share.file(
-                'Shere meme',
-                asset.title,
-                bytes,
-                'image/${path.extension(asset.title).replaceFirst('.', '')}',
-              );
-            },
+          decoration: BoxDecoration(
+            boxShadow: [BoxShadow(color: Colors.black26)],
           ),
-        ],
-      ),
-    );
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              IconButton(
+                icon: Icon(Icons.share),
+                onPressed: () async {
+                  var asset = await AssetEntity.fromId(
+                    homeProvider.memesList[_controller.page.round()].id
+                        .toString(),
+                  );
+                  var file = await asset.file;
+                  var bytes = await file.readAsBytes();
+                  Share.file(
+                    'Shere meme',
+                    asset.title,
+                    bytes,
+                    'image/${path.extension(asset.title).replaceFirst('.', '')}',
+                  );
+                },
+              ),
+            ],
+          ),
+        );
 
     // TODO: Show/hide app bar and options buttons (not present yet)
     //  on single press
@@ -152,11 +152,17 @@ class _SwipingPageState extends State<SwipingPage> {
                 _pageWidget(index, homeProvider.memesList[index]),
             itemCount: homeProvider.memesList.length,
           ),
-          if (!fullscreen)
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: bottomBar(),
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: AnimatedCrossFade(
+              duration: Duration(milliseconds: 200),
+              crossFadeState: fullscreen
+                  ? CrossFadeState.showSecond
+                  : CrossFadeState.showFirst,
+              firstChild: bottomBar(),
+              secondChild: Flex(direction: Axis.horizontal),
             ),
+          ),
         ],
       ),
     );
