@@ -122,7 +122,14 @@ class _SwipingPageState extends State<SwipingPage> {
             child: Container(
               height: kToolbarHeight,
               child: Row(
-                children: [BackButton()],
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  BackButton(),
+                  IconButton(
+                    icon: Icon(Icons.info_outline),
+                    // TODO: Display image info on tap
+                  )
+                ],
               ),
             ),
           ),
