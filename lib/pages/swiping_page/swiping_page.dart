@@ -103,6 +103,17 @@ class _SwipingPageState extends State<SwipingPage> {
     SystemChrome.setEnabledSystemUIOverlays(
         fullscreen ? [SystemUiOverlay.bottom] : SystemUiOverlay.values);
 
+    topBar() => Container(
+          decoration: BoxDecoration(
+            boxShadow: [BoxShadow(color: Colors.black26)],
+          ),
+          child: SafeArea(
+            child: Row(
+              children: [BackButton()],
+            ),
+          ),
+        );
+
     bottomBar() => Container(
           decoration: BoxDecoration(
             boxShadow: [BoxShadow(color: Colors.black26)],
@@ -135,12 +146,6 @@ class _SwipingPageState extends State<SwipingPage> {
     //  on single press
     return Scaffold(
       backgroundColor: Colors.black,
-      appBar: fullscreen
-          ? null
-          : AppBar(
-              leading: BackButton(),
-              backgroundColor: Colors.transparent,
-            ),
       extendBodyBehindAppBar: true,
       body: Stack(
         children: [
@@ -153,9 +158,21 @@ class _SwipingPageState extends State<SwipingPage> {
             itemCount: homeProvider.memesList.length,
           ),
           Align(
+            alignment: Alignment.topCenter,
+            child: AnimatedCrossFade(
+              duration: kTabScrollDuration,
+              crossFadeState: fullscreen
+                  ? CrossFadeState.showSecond
+                  : CrossFadeState.showFirst,
+              // crossFadeState: CrossFadeState.showFirst,
+              firstChild: topBar(),
+              secondChild: Flex(direction: Axis.horizontal),
+            ),
+          ),
+          Align(
             alignment: Alignment.bottomCenter,
             child: AnimatedCrossFade(
-              duration: Duration(milliseconds: 200),
+              duration: kTabScrollDuration,
               crossFadeState: fullscreen
                   ? CrossFadeState.showSecond
                   : CrossFadeState.showFirst,
