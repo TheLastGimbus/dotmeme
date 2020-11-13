@@ -108,8 +108,11 @@ class _SwipingPageState extends State<SwipingPage> {
             boxShadow: [BoxShadow(color: Colors.black26)],
           ),
           child: SafeArea(
-            child: Row(
-              children: [BackButton()],
+            child: Container(
+              height: kToolbarHeight,
+              child: Row(
+                children: [BackButton()],
+              ),
             ),
           ),
         );
@@ -118,6 +121,7 @@ class _SwipingPageState extends State<SwipingPage> {
           decoration: BoxDecoration(
             boxShadow: [BoxShadow(color: Colors.black26)],
           ),
+          height: kToolbarHeight,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
