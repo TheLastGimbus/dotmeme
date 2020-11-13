@@ -111,25 +111,6 @@ class _SwipingPageState extends State<SwipingPage> {
           ? null
           : AppBar(
               leading: BackButton(),
-              actions: <Widget>[
-                IconButton(
-                  icon: Icon(Icons.share),
-                  onPressed: () async {
-                    var asset = await AssetEntity.fromId(
-                      homeProvider.memesList[_controller.page.round()].id
-                          .toString(),
-                    );
-                    var file = await asset.file;
-                    var bytes = await file.readAsBytes();
-                    Share.file(
-                      'Shere meme',
-                      asset.title,
-                      bytes,
-                      'image/${path.extension(asset.title).replaceFirst('.', '')}',
-                    );
-                  },
-                )
-              ],
               backgroundColor: Colors.transparent,
             ),
       extendBodyBehindAppBar: true,
@@ -150,7 +131,20 @@ class _SwipingPageState extends State<SwipingPage> {
               children: [
                 IconButton(
                   icon: Icon(Icons.share),
-                  onPressed: null, // TODO
+                  onPressed: () async {
+                    var asset = await AssetEntity.fromId(
+                      homeProvider.memesList[_controller.page.round()].id
+                          .toString(),
+                    );
+                    var file = await asset.file;
+                    var bytes = await file.readAsBytes();
+                    Share.file(
+                      'Shere meme',
+                      asset.title,
+                      bytes,
+                      'image/${path.extension(asset.title).replaceFirst('.', '')}',
+                    );
+                  },
                 ),
               ],
             ),
