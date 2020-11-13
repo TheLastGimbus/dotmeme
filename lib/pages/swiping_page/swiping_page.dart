@@ -133,13 +133,29 @@ class _SwipingPageState extends State<SwipingPage> {
               backgroundColor: Colors.transparent,
             ),
       extendBodyBehindAppBar: true,
-      body: PageView.builder(
-        controller: _controller,
-        // If it's null it will set to platform default
-        physics: isZoomed ? NeverScrollableScrollPhysics() : null,
-        itemBuilder: (context, index) =>
-            _pageWidget(index, homeProvider.memesList[index]),
-        itemCount: homeProvider.memesList.length,
+      body: Stack(
+        children: [
+          PageView.builder(
+            controller: _controller,
+            // If it's null it will set to platform default
+            physics: isZoomed ? NeverScrollableScrollPhysics() : null,
+            itemBuilder: (context, index) =>
+                _pageWidget(index, homeProvider.memesList[index]),
+            itemCount: homeProvider.memesList.length,
+          ),
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                IconButton(
+                  icon: Icon(Icons.share),
+                  onPressed: null, // TODO
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
