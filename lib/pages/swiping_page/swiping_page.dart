@@ -6,11 +6,9 @@ import 'package:esys_flutter_share/esys_flutter_share.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
-import 'package:image/image.dart' as nImage;
 import 'package:path/path.dart' as path;
 import 'package:photo_manager/photo_manager.dart';
 import 'package:photo_view/photo_view.dart';
-import 'package:photo_view/photo_view_gallery.dart';
 import 'package:provider/provider.dart';
 
 class SwipingPageRouteData {
@@ -66,15 +64,27 @@ class _SwipingPageState extends State<SwipingPage> {
         future: _loadMemeToMemory(meme),
         builder: (context, AsyncSnapshot<Uint8List> snapshot) =>
             snapshot.hasData
-                ? Image(
-                    image: MemoryImage(snapshot.data),
-                    fit: BoxFit.contain,
+                ? PhotoView(
+                    imageProvider: MemoryImage(snapshot.data),
+                    onTapUp: (ctx, details, value) {
+                      setState(() {
+                        fullscreen = !fullscreen;
+                      });
+                    },
                     gaplessPlayback: true,
+                    minScale: PhotoViewComputedScale.contained,
+                    maxScale: 50.0,
+                    // TODO: Scaling doesnt work
+                    scaleStateCycle: (scaleState) {
+                      print('ScaleState: $scaleState');
+                      if (scaleState == PhotoViewScaleState.initial) {
+                        return PhotoViewScaleState.covering;
+                      } else {
+                        return PhotoViewScaleState.initial;
+                      }
+                    },
                   )
-                : _loadingWidget(
-                    index,
-                    meme,
-                  ),
+                : Icon(Icons.lock_clock),
       );
 
   @override
@@ -115,28 +125,10 @@ class _SwipingPageState extends State<SwipingPage> {
               backgroundColor: Colors.transparent,
             ),
       extendBodyBehindAppBar: true,
-      body: PhotoViewGallery.builder(
-        pageController: _controller,
-        builder: (context, index) => PhotoViewGalleryPageOptions.customChild(
-          child: _pageWidget(index, homeProvider.memesList[index]),
-          onTapUp: (ctx, details, value) {
-            setState(() {
-              fullscreen = !fullscreen;
-            });
-          },
-          minScale: PhotoViewComputedScale.contained,
-          maxScale: 50.0,
-          // TODO: Scaling doesnt work
-          scaleStateCycle: (scaleState) {
-            print('ScaleState: $scaleState');
-            if (scaleState == PhotoViewScaleState.initial) {
-              return PhotoViewScaleState.covering;
-            } else {
-              return PhotoViewScaleState.initial;
-            }
-          },
-        ),
-        gaplessPlayback: true,
+      body: PageView.builder(
+        controller: _controller,
+        itemBuilder: (context, index) =>
+            _pageWidget(index, homeProvider.memesList[index]),
         itemCount: homeProvider.memesList.length,
       ),
     );
