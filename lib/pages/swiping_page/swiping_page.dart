@@ -31,6 +31,11 @@ class SwipingPage extends StatefulWidget {
 class _SwipingPageState extends State<SwipingPage> {
   var fullscreen = false;
 
+  // This doesn't need to be individual for each image, because
+  // *in theory*, if it's true, user should not be able to scroll anywhere
+  // => he should not be able to move to any other photo
+  var isZoomed = false;
+
   Future<Uint8List> _loadMemeToMemory(Meme meme) async {
     var asset = await AssetEntity.fromId(meme.id.toString());
     var file = await asset.file;
@@ -74,7 +79,10 @@ class _SwipingPageState extends State<SwipingPage> {
                     gaplessPlayback: true,
                     minScale: PhotoViewComputedScale.contained,
                     maxScale: 50.0,
-                    // TODO: Scaling doesnt work
+                    // Tell me if setting state so often is inefficient or smth
+                    scaleStateChangedCallback: (newState) => setState(
+                      () => isZoomed = newState != PhotoViewScaleState.initial,
+                    ),
                     scaleStateCycle: (scaleState) {
                       print('ScaleState: $scaleState');
                       if (scaleState == PhotoViewScaleState.initial) {
@@ -127,6 +135,8 @@ class _SwipingPageState extends State<SwipingPage> {
       extendBodyBehindAppBar: true,
       body: PageView.builder(
         controller: _controller,
+        // If it's null it will set to platform default
+        physics: isZoomed ? NeverScrollableScrollPhysics() : null,
         itemBuilder: (context, index) =>
             _pageWidget(index, homeProvider.memesList[index]),
         itemCount: homeProvider.memesList.length,
