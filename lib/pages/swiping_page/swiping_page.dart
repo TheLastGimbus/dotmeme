@@ -1,4 +1,5 @@
 import 'dart:typed_data';
+import 'dart:ui';
 
 import 'package:dotmeme/database/memebase.dart';
 import 'package:dotmeme/providers/home_page_provider.dart';
@@ -103,9 +104,19 @@ class _SwipingPageState extends State<SwipingPage> {
     SystemChrome.setEnabledSystemUIOverlays(
         fullscreen ? [SystemUiOverlay.bottom] : SystemUiOverlay.values);
 
+    List<Color> _gradientColors = [
+      Colors.black38,
+      Colors.black26,
+      Colors.transparent
+    ];
+
     topBar() => Container(
           decoration: BoxDecoration(
-            boxShadow: [BoxShadow(color: Colors.black26)],
+            gradient: LinearGradient(
+              begin: Alignment.center,
+              end: Alignment.bottomCenter,
+              colors: _gradientColors,
+            ),
           ),
           child: SafeArea(
             child: Container(
@@ -119,7 +130,11 @@ class _SwipingPageState extends State<SwipingPage> {
 
     bottomBar() => Container(
           decoration: BoxDecoration(
-            boxShadow: [BoxShadow(color: Colors.black26)],
+            gradient: LinearGradient(
+              begin: Alignment.center,
+              end: Alignment.topCenter,
+              colors: _gradientColors,
+            ),
           ),
           height: kToolbarHeight,
           child: Row(
