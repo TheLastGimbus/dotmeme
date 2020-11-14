@@ -25,7 +25,7 @@ class _AssetData {
   );
 }
 
-Widget _CopyText(
+Widget _copyText(
   String text, {
   VoidCallback onPressed,
   VoidCallback onLongPress,
@@ -77,27 +77,27 @@ class FileInfo extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text('Title:', style: theme.textTheme.bodyText1),
-              _CopyText(data.title),
+              _copyText(data.title),
               SizedBox(height: spacing),
               Text('File path:', style: theme.textTheme.bodyText1),
               // TODO: Change this when chinese guy fixes it
-              _CopyText(data.file.path),
+              _copyText(data.file.path),
               SizedBox(height: spacing),
               Text('Size:', style: theme.textTheme.bodyText1),
-              _CopyText(filesize(data.bytes)),
+              _copyText(filesize(data.bytes)),
               SizedBox(height: spacing),
               Text('Resolution:', style: theme.textTheme.bodyText1),
-              _CopyText(
+              _copyText(
                 data.size.width.round().toString() +
                     'x' +
                     data.size.height.round().toString(),
               ),
               SizedBox(height: spacing),
               Text('Creation date:', style: theme.textTheme.bodyText1),
-              _CopyText(data.createDateTime.toString()),
+              _copyText(data.createDateTime.toString()),
               SizedBox(height: spacing),
               Text('Modification date:', style: theme.textTheme.bodyText1),
-              _CopyText(data.modifiedDateTime.toString()),
+              _copyText(data.modifiedDateTime.toString()),
               SizedBox(height: spacing),
             ],
           );
