@@ -95,7 +95,14 @@ class _SwipingPageState extends State<SwipingPage> {
                       }
                     },
                   )
-                : Icon(Icons.lock_clock),
+                : snapshot.hasError
+                    ? Center(
+                        child: Text(
+                          'Sorry, there was some error '
+                          'when loading this meme :c',
+                        ),
+                      )
+                    : SizedBox(),
       );
 
   @override
