@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:filesize/filesize.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:photo_manager/photo_manager.dart';
 
 class _AssetData {
@@ -24,6 +25,20 @@ class _AssetData {
   );
 }
 
+Widget _CopyText(
+  String text, {
+  VoidCallback onPressed,
+  VoidCallback onLongPress,
+}) =>
+    InkWell(
+      child: Text(text),
+      onTap: onPressed ?? () {},
+      onLongPress: onLongPress ??
+          () async {
+            await Clipboard.setData(ClipboardData(text: text));
+          },
+    );
+
 class FileInfo extends StatelessWidget {
   final String assetId;
 
@@ -33,13 +48,21 @@ class FileInfo extends StatelessWidget {
     var ass = await AssetEntity.fromId(assetId);
     await ass.refreshProperties();
     var file = await ass.file;
-    return _AssetData(file, ass.title, ass.relativePath, await file.length(),
-        ass.size, ass.createDateTime, ass.modifiedDateTime);
+    return _AssetData(
+      file,
+      ass.title,
+      ass.relativePath,
+      await file.length(),
+      ass.size,
+      ass.createDateTime,
+      ass.modifiedDateTime,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final double spacing = 8;
 
     return Container(
       child: FutureBuilder(
@@ -54,29 +77,28 @@ class FileInfo extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text('Title:', style: theme.textTheme.bodyText1),
-              Text('  ' + data.title),
-              SizedBox(height: 6),
+              _CopyText(data.title),
+              SizedBox(height: spacing),
               Text('File path:', style: theme.textTheme.bodyText1),
               // TODO: Change this when chinese guy fixes it
-              Text('  ' + data.file.path),
-              SizedBox(height: 6),
+              _CopyText(data.file.path),
+              SizedBox(height: spacing),
               Text('Size:', style: theme.textTheme.bodyText1),
-              Text('  ' + filesize(data.bytes)),
-              SizedBox(height: 6),
+              _CopyText(filesize(data.bytes)),
+              SizedBox(height: spacing),
               Text('Resolution:', style: theme.textTheme.bodyText1),
-              Text(
-                '  ' +
-                    data.size.width.round().toString() +
+              _CopyText(
+                data.size.width.round().toString() +
                     'x' +
                     data.size.height.round().toString(),
               ),
-              SizedBox(height: 6),
+              SizedBox(height: spacing),
               Text('Creation date:', style: theme.textTheme.bodyText1),
-              Text('  ' + data.createDateTime.toString()),
-              SizedBox(height: 6),
+              _CopyText(data.createDateTime.toString()),
+              SizedBox(height: spacing),
               Text('Modification date:', style: theme.textTheme.bodyText1),
-              Text('  ' + data.modifiedDateTime.toString()),
-              SizedBox(height: 6),
+              _CopyText(data.modifiedDateTime.toString()),
+              SizedBox(height: spacing),
             ],
           );
         },
