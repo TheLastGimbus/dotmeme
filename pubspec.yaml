@@ -30,6 +30,7 @@ dependencies:
   fimber: ^0.4.4
   shared_preferences: ^0.5.12+2
   watcher: ^0.9.7+15
+  filesize: ^1.0.4
   ## State managment
   provider: ^4.3.2+2
   ## Database
