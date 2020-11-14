@@ -107,7 +107,6 @@ class FileInfo extends StatelessWidget {
               SizedBox(height: spacing),
               Text('Modification date:', style: theme.textTheme.bodyText1),
               _copyText(data.modifiedDateTime.toString()),
-              SizedBox(height: spacing),
             ],
           );
         },
