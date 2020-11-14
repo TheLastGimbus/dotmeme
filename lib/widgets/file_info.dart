@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:photo_manager/photo_manager.dart';
 
+/// This is just a data class that holds data about asset
 class _AssetData {
   final File file;
   final String title;
@@ -25,6 +26,7 @@ class _AssetData {
   );
 }
 
+/// This is just Text that can be copied on long press
 Widget _copyText(
   String text, {
   VoidCallback onPressed,
@@ -39,6 +41,13 @@ Widget _copyText(
           },
     );
 
+// TODO: Add data about containing folder
+// This will probably require more deeper integration in SwipingPage and db,
+// so it won't be as nice standalone widget as it is now :/
+// (I know it isn't because of relying on PhotoManager)
+
+/// This is simple Widget that you can put inside AlertDialog or anything else
+/// It displays useful data about given photo from [assetId]
 class FileInfo extends StatelessWidget {
   final String assetId;
 
