@@ -141,6 +141,8 @@ class _SwipingPageState extends State<SwipingPage> {
                                 .memesList[_controller.page.round()].id
                                 .toString(),
                           ),
+                          contentPadding: EdgeInsets.all(16),
+                          insetPadding: EdgeInsets.all(16),
                           actions: [
                             FlatButton(
                               child: Text('Ok'),
