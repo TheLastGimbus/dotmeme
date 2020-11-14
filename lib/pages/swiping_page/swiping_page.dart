@@ -3,7 +3,9 @@ import 'dart:ui';
 
 import 'package:dotmeme/database/memebase.dart';
 import 'package:dotmeme/providers/home_page_provider.dart';
+import 'package:dotmeme/widgets/file_info.dart';
 import 'package:esys_flutter_share/esys_flutter_share.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -100,6 +102,7 @@ class _SwipingPageState extends State<SwipingPage> {
   Widget build(BuildContext context) {
     final homeProvider = Provider.of<HomePageProvider>(context);
     final _controller = PageController(initialPage: widget.startIndex);
+    final theme = Theme.of(context);
 
     SystemChrome.setEnabledSystemUIOverlays(
         fullscreen ? [SystemUiOverlay.bottom] : SystemUiOverlay.values);
@@ -127,8 +130,27 @@ class _SwipingPageState extends State<SwipingPage> {
                   BackButton(),
                   IconButton(
                     icon: Icon(Icons.info_outline),
-                    // TODO: Display image info on tap
-                  )
+                    onPressed: () {
+                      showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: Text('Properties',
+                              style: theme.textTheme.headline6),
+                          content: FileInfo(
+                            assetId: homeProvider
+                                .memesList[_controller.page.round()].id
+                                .toString(),
+                          ),
+                          actions: [
+                            FlatButton(
+                              child: Text('Ok'),
+                              onPressed: () => Navigator.of(context).pop(),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
                 ],
               ),
             ),
