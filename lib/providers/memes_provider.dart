@@ -32,6 +32,7 @@ class MemesProvider with ChangeNotifier {
   ///
   /// As always - I'm waiting for Chinese guy to implement this in library
   Future<void> setupWatchers() async {
+    // TODO: Check if PhotoManager.addChangeCallback is better
     var timer = Stopwatch()..start();
     fim.v("Setting up file watchers");
     // Add file watchers
