@@ -71,6 +71,12 @@ class FileInfo extends StatelessWidget {
                     data.size.height.round().toString(),
               ),
               SizedBox(height: 6),
+              Text('Creation date:', style: theme.textTheme.bodyText1),
+              Text('  ' + data.createDateTime.toString()),
+              SizedBox(height: 6),
+              Text('Modification date:', style: theme.textTheme.bodyText1),
+              Text('  ' + data.modifiedDateTime.toString()),
+              SizedBox(height: 6),
             ],
           );
         },
