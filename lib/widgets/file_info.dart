@@ -1,13 +1,15 @@
 import 'dart:io';
 
+import 'package:filesize/filesize.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_manager/photo_manager.dart';
 
 class _AssetData {
   final File file;
   final String title;
+  final int bytes;
 
-  _AssetData(this.file, this.title);
+  _AssetData(this.file, this.title, this.bytes);
 }
 
 class FileInfo extends StatelessWidget {
@@ -18,7 +20,8 @@ class FileInfo extends StatelessWidget {
   Future<_AssetData> _loadAssetData(String id) async {
     var ass = await AssetEntity.fromId(assetId);
     ass.refreshProperties();
-    return _AssetData(await ass.file, ass.title);
+    var file = await ass.file;
+    return _AssetData(file, ass.title, await file.length());
   }
 
   @override
@@ -42,6 +45,10 @@ class FileInfo extends StatelessWidget {
               SizedBox(height: 6),
               Text('File path:', style: theme.textTheme.bodyText1),
               Text('  ' + data.file.path),
+              SizedBox(height: 6),
+              Text('Size:', style: theme.textTheme.bodyText1),
+              Text('  ' + filesize(data.bytes)),
+              SizedBox(height: 6),
             ],
           );
         },
