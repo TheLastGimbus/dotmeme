@@ -21,6 +21,10 @@ class SwipingPageRouteData {
   final Uint8List startThumbnail;
 }
 
+/// This is a page that contains a PageView with all memes from
+/// homeProvider.memes
+///
+/// It is meant as main *meme watching* expeirience
 class SwipingPage extends StatefulWidget {
   SwipingPage({this.startIndex = 0, this.startThumbnail});
 
@@ -34,6 +38,10 @@ class SwipingPage extends StatefulWidget {
 class _SwipingPageState extends State<SwipingPage> {
   var fullscreen = false;
 
+  /// This is flag that is meant to be updated every time when meme zoom
+  /// state changes, and set to [true] if it's zoomed.
+  ///
+  /// Then, we can block scrolling to avoid annoyance
   // This doesn't need to be individual for each image, because
   // *in theory*, if it's true, user should not be able to scroll anywhere
   // => he should not be able to move to any other photo
@@ -51,6 +59,9 @@ class _SwipingPageState extends State<SwipingPage> {
     return await asset.thumbData;
   }
 
+  /// This is probably deprecated. It was meant to help with [Hero]
+  ///
+  /// But we fuck Hero so it's useless for now
   Widget _loadingWidget(int index, Meme meme) => index == widget.startIndex
       ? Image.memory(
           widget.startThumbnail,
@@ -68,6 +79,7 @@ class _SwipingPageState extends State<SwipingPage> {
               : SizedBox(),
         );
 
+  /// This is single page containing one meme, that is zoomable etc
   Widget _pageWidget(int index, Meme meme) => FutureBuilder(
         future: _loadMemeToMemory(meme),
         builder: (context, AsyncSnapshot<Uint8List> snapshot) =>
@@ -120,6 +132,8 @@ class _SwipingPageState extends State<SwipingPage> {
       Colors.transparent
     ];
 
+    /// This is our custom AppBar, so we have more control over how it will
+    /// look and behave
     topBar() => Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -134,6 +148,8 @@ class _SwipingPageState extends State<SwipingPage> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
+                  // TODO: Add some info about meme object itself
+                  // Scanned text, OCR metadata or something
                   BackButton(),
                   IconButton(
                     icon: Icon(Icons.info_outline),
@@ -166,6 +182,9 @@ class _SwipingPageState extends State<SwipingPage> {
           ),
         );
 
+    /// This is our custom BottomBar (seems like [Scaffold] doesn't even have
+    /// something like what we need). It has most of usefull buttons - like
+    /// share, delete, etc.
     bottomBar() => Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -199,8 +218,6 @@ class _SwipingPageState extends State<SwipingPage> {
           ),
         );
 
-    // TODO: Show/hide app bar and options buttons (not present yet)
-    //  on single press
     return Scaffold(
       backgroundColor: Colors.black,
       extendBodyBehindAppBar: true,
