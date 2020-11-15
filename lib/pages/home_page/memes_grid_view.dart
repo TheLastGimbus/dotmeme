@@ -8,6 +8,10 @@ import 'package:photo_manager/photo_manager.dart';
 import 'package:provider/provider.dart';
 
 class MemesGridView extends StatelessWidget {
+  final int crossAxisCount;
+
+  const MemesGridView({Key key, this.crossAxisCount = 3}) : super(key: key);
+
   Future<Uint8List> _loadThumb(String assetId,
       {int width = 150, int height = 150, int quality = 70}) async {
     var ass = await AssetEntity.fromId(assetId);
@@ -44,15 +48,14 @@ class MemesGridView extends StatelessWidget {
   Widget build(BuildContext context) {
     var homeProvider = Provider.of<HomePageProvider>(context);
     var mq = MediaQuery.of(context);
-    // TODO: Replace by other way to know how many crossAxisCount we have
-    var thumbSize = (mq.size.width / 3).round();
+    var thumbSize = (mq.size.width / crossAxisCount).round();
 
     return Container(
       child: DragSelectGridView(
         itemCount: homeProvider.memesList.length,
         gridController: homeProvider.selectControl,
-        gridDelegate:
-            SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3),
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: crossAxisCount),
         itemBuilder: (context, index, selected) {
           return AnimatedContainer(
             duration: Duration(milliseconds: 150),
@@ -66,7 +69,7 @@ class MemesGridView extends StatelessWidget {
                 homeProvider.memesList[index].id.toString(),
                 width: thumbSize,
                 height: thumbSize,
-                quality: 50, // TODO: Test how much performence it affects
+                quality: 50, // TODO: Test how much performance it affects
               ),
               builder: (ctx, snapshot) => snapshot.hasData
                   ? _memeThumbnail(context, index, snapshot.data)
