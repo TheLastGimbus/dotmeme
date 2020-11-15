@@ -3,6 +3,7 @@ import 'package:dotmeme/pages/home_page/search_app_bar.dart';
 import 'package:dotmeme/pages/home_page/selection_app_bar.dart';
 import 'package:dotmeme/providers/home_page_provider.dart';
 import 'package:dotmeme/providers/memes_provider.dart';
+import 'package:dotmeme/providers/shared_preferences_provider.dart';
 import 'package:fimber/fimber.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -16,9 +17,6 @@ class _HomePageState extends State<HomePage> {
   // TODO: Clear textField focus when keyboard hidden by back press
   final fim = FimberLog("HomePage");
 
-  // TODO: Make this a shared pref
-  var crossAxisCount = 3;
-
   /// This keeps track of how much change crossAxisCount according to how much
   /// scale from user gesture has changed
   int _scaleHop = 0;
@@ -30,6 +28,7 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
+    // Setting up memes
     Future.microtask(() async {
       var homeProvider = Provider.of<HomePageProvider>(context, listen: false);
       var memesProvider = Provider.of<MemesProvider>(context, listen: false);
@@ -69,6 +68,11 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     var homeProvider = Provider.of<HomePageProvider>(context);
+    var prefsProvider = Provider.of<SharedPreferencesProvider>(context);
+    var mq = MediaQuery.of(context);
+    portrait() => mq.orientation == Orientation.portrait;
+    getCrossCount() =>
+        prefsProvider.getMemesGridCrossAxisCount(portrait: portrait());
 
     return Scaffold(
       appBar: homeProvider.selectControl.value.isSelecting
@@ -93,22 +97,28 @@ class _HomePageState extends State<HomePage> {
           // you can get the idea of what's happening in here
           if (det.scale < 1 + (_scaleHop * 0.6)) {
             _scaleHop--;
-            crossAxisCount++;
-            if (crossAxisCount > 7) crossAxisCount = 7;
-            setState(() {});
+            var newCrossAxisCount = getCrossCount() + 1;
+            if (newCrossAxisCount > 7) return; // Just don't set it
+            prefsProvider.setMemesGridCrossAxisCount(
+              newCrossAxisCount,
+              portrait: portrait(),
+            );
           }
           if (det.scale > 1 + (_scaleHop * 0.3)) {
             _scaleHop++;
-            crossAxisCount--;
-            if (crossAxisCount < 2) crossAxisCount = 2;
-            setState(() {});
+            var newCrossAxisCount = getCrossCount() - 1;
+            if (newCrossAxisCount < 2) return; // Just don't set it
+            prefsProvider.setMemesGridCrossAxisCount(
+              newCrossAxisCount,
+              portrait: portrait(),
+            );
           }
           // I'm watching jbzd.com.pl on my math e-learning lessons, so I don't
           // know how to do some nice calculations that would set the thresholds
           // nicely, but this satisfies me for now
         },
         onScaleEnd: (_) => _scaleHop = 0,
-        child: MemesGridView(crossAxisCount: crossAxisCount),
+        child: MemesGridView(crossAxisCount: getCrossCount()),
       ),
       drawer: navigationDrawer(),
       floatingActionButton: FloatingActionButton(

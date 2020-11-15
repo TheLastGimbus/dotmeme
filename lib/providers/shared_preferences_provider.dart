@@ -23,4 +23,20 @@ class SharedPreferencesProvider with ChangeNotifier {
           ThemeModePreference.SYSTEM.index];
 
   ThemeMode get getThemeMode => ThemeMode.values[themePref.index];
+
+  int getMemesGridCrossAxisCount({bool portrait = true}) => portrait
+      ? prefs?.getInt(Preferences.KEY_MEMES_GRID_CROSS_AXIS_COUNT_PORTRAIT) ??
+          Preferences.DEFAULT_MEMES_GRID_CROSS_AXIS_COUNT_PORTRAIT
+      : prefs?.getInt(Preferences.KEY_MEMES_GRID_CROSS_AXIS_COUNT_LANDSCAPE) ??
+          Preferences.DEFAULT_MEMES_GRID_CROSS_AXIS_COUNT_LANDSCAPE;
+
+  void setMemesGridCrossAxisCount(int count, {bool portrait = true}) {
+    prefs?.setInt(
+      portrait
+          ? Preferences.KEY_MEMES_GRID_CROSS_AXIS_COUNT_PORTRAIT
+          : Preferences.KEY_MEMES_GRID_CROSS_AXIS_COUNT_LANDSCAPE,
+      count,
+    );
+    notifyListeners();
+  }
 }
