@@ -13,7 +13,13 @@ dependencies:
   # UI
 
   # Logic and stuff
+  ## DB
   moor: ^4.3.2
+
+  ## State management
+  flutter_bloc: ^7.0.1
+
+  equatable: ^2.0.3
 
   # Platform tools
   path_provider: ^2.0.2
@@ -21,6 +27,7 @@ dependencies:
   sqlite3_flutter_libs: ^0.5.0
 
   photo_manager: ^1.2.4
+  permission_handler: ^8.1.2
 
 dev_dependencies:
   flutter_test:
