@@ -21,6 +21,9 @@ dependencies:
 
   equatable: ^2.0.3
 
+  ## DI
+  get_it: ^7.1.0
+
   # Platform tools
   path_provider: ^2.0.2
   path: ^1.8.0
