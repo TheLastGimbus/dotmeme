@@ -1,6 +1,8 @@
 import 'package:get_it/get_it.dart';
 
 import 'database/memebase.dart';
+import 'device_media/media_manager.dart';
+import 'device_media/mock_media_manager.dart';
 
 GetIt getIt = GetIt.instance;
 
@@ -12,8 +14,10 @@ void init(Environment env) {
   if (env == Environment.prod) {
     getIt
         .registerLazySingleton<Memebase>(() => Memebase(Memebase.diskDatabase));
+    getIt.registerSingleton<MediaManager>(MediaManager());
   } else if (env == Environment.test) {
     getIt.registerLazySingleton<Memebase>(
         () => Memebase(Memebase.virtualDatabase));
+    getIt.registerSingleton<MediaManager>(getMockManager());
   }
 }

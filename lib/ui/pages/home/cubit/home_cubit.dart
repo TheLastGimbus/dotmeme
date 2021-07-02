@@ -1,7 +1,9 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:photo_manager/photo_manager.dart';
 
 import '../../../../database/memebase.dart';
+import '../../../../device_media/media_manager.dart';
 import 'home_state.dart';
 
 /// This cubit manages what's visible on home page meme roll
@@ -24,7 +26,8 @@ class HomeCubit extends Cubit<HomeState> {
     final memes = db.allMemes; // Start fetching them in background already
     // IDEA: Move this out to some abstraction to later swap it with
     // getIt for testing?
-    final res = PhotoManager.requestPermissionExtend().then((v) => v.isAuth);
+    final res =
+        GetIt.I<MediaManager>().requestPermissionExtend().then((v) => v.isAuth);
 
     if (!await res) {
       emit(HomeNoPermissionState());
