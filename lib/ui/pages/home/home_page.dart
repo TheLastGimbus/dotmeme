@@ -17,7 +17,7 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) => HomeCubit(context.watch<DbCubit>().state),
-      child: HomeView(),
+      child: const HomeView(),
     );
   }
 }
@@ -28,23 +28,23 @@ class HomeView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final state = context.watch<HomeCubit>().state;
-    Widget body = _LoadingBody();
+    Widget body = const _LoadingBody();
     // Omg google why can't you just add switch-as-statement
     // like normal Kotlin people do
     if (state is HomeLoadingState) {
-      body = _LoadingBody();
+      body = const _LoadingBody();
     } else if (state is HomeNoPermissionState) {
-      body = _NoPermissionBody();
+      body = const _NoPermissionBody();
     } else if (state is HomeSuccessState) {
       body = _SuccessBody(state);
     }
 
     return Scaffold(
       appBar: AppBar(
-        title: Text("dotmeme"),
+        title: const Text("dotmeme"),
         actions: [
           IconButton(
-            icon: Icon(Icons.settings),
+            icon: const Icon(Icons.settings),
             onPressed: () => Navigator.of(context).push(SettingsPage.route()),
           )
         ],
@@ -60,7 +60,7 @@ class _LoadingBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // TODO: Nice loading animation
-    return Center(child: Text("Loading..."));
+    return const Center(child: Text("Loading..."));
   }
 }
 
@@ -73,14 +73,14 @@ class _NoPermissionBody extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text("App doesn't have permission for photos :("),
+          const Text("App doesn't have permission for photos :("),
           TextButton(
             onPressed: () => context.read<HomeCubit>().init(),
-            child: Text("Give permission"),
+            child: const Text("Give permission"),
           ),
           TextButton(
             onPressed: () => PhotoManager.openSetting(),
-            child: Text("Go to settings"),
+            child: const Text("Go to settings"),
           ),
         ],
       ),
