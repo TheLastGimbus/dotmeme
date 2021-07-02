@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:photo_manager/photo_manager.dart';
 
+import '../../../../database/memebase.dart';
 import 'home_state.dart';
 
 /// This cubit manages what's visible on home page meme roll
@@ -11,21 +12,22 @@ import 'home_state.dart';
 /// - results from search even?
 
 class HomeCubit extends Cubit<HomeState> {
-  HomeCubit() : super(HomeLoadingState()) {
+  final Memebase db;
+
+  HomeCubit(this.db) : super(HomeLoadingState()) {
     init();
   }
 
   /// Check permissions
   /// Load memes
-  /// TODO: Replace this with database
   void init() async {
-    final res = await PhotoManager.requestPermissionExtend();
-    if (!res.isAuth) {
+    final memes = db.allMemes; // Start fetching them in background already
+    final res = PhotoManager.requestPermissionExtend().then((v) => v.isAuth);
+
+    if (!await res) {
       emit(HomeNoPermissionState());
       return;
     }
-    final all = await PhotoManager.getAssetPathList(onlyAll: true);
-    // TODO: Pagination/smth - it's, indeed, much faster
-    emit(HomeSuccessState(await all.first.assetList));
+    emit(HomeSuccessState(await memes));
   }
 }

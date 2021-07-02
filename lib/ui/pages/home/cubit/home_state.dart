@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
-import 'package:photo_manager/photo_manager.dart';
+
+import '../../../../database/memebase.dart';
 
 abstract class HomeState {}
 
@@ -7,12 +8,12 @@ class HomeLoadingState implements HomeState {}
 
 class HomeSuccessState extends Equatable implements HomeState {
   /// All memes that are visible right now
-  final List<AssetEntity> assetEntities;
+  final List<Meme> memes;
 
-  HomeSuccessState(this.assetEntities);
+  const HomeSuccessState(this.memes);
 
   @override
-  List<Object?> get props => [assetEntities];
+  List<Object?> get props => [memes];
 }
 
 class HomeNoPermissionState implements HomeState {}

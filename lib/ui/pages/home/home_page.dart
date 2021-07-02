@@ -1,10 +1,14 @@
-import 'package:dotmeme/ui/pages/home/cubit/home_state.dart';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:photo_manager/photo_manager.dart';
 
+import '../../../database/bloc.dart';
+import '../../../database/memebase.dart';
 import '../settings/settings_page.dart';
 import 'cubit/home_cubit.dart';
+import 'cubit/home_state.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -12,7 +16,7 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => HomeCubit(),
+      create: (_) => HomeCubit(context.watch<DbCubit>().state),
       child: HomeView(),
     );
   }
@@ -32,7 +36,7 @@ class HomeView extends StatelessWidget {
     } else if (state is HomeNoPermissionState) {
       body = _NoPermissionBody();
     } else if (state is HomeSuccessState) {
-      body = _SuccessBody();
+      body = _SuccessBody(state);
     }
 
     return Scaffold(
@@ -85,11 +89,33 @@ class _NoPermissionBody extends StatelessWidget {
 }
 
 class _SuccessBody extends StatelessWidget {
-  const _SuccessBody({Key? key}) : super(key: key);
+  final HomeSuccessState state;
+
+  const _SuccessBody(this.state, {Key? key}) : super(key: key);
+
+  Future<File?> _getFile(Meme meme) async {
+    final ass = await AssetEntity.fromId(meme.id.toString());
+    return ass?.file;
+  }
 
   @override
   Widget build(BuildContext context) {
     // TODO: Memes grid
-    return Center(child: Text("Success!!"));
+    return ListView.builder(
+      itemCount: state.memes.length,
+      itemBuilder: (context, index) {
+        return AspectRatio(
+          aspectRatio: 1 / 2,
+          child: FutureBuilder(
+            future: _getFile(state.memes[index]),
+            builder: (_, AsyncSnapshot<File?> snap) => snap.hasData
+                ? snap.data != null
+                    ? Image.file(snap.data!)
+                    : const Text("No meme! Where funny??")
+                : const Icon(Icons.autorenew),
+          ),
+        );
+      },
+    );
   }
 }
