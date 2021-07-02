@@ -22,6 +22,8 @@ class HomeCubit extends Cubit<HomeState> {
   /// Load memes
   void init() async {
     final memes = db.allMemes; // Start fetching them in background already
+    // IDEA: Move this out to some abstraction to later swap it with
+    // getIt for testing?
     final res = PhotoManager.requestPermissionExtend().then((v) => v.isAuth);
 
     if (!await res) {
