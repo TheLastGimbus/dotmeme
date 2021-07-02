@@ -62,9 +62,11 @@ class _LoadingBody extends StatelessWidget {
     // TODO: Nice loading animation
     return Center(
       child: Column(
-
-
-        children: [Text("Loading..."), Icon(Icons.autorenew)],),
+        children: const [
+          Text("Loading..."),
+          Icon(Icons.autorenew),
+        ],
+      ),
     );
   }
 }
