@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'database/bloc.dart';
 import 'ui/common/theme/theme.dart' as theme;
 import 'ui/pages/home/home_page.dart';
 
@@ -13,7 +15,12 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: theme.lightTheme,
-      home: HomePage(),
+      home: MultiBlocProvider(
+        providers: [
+          BlocProvider(create: (_) => DbCubit()),
+        ],
+        child: const HomePage(),
+      ),
     );
   }
 }
