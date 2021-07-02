@@ -60,7 +60,12 @@ class _LoadingBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // TODO: Nice loading animation
-    return const Center(child: Text("Loading..."));
+    return Center(
+      child: Column(
+
+
+        children: [Text("Loading..."), Icon(Icons.autorenew)],),
+    );
   }
 }
 
