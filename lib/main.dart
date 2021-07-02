@@ -10,6 +10,7 @@ import 'ui/pages/home/home_page.dart';
 
 void main() {
   di.init(di.Environment.prod);
+
   runApp(MyApp());
 }
 
