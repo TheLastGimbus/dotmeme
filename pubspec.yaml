@@ -33,8 +33,12 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
 
+  # Generators
   moor_generator: ^4.3.2
   build_runner: ^2.0.5
+
+  # Style
+  flutter_lints: ^1.0.3
 
 flutter:
   uses-material-design: true
