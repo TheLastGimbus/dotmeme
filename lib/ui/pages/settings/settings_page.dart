@@ -16,11 +16,13 @@ class SettingsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) => SettingsCubit(context.watch<DbCubit>().state),
-      child: Scaffold(
-        appBar: AppBar(title: const Text("Settings")),
-        body: context.watch<SettingsCubit>().state is SettingsLoadedState
-            ? const _LoadedBody()
-            : const Center(child: Text("Loading...")),
+      child: Builder(
+        builder: (context) => Scaffold(
+          appBar: AppBar(title: const Text("Settings")),
+          body: context.watch<SettingsCubit>().state is SettingsLoadedState
+              ? const _LoadedBody()
+              : const Center(child: Text("Loading...")),
+        ),
       ),
     );
   }
@@ -47,7 +49,7 @@ class _LoadedBody extends StatelessWidget {
                 subtitle: Text(folder.value.toString()),
               ),
           ],
-        )
+        ),
       ],
     );
   }
