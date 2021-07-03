@@ -3,6 +3,9 @@ import 'package:moor/moor.dart';
 class Folders extends Table {
   IntColumn get id => integer()();
 
+  // IT IS WORTH IT
+  TextColumn get name => text()();
+
   /// Whether to show and scan memes from this folder
   BoolColumn get scanningEnabled =>
       boolean().withDefault(const Constant(false))();

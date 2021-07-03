@@ -1,4 +1,5 @@
 import 'package:get_it/get_it.dart';
+import 'package:moor/moor.dart';
 import 'package:photo_manager/photo_manager.dart';
 
 import '../device_media/media_manager.dart';
@@ -34,20 +35,19 @@ extension MediaSync on Memebase {
     final dbIds = (await (selectOnly(folders)..addColumns([folders.id])).get())
         .map((e) => e.read(folders.id)!);
     // Folders that are on device but on in db
-    final foldersToAdd =
-        paths.where((e) => !dbIds.contains(int.parse(e.id))).map((e) => Folder(
-              id: int.parse(e.id),
-              scanningEnabled: false,
-              lastModified: e.lastModified ?? DateTime.now(),
-            ));
+    final foldersToAdd = paths.map((e) => FoldersCompanion.insert(
+          id: int.parse(e.id),
+          name: e.name,
+          lastModified: Value(e.lastModified ?? DateTime.now()),
+        ));
     // Folders that are in db but not on device (they were deleted by user)
     final foldersToDelete = dbIds.where((e) => !pathIds.contains(e));
     await batch((b) {
-      b.insertAll(folders, foldersToAdd.toList());
+      b.insertAllOnConflictUpdate(folders, foldersToAdd.toList());
       // Also clean up memes
       b.deleteWhere(memes, (Memes tbl) => tbl.folderId.isIn(foldersToDelete));
       b.deleteWhere(folders, (Folders tbl) => tbl.id.isIn(foldersToDelete));
     });
-    return foldersToAdd.map((e) => e.id).toList();
+    return foldersToAdd.map((e) => e.id.value).toList();
   }
 }
