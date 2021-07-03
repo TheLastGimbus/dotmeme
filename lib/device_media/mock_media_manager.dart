@@ -139,13 +139,24 @@ class MockMediaManager extends Mock implements MediaManager {
 
   @override
   Future<MockAssetEntity?> assetEntityFromId(String id) =>
-      throw UnimplementedError("TODO");
+      MockAssetEntity.fromId(id);
 
   @override
   Future<AssetPathEntity> assetPathEntityFromId(String id) =>
+      MockAssetPathEntity.fromId(id);
+}
+
+class MockAssetPathEntity extends Mock implements AssetPathEntity {
+  static Future<MockAssetPathEntity> fromId(
+    String id, {
+    FilterOptionGroup? filterOption,
+    RequestType type = RequestType.common,
+    int albumType = 1,
+  }) =>
       throw UnimplementedError("TODO");
 }
 
-class MockAssetPathEntity extends Mock implements AssetPathEntity {}
-
-class MockAssetEntity extends Mock implements AssetEntity {}
+class MockAssetEntity extends Mock implements AssetEntity {
+  static Future<MockAssetEntity?> fromId(String id) =>
+      throw UnimplementedError("TODO");
+}
