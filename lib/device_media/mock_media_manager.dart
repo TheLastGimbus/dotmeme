@@ -146,6 +146,13 @@ class MockMediaManager extends Mock implements MediaManager {
       MockAssetPathEntity.fromId(id);
 }
 
+// BIG TODO: Some magic way to get media while testing
+// We possibly need to emulate whole system
+// This could be in a form of some json file containing data
+// (Like id, isFavourite, etc)
+// And .jpg files saved in test/ dir
+// (or preferably, git submodule to not make repo heavy)
+
 class MockAssetPathEntity extends Mock implements AssetPathEntity {
   static Future<MockAssetPathEntity> fromId(
     String id, {

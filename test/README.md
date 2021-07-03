@@ -4,7 +4,13 @@ dotmeme has many dependencies on platform for core features, like tesseract_ocr,
 
 As much as it's possible, we try to move those dependencies to some classes that we can put (and later hot-swap) in `lib/di.dart`
 
-Right now, we only have database there :P
+Right now, we only have database and photo_manager there :)
+
+## photo_manager
+
+Because `PhotoManager` is full of static methods, I created separate proxy class in `lib/device_media/media_manager.dart` that we later mock and emulate.
+
+Currently, there is no emulation of photos and videos themselves - this is TODO
 
 ## moor
 
