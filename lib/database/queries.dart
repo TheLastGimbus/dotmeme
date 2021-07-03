@@ -1,9 +1,14 @@
+import 'package:moor/moor.dart';
+
 import 'memebase.dart';
 
 extension Queries on Memebase {
   // ############ Folders ############
 
   Future<List<Folder>> get allFolders => select(folders).get();
+
+  Future<Folder> getFolder(int id) =>
+      (select(folders)..where((tbl) => tbl.id.equals(id))).getSingle();
 
   Future<void> addFolder(Folder newFolder) => into(folders).insert(newFolder);
 
@@ -12,6 +17,19 @@ extension Queries on Memebase {
 
   Future<void> deleteFolder(int id) async =>
       (delete(folders)..where((tbl) => tbl.id.equals(id))).go();
+
+  Future<void> setFolderEnabled(int id, bool enabled) async =>
+      (update(folders)..where((tbl) => tbl.id.equals(id)))
+          .write(FoldersCompanion(scanningEnabled: Value(enabled)));
+
+  Future<int> folderMemesCount(int id) async {
+    final exp = memes.id.count();
+    return (selectOnly(memes)
+          ..addColumns([exp])
+          ..where(memes.id.equals(id)))
+        .map((row) => row.read(exp))
+        .getSingle();
+  }
 
   // ############ Memes ############
 
