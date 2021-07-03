@@ -117,8 +117,6 @@ class MediaManager {
   /// Whether to monitor the change of photo album.
   bool get notifyingOfChange => PhotoManager.notifyingOfChange;
 
-  set notifyingOfChange(bool value) => PhotoManager.notifyingOfChange = value;
-
   /// See [_NotifyManager.notifyStream]
   Stream<bool> get notifyStream => PhotoManager.notifyStream;
 
