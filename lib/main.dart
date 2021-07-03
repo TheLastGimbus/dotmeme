@@ -18,14 +18,14 @@ void main() {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: theme.lightTheme,
-      home: MultiBlocProvider(
-        providers: [
-          BlocProvider(create: (_) => DbCubit(GetIt.I<Memebase>())),
-        ],
-        child: const HomePage(),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (_) => DbCubit(GetIt.I<Memebase>())),
+      ],
+      child: MaterialApp(
+        title: 'dotmeme',
+        theme: theme.lightTheme,
+        home: const HomePage(),
       ),
     );
   }
