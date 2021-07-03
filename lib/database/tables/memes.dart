@@ -16,4 +16,7 @@ class Memes extends Table {
 
   /// Text from OCR - can be null if not scanned yet
   TextColumn get scannedText => text().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {id};
 }

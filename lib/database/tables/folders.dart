@@ -13,4 +13,7 @@ class Folders extends Table {
   // This should help with media sync
   DateTimeColumn get lastModified =>
       dateTime().withDefault(currentDateAndTime)();
+
+  @override
+  Set<Column> get primaryKey => {id};
 }

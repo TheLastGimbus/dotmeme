@@ -36,7 +36,7 @@ extension MediaSync on Memebase {
         .map((e) => e.read(folders.id)!);
     // Folders that are on device but on in db
     final foldersToAdd = paths.map((e) => FoldersCompanion.insert(
-          id: int.parse(e.id),
+          id: Value(int.parse(e.id)),
           name: e.name,
           lastModified: Value(e.lastModified ?? DateTime.now()),
         ));

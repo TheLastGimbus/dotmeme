@@ -122,12 +122,11 @@ class FoldersCompanion extends UpdateCompanion<Folder> {
     this.lastModified = const Value.absent(),
   });
   FoldersCompanion.insert({
-    required int id,
+    this.id = const Value.absent(),
     required String name,
     this.scanningEnabled = const Value.absent(),
     this.lastModified = const Value.absent(),
-  })  : id = Value(id),
-        name = Value(name);
+  }) : name = Value(name);
   static Insertable<Folder> custom({
     Expression<int>? id,
     Expression<String>? name,
@@ -245,8 +244,6 @@ class $FoldersTable extends Folders with TableInfo<$FoldersTable, Folder> {
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
-    } else if (isInserting) {
-      context.missing(_idMeta);
     }
     if (data.containsKey('name')) {
       context.handle(
@@ -270,7 +267,7 @@ class $FoldersTable extends Folders with TableInfo<$FoldersTable, Folder> {
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => <GeneratedColumn>{};
+  Set<GeneratedColumn> get $primaryKey => {id};
   @override
   Folder map(Map<String, dynamic> data, {String? tablePrefix}) {
     return Folder.fromData(data, _db,
@@ -400,12 +397,11 @@ class MemesCompanion extends UpdateCompanion<Meme> {
     this.scannedText = const Value.absent(),
   });
   MemesCompanion.insert({
-    required int id,
+    this.id = const Value.absent(),
     required int folderId,
     required int memeType,
     this.scannedText = const Value.absent(),
-  })  : id = Value(id),
-        folderId = Value(folderId),
+  })  : folderId = Value(folderId),
         memeType = Value(memeType);
   static Insertable<Meme> custom({
     Expression<int>? id,
@@ -528,8 +524,6 @@ class $MemesTable extends Memes with TableInfo<$MemesTable, Meme> {
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
-    } else if (isInserting) {
-      context.missing(_idMeta);
     }
     if (data.containsKey('folder_id')) {
       context.handle(_folderIdMeta,
@@ -553,7 +547,7 @@ class $MemesTable extends Memes with TableInfo<$MemesTable, Meme> {
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => <GeneratedColumn>{};
+  Set<GeneratedColumn> get $primaryKey => {id};
   @override
   Meme map(Map<String, dynamic> data, {String? tablePrefix}) {
     return Meme.fromData(data, _db,
