@@ -3,6 +3,7 @@ import 'package:get_it/get_it.dart';
 import 'package:photo_manager/photo_manager.dart';
 
 import '../../../../database/memebase.dart';
+import '../../../../database/queries.dart';
 import '../../../../device_media/media_manager.dart';
 import 'home_state.dart';
 
