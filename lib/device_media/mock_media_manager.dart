@@ -142,8 +142,18 @@ class MockMediaManager extends Mock implements MediaManager {
       MockAssetEntity.fromId(id);
 
   @override
-  Future<AssetPathEntity> assetPathEntityFromId(String id) =>
-      MockAssetPathEntity.fromId(id);
+  Future<AssetPathEntity> assetPathEntityFromId(
+    String id, {
+    FilterOptionGroup? filterOption,
+    RequestType type = RequestType.common,
+    int albumType = 1,
+  }) =>
+      MockAssetPathEntity.fromId(
+        id,
+        filterOption: filterOption,
+        type: type,
+        albumType: albumType,
+      );
 }
 
 // BIG TODO: Some magic way to get media while testing

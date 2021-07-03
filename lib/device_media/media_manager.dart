@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:photo_manager/photo_manager.dart';
+
 export 'package:photo_manager/src/type.dart';
 
 class MediaManager {
@@ -156,6 +157,16 @@ class MediaManager {
 
   Future<AssetEntity?> assetEntityFromId(String id) => AssetEntity.fromId(id);
 
-  Future<AssetPathEntity> assetPathEntityFromId(String id) =>
-      AssetPathEntity.fromId(id);
+  Future<AssetPathEntity> assetPathEntityFromId(
+    String id, {
+    FilterOptionGroup? filterOption,
+    RequestType type = RequestType.common,
+    int albumType = 1,
+  }) =>
+      AssetPathEntity.fromId(
+        id,
+        filterOption: filterOption,
+        type: type,
+        albumType: albumType,
+      );
 }
