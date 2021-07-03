@@ -9,8 +9,14 @@ part of 'memebase.dart';
 // ignore_for_file: unnecessary_brace_in_string_interps, unnecessary_this
 class Folder extends DataClass implements Insertable<Folder> {
   final int id;
+
+  /// Whether to show and scan memes from this folder
   final bool scanningEnabled;
-  Folder({required this.id, required this.scanningEnabled});
+  final DateTime lastModified;
+  Folder(
+      {required this.id,
+      required this.scanningEnabled,
+      required this.lastModified});
   factory Folder.fromData(Map<String, dynamic> data, GeneratedDatabase db,
       {String? prefix}) {
     final effectivePrefix = prefix ?? '';
@@ -19,6 +25,8 @@ class Folder extends DataClass implements Insertable<Folder> {
           .mapFromDatabaseResponse(data['${effectivePrefix}id'])!,
       scanningEnabled: const BoolType()
           .mapFromDatabaseResponse(data['${effectivePrefix}scanning_enabled'])!,
+      lastModified: const DateTimeType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}last_modified'])!,
     );
   }
   @override
@@ -26,6 +34,7 @@ class Folder extends DataClass implements Insertable<Folder> {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
     map['scanning_enabled'] = Variable<bool>(scanningEnabled);
+    map['last_modified'] = Variable<DateTime>(lastModified);
     return map;
   }
 
@@ -33,6 +42,7 @@ class Folder extends DataClass implements Insertable<Folder> {
     return FoldersCompanion(
       id: Value(id),
       scanningEnabled: Value(scanningEnabled),
+      lastModified: Value(lastModified),
     );
   }
 
@@ -42,6 +52,7 @@ class Folder extends DataClass implements Insertable<Folder> {
     return Folder(
       id: serializer.fromJson<int>(json['id']),
       scanningEnabled: serializer.fromJson<bool>(json['scanningEnabled']),
+      lastModified: serializer.fromJson<DateTime>(json['lastModified']),
     );
   }
   @override
@@ -50,57 +61,72 @@ class Folder extends DataClass implements Insertable<Folder> {
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
       'scanningEnabled': serializer.toJson<bool>(scanningEnabled),
+      'lastModified': serializer.toJson<DateTime>(lastModified),
     };
   }
 
-  Folder copyWith({int? id, bool? scanningEnabled}) => Folder(
+  Folder copyWith({int? id, bool? scanningEnabled, DateTime? lastModified}) =>
+      Folder(
         id: id ?? this.id,
         scanningEnabled: scanningEnabled ?? this.scanningEnabled,
+        lastModified: lastModified ?? this.lastModified,
       );
   @override
   String toString() {
     return (StringBuffer('Folder(')
           ..write('id: $id, ')
-          ..write('scanningEnabled: $scanningEnabled')
+          ..write('scanningEnabled: $scanningEnabled, ')
+          ..write('lastModified: $lastModified')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => $mrjf($mrjc(id.hashCode, scanningEnabled.hashCode));
+  int get hashCode => $mrjf($mrjc(
+      id.hashCode, $mrjc(scanningEnabled.hashCode, lastModified.hashCode)));
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is Folder &&
           other.id == this.id &&
-          other.scanningEnabled == this.scanningEnabled);
+          other.scanningEnabled == this.scanningEnabled &&
+          other.lastModified == this.lastModified);
 }
 
 class FoldersCompanion extends UpdateCompanion<Folder> {
   final Value<int> id;
   final Value<bool> scanningEnabled;
+  final Value<DateTime> lastModified;
   const FoldersCompanion({
     this.id = const Value.absent(),
     this.scanningEnabled = const Value.absent(),
+    this.lastModified = const Value.absent(),
   });
   FoldersCompanion.insert({
     required int id,
     this.scanningEnabled = const Value.absent(),
+    this.lastModified = const Value.absent(),
   }) : id = Value(id);
   static Insertable<Folder> custom({
     Expression<int>? id,
     Expression<bool>? scanningEnabled,
+    Expression<DateTime>? lastModified,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (scanningEnabled != null) 'scanning_enabled': scanningEnabled,
+      if (lastModified != null) 'last_modified': lastModified,
     });
   }
 
-  FoldersCompanion copyWith({Value<int>? id, Value<bool>? scanningEnabled}) {
+  FoldersCompanion copyWith(
+      {Value<int>? id,
+      Value<bool>? scanningEnabled,
+      Value<DateTime>? lastModified}) {
     return FoldersCompanion(
       id: id ?? this.id,
       scanningEnabled: scanningEnabled ?? this.scanningEnabled,
+      lastModified: lastModified ?? this.lastModified,
     );
   }
 
@@ -113,6 +139,9 @@ class FoldersCompanion extends UpdateCompanion<Folder> {
     if (scanningEnabled.present) {
       map['scanning_enabled'] = Variable<bool>(scanningEnabled.value);
     }
+    if (lastModified.present) {
+      map['last_modified'] = Variable<DateTime>(lastModified.value);
+    }
     return map;
   }
 
@@ -120,7 +149,8 @@ class FoldersCompanion extends UpdateCompanion<Folder> {
   String toString() {
     return (StringBuffer('FoldersCompanion(')
           ..write('id: $id, ')
-          ..write('scanningEnabled: $scanningEnabled')
+          ..write('scanningEnabled: $scanningEnabled, ')
+          ..write('lastModified: $lastModified')
           ..write(')'))
         .toString();
   }
@@ -150,8 +180,17 @@ class $FoldersTable extends Folders with TableInfo<$FoldersTable, Folder> {
         defaultValue: const Constant(false));
   }
 
+  final VerificationMeta _lastModifiedMeta =
+      const VerificationMeta('lastModified');
   @override
-  List<GeneratedColumn> get $columns => [id, scanningEnabled];
+  late final GeneratedDateTimeColumn lastModified = _constructLastModified();
+  GeneratedDateTimeColumn _constructLastModified() {
+    return GeneratedDateTimeColumn('last_modified', $tableName, false,
+        defaultValue: currentDateAndTime);
+  }
+
+  @override
+  List<GeneratedColumn> get $columns => [id, scanningEnabled, lastModified];
   @override
   $FoldersTable get asDslTable => this;
   @override
@@ -174,6 +213,12 @@ class $FoldersTable extends Folders with TableInfo<$FoldersTable, Folder> {
           scanningEnabled.isAcceptableOrUnknown(
               data['scanning_enabled']!, _scanningEnabledMeta));
     }
+    if (data.containsKey('last_modified')) {
+      context.handle(
+          _lastModifiedMeta,
+          lastModified.isAcceptableOrUnknown(
+              data['last_modified']!, _lastModifiedMeta));
+    }
     return context;
   }
 
@@ -194,7 +239,17 @@ class $FoldersTable extends Folders with TableInfo<$FoldersTable, Folder> {
 class Meme extends DataClass implements Insertable<Meme> {
   final int id;
   final int folderId;
-  Meme({required this.id, required this.folderId});
+
+  /// [MemeType] - image or video
+  final int memeType;
+
+  /// Text from OCR - can be null if not scanned yet
+  final String? scannedText;
+  Meme(
+      {required this.id,
+      required this.folderId,
+      required this.memeType,
+      this.scannedText});
   factory Meme.fromData(Map<String, dynamic> data, GeneratedDatabase db,
       {String? prefix}) {
     final effectivePrefix = prefix ?? '';
@@ -203,6 +258,10 @@ class Meme extends DataClass implements Insertable<Meme> {
           .mapFromDatabaseResponse(data['${effectivePrefix}id'])!,
       folderId: const IntType()
           .mapFromDatabaseResponse(data['${effectivePrefix}folder_id'])!,
+      memeType: const IntType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}meme_type'])!,
+      scannedText: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}scanned_text']),
     );
   }
   @override
@@ -210,6 +269,10 @@ class Meme extends DataClass implements Insertable<Meme> {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
     map['folder_id'] = Variable<int>(folderId);
+    map['meme_type'] = Variable<int>(memeType);
+    if (!nullToAbsent || scannedText != null) {
+      map['scanned_text'] = Variable<String?>(scannedText);
+    }
     return map;
   }
 
@@ -217,6 +280,10 @@ class Meme extends DataClass implements Insertable<Meme> {
     return MemesCompanion(
       id: Value(id),
       folderId: Value(folderId),
+      memeType: Value(memeType),
+      scannedText: scannedText == null && nullToAbsent
+          ? const Value.absent()
+          : Value(scannedText),
     );
   }
 
@@ -226,6 +293,8 @@ class Meme extends DataClass implements Insertable<Meme> {
     return Meme(
       id: serializer.fromJson<int>(json['id']),
       folderId: serializer.fromJson<int>(json['folderId']),
+      memeType: serializer.fromJson<int>(json['memeType']),
+      scannedText: serializer.fromJson<String?>(json['scannedText']),
     );
   }
   @override
@@ -234,56 +303,87 @@ class Meme extends DataClass implements Insertable<Meme> {
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
       'folderId': serializer.toJson<int>(folderId),
+      'memeType': serializer.toJson<int>(memeType),
+      'scannedText': serializer.toJson<String?>(scannedText),
     };
   }
 
-  Meme copyWith({int? id, int? folderId}) => Meme(
+  Meme copyWith({int? id, int? folderId, int? memeType, String? scannedText}) =>
+      Meme(
         id: id ?? this.id,
         folderId: folderId ?? this.folderId,
+        memeType: memeType ?? this.memeType,
+        scannedText: scannedText ?? this.scannedText,
       );
   @override
   String toString() {
     return (StringBuffer('Meme(')
           ..write('id: $id, ')
-          ..write('folderId: $folderId')
+          ..write('folderId: $folderId, ')
+          ..write('memeType: $memeType, ')
+          ..write('scannedText: $scannedText')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => $mrjf($mrjc(id.hashCode, folderId.hashCode));
+  int get hashCode => $mrjf($mrjc(
+      id.hashCode,
+      $mrjc(
+          folderId.hashCode, $mrjc(memeType.hashCode, scannedText.hashCode))));
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is Meme && other.id == this.id && other.folderId == this.folderId);
+      (other is Meme &&
+          other.id == this.id &&
+          other.folderId == this.folderId &&
+          other.memeType == this.memeType &&
+          other.scannedText == this.scannedText);
 }
 
 class MemesCompanion extends UpdateCompanion<Meme> {
   final Value<int> id;
   final Value<int> folderId;
+  final Value<int> memeType;
+  final Value<String?> scannedText;
   const MemesCompanion({
     this.id = const Value.absent(),
     this.folderId = const Value.absent(),
+    this.memeType = const Value.absent(),
+    this.scannedText = const Value.absent(),
   });
   MemesCompanion.insert({
     required int id,
     required int folderId,
+    required int memeType,
+    this.scannedText = const Value.absent(),
   })  : id = Value(id),
-        folderId = Value(folderId);
+        folderId = Value(folderId),
+        memeType = Value(memeType);
   static Insertable<Meme> custom({
     Expression<int>? id,
     Expression<int>? folderId,
+    Expression<int>? memeType,
+    Expression<String?>? scannedText,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (folderId != null) 'folder_id': folderId,
+      if (memeType != null) 'meme_type': memeType,
+      if (scannedText != null) 'scanned_text': scannedText,
     });
   }
 
-  MemesCompanion copyWith({Value<int>? id, Value<int>? folderId}) {
+  MemesCompanion copyWith(
+      {Value<int>? id,
+      Value<int>? folderId,
+      Value<int>? memeType,
+      Value<String?>? scannedText}) {
     return MemesCompanion(
       id: id ?? this.id,
       folderId: folderId ?? this.folderId,
+      memeType: memeType ?? this.memeType,
+      scannedText: scannedText ?? this.scannedText,
     );
   }
 
@@ -296,6 +396,12 @@ class MemesCompanion extends UpdateCompanion<Meme> {
     if (folderId.present) {
       map['folder_id'] = Variable<int>(folderId.value);
     }
+    if (memeType.present) {
+      map['meme_type'] = Variable<int>(memeType.value);
+    }
+    if (scannedText.present) {
+      map['scanned_text'] = Variable<String?>(scannedText.value);
+    }
     return map;
   }
 
@@ -303,7 +409,9 @@ class MemesCompanion extends UpdateCompanion<Meme> {
   String toString() {
     return (StringBuffer('MemesCompanion(')
           ..write('id: $id, ')
-          ..write('folderId: $folderId')
+          ..write('folderId: $folderId, ')
+          ..write('memeType: $memeType, ')
+          ..write('scannedText: $scannedText')
           ..write(')'))
         .toString();
   }
@@ -335,8 +443,31 @@ class $MemesTable extends Memes with TableInfo<$MemesTable, Meme> {
     );
   }
 
+  final VerificationMeta _memeTypeMeta = const VerificationMeta('memeType');
   @override
-  List<GeneratedColumn> get $columns => [id, folderId];
+  late final GeneratedIntColumn memeType = _constructMemeType();
+  GeneratedIntColumn _constructMemeType() {
+    return GeneratedIntColumn(
+      'meme_type',
+      $tableName,
+      false,
+    );
+  }
+
+  final VerificationMeta _scannedTextMeta =
+      const VerificationMeta('scannedText');
+  @override
+  late final GeneratedTextColumn scannedText = _constructScannedText();
+  GeneratedTextColumn _constructScannedText() {
+    return GeneratedTextColumn(
+      'scanned_text',
+      $tableName,
+      true,
+    );
+  }
+
+  @override
+  List<GeneratedColumn> get $columns => [id, folderId, memeType, scannedText];
   @override
   $MemesTable get asDslTable => this;
   @override
@@ -358,6 +489,18 @@ class $MemesTable extends Memes with TableInfo<$MemesTable, Meme> {
           folderId.isAcceptableOrUnknown(data['folder_id']!, _folderIdMeta));
     } else if (isInserting) {
       context.missing(_folderIdMeta);
+    }
+    if (data.containsKey('meme_type')) {
+      context.handle(_memeTypeMeta,
+          memeType.isAcceptableOrUnknown(data['meme_type']!, _memeTypeMeta));
+    } else if (isInserting) {
+      context.missing(_memeTypeMeta);
+    }
+    if (data.containsKey('scanned_text')) {
+      context.handle(
+          _scannedTextMeta,
+          scannedText.isAcceptableOrUnknown(
+              data['scanned_text']!, _scannedTextMeta));
     }
     return context;
   }
