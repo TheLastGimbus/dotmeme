@@ -24,9 +24,9 @@ class HomeCubit extends Cubit<HomeState> {
   /// Check permissions
   /// Load memes
   void init() async {
-    final memes = db.allMemes; // Start fetching them in background already
-    // IDEA: Move this out to some abstraction to later swap it with
-    // getIt for testing?
+    // TODO: Stream
+    // Start fetching them in background already
+    final memes = db.allMemes.get();
     final res =
         GetIt.I<MediaManager>().requestPermissionExtend().then((v) => v.isAuth);
 

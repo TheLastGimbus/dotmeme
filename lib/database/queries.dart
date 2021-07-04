@@ -33,7 +33,14 @@ extension Queries on Memebase {
 
   // ############ Memes ############
 
-  Future<List<Meme>> get allMemes => select(memes).get();
+  /// All memes from enabled folders
+  MultiSelectable<Meme> get allMemes {
+    final q = (select(memes).join([
+      innerJoin(folders, folders.id.equalsExp(memes.folderId)),
+    ]));
+    q.where(folders.scanningEnabled.equals(true));
+    return q.map((row) => row.readTable(memes));
+  }
 
   Future<void> addMeme(Meme newMeme) => into(memes).insert(newMeme);
 
