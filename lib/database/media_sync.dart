@@ -40,7 +40,8 @@ extension MediaSync on Memebase {
       b.insertAllOnConflictUpdate(memes, newMemes.toList());
       b.deleteWhere(
         memes,
-        (Memes tbl) => tbl.id.isNotIn(assets.map((e) => int.parse(e.id))),
+        (Memes tbl) => (tbl.folderId.equals(id) &
+            tbl.id.isNotIn(assets.map((e) => int.parse(e.id)))),
       );
     });
   }
