@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:settings_ui/settings_ui.dart';
 
 import '../../../database/bloc.dart';
 import 'cubit/settings_cubit.dart';
@@ -36,21 +37,24 @@ class _LoadedBody extends StatelessWidget {
   Widget build(BuildContext context) {
     final cbt = context.watch<SettingsCubit>();
     final state = cbt.state as SettingsLoadedState;
-    return ListView(
-      children: [
-        Text("Folder settings", style: Theme.of(context).textTheme.headline3),
-        Column(
-          children: [
+    // Idk if we should use pre-made settings - probably should make our own
+    return SettingsList(
+      sections: [
+        SettingsSection(
+          title: "Enabled folders",
+          subtitle: const Text("Which folders should be scanned and showed"),
+          tiles: [
             for (final folder in state.folders)
-              SwitchListTile(
-                value: folder.key.scanningEnabled,
-                onChanged: (val) => cbt.setFolderEnabled(folder.key.id, val),
-                title: Text(folder.key.name),
-                subtitle: Text(folder.value.toString()),
+              SettingsTile.switchTile(
+                switchValue: folder.key.scanningEnabled,
+                onToggle: (val) => cbt.setFolderEnabled(folder.key.id, val),
+                title: folder.key.name,
+                subtitle: folder.value.toString(),
               ),
           ],
         ),
       ],
+      contentPadding: const EdgeInsets.symmetric(vertical: 20),
     );
   }
 }
