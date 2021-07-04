@@ -13,7 +13,8 @@ class SettingsCubit extends Cubit<SettingsState> {
   }
 
   void _init() async {
-    final fol = await db.allFolders;
+    // TODO: Stream
+    final fol = await db.allFolders.get();
     _state = await Future.wait(fol
         .map((e) async => MapEntry(e, await db.folderMemesCount(e.id)))
         .toList());
@@ -23,7 +24,7 @@ class SettingsCubit extends Cubit<SettingsState> {
   Future<void> setFolderEnabled(int id, bool enabled) async {
     await db.setFolderEnabled(id, enabled);
     final i = _state.indexWhere((e) => e.key.id == id);
-    _state = _state.toList();  // Cubit and equality :/
+    _state = _state.toList(); // Cubit and equality :/
     _state[i] = MapEntry(
         _state[i].key.copyWith(scanningEnabled: enabled), _state[i].value);
     emit(SettingsLoadedState(_state));

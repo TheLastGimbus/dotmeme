@@ -7,6 +7,7 @@ import 'package:get_it/get_it.dart';
 import '../../../database/bloc.dart';
 import '../../../database/memebase.dart';
 import '../../../device_media/media_manager.dart';
+import '../../common/cubit/media_sync_cubit.dart';
 import '../settings/settings_page.dart';
 import 'cubit/home_cubit.dart';
 import 'cubit/home_state.dart';
@@ -16,6 +17,8 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Idk if this is safe
+    context.read<MediaSyncCubit>().appOpenSync();
     return BlocProvider(
       create: (_) => HomeCubit(context.watch<DbCubit>().state),
       child: const HomeView(),
@@ -115,7 +118,7 @@ class _SuccessBody extends StatelessWidget {
             itemCount: state.memes.length,
             itemBuilder: (context, index) {
               return AspectRatio(
-                aspectRatio: 1 / 2,
+                aspectRatio: 2 / 1,
                 child: FutureBuilder(
                   future: _getFile(state.memes[index]),
                   builder: (_, AsyncSnapshot<File?> snap) => snap.hasData

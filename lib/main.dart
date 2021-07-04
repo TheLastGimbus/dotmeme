@@ -5,6 +5,7 @@ import 'package:get_it/get_it.dart';
 import 'database/bloc.dart';
 import 'database/memebase.dart';
 import 'di.dart' as di;
+import 'ui/common/cubit/media_sync_cubit.dart';
 import 'ui/common/theme/theme.dart' as theme;
 import 'ui/pages/home/home_page.dart';
 
@@ -21,6 +22,7 @@ class MyApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider(create: (_) => DbCubit(GetIt.I<Memebase>())),
+        BlocProvider(create: (_) => MediaSyncCubit(GetIt.I<Memebase>())),
       ],
       child: MaterialApp(
         title: 'dotmeme',
