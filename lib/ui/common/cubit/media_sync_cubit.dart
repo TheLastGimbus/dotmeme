@@ -24,6 +24,9 @@ class MediaSyncCubit extends Cubit<void> {
     final devFolders = await MediaSync.getMediaFolders();
     await db.enabledFoldersMemeSync(devFolders);
     await db.foldersSync(devFolders);
+    // Idk how to do this better
+    // TODO: Test if this doesn't lag the app
+    await db.disabledFoldersMemeSync(devFolders);
   }
 
   @override

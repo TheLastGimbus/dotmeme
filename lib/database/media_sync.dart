@@ -16,13 +16,31 @@ final _mm = GetIt.I<MediaManager>();
 extension MediaSync on Memebase {
   Future<void> fullSync() => throw UnimplementedError("Idk if this will exist");
 
+  // This should be done otherwise
+  // But i don't have better idea for now, just put it in BenchmarkPage
+  Future<void> allFoldersMemeSync(List<AssetPathEntity> deviceFolders) async =>
+      _foldersMemeSync(await select(folders).get(), deviceFolders);
+
   Future<void> enabledFoldersMemeSync(
       List<AssetPathEntity> deviceFolders) async {
     final enabled = await (select(folders)
           ..where((tbl) => tbl.scanningEnabled.equals(true)))
         .get();
+    await _foldersMemeSync(enabled, deviceFolders);
+  }
+
+  Future<void> disabledFoldersMemeSync(
+      List<AssetPathEntity> deviceFolders) async {
+    final enabled = await (select(folders)
+          ..where((tbl) => tbl.scanningEnabled.equals(false)))
+        .get();
+    await _foldersMemeSync(enabled, deviceFolders);
+  }
+
+  Future<void> _foldersMemeSync(
+      List<Folder> dbFolders, List<AssetPathEntity> deviceFolders) async {
     await batch((b) async {
-      for (final f in enabled) {
+      for (final f in dbFolders) {
         final assets = await deviceFolders
             .firstWhere((e) => int.parse(e.id) == f.id)
             .assetList;
@@ -35,8 +53,8 @@ extension MediaSync on Memebase {
         b.insertAllOnConflictUpdate(memes, newMemes.toList());
         b.deleteWhere(
           memes,
-          (Memes tbl) => (tbl.folderId.equals(f.id) &
-              tbl.id.isNotIn(assets.map((e) => int.parse(e.id)))),
+              (Memes tbl) => (tbl.folderId.equals(f.id) &
+          tbl.id.isNotIn(assets.map((e) => int.parse(e.id)))),
         );
       }
     });

@@ -21,6 +21,7 @@ class _BenchmarkPageState extends State<BenchmarkPage> {
       MediaSync.getMediaFolders();
   int? _timeFoldersSync;
   int? _timeEnabledFoldersMemeSync;
+  int? _timeAllFoldersMemeSync;
 
   Future<int> _time(Function func) async {
     final w = Stopwatch()..start();
@@ -38,6 +39,7 @@ class _BenchmarkPageState extends State<BenchmarkPage> {
         children: [
           Text("Time folderSync: ${_timeFoldersSync}ms"),
           Text("Enabled folders meme sync: ${_timeEnabledFoldersMemeSync}ms"),
+          Text("All folders meme sync: ${_timeAllFoldersMemeSync}ms"),
           ElevatedButton(
             onPressed: () async {
               _timeFoldersSync =
@@ -53,6 +55,14 @@ class _BenchmarkPageState extends State<BenchmarkPage> {
               setState(() {});
             },
             child: const Text("Enabled folders meme sync"),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              _timeAllFoldersMemeSync = await _time(
+                  () async => db.allFoldersMemeSync(await _deviceFolders));
+              setState(() {});
+            },
+            child: const Text("All folders meme sync"),
           ),
         ],
       ),
