@@ -9,31 +9,28 @@ import 'tables/memes.dart';
 
 final _mm = GetIt.I<MediaManager>();
 
-// TODO: Optimize communication with media_manager with some batching
 /// This extension syncs index of media from device to db
 /// Note that those operations may take a while (some 500ms!),
 /// and simultaneously, are super important for good experience
 /// - use with caution and awareness
 extension MediaSync on Memebase {
-  Future<void> fullSync() async {}
+  Future<void> fullSync() => throw UnimplementedError("Idk if this will exist");
 
-  Future<void> enabledFoldersMemeSync() async {
+  Future<void> enabledFoldersMemeSync(
+      List<AssetPathEntity> deviceFolders) async {
     final enabled = await (select(folders)
           ..where((tbl) => tbl.scanningEnabled.equals(true)))
         .get();
     final fs = <Future>[];
     for (final f in enabled) {
-      fs.add(folderMemeSync(f.id));
+      fs.add(folderMemeSync(
+          f.id, deviceFolders.firstWhere((e) => int.parse(e.id) == f.id)));
     }
     await Future.wait(fs);
   }
 
-  Future<void> folderMemeSync(int id) async {
-    final path = await _mm.assetPathEntityFromId(
-      id.toString(),
-      type: RequestType.common,
-    );
-    final assets = await path.assetList;
+  Future<void> folderMemeSync(int id, AssetPathEntity deviceFolder) async {
+    final assets = await deviceFolder.assetList;
     final newMemes = assets.map((e) => Meme(
           id: int.parse(e.id),
           folderId: id,
@@ -51,23 +48,12 @@ extension MediaSync on Memebase {
   /// Sync device folders both ways (create new ones and delete non-existing)
   /// Also deletes memes from non-existing folders
   /// Returns new folders ids - might be useful for "new folder" notification
-  Future<List<int>> foldersSync() async {
-    final paths = await _mm.getAssetPathList(
-      hasAll: false,
-      type: RequestType.image,
-      // IDEA: Make this faster - "only folders newer than newest in db"
-      // Tho this requires extra table field (folder creation date),
-      // and assumes we didn't break anything (highly unlikely)
-      filterOption: FilterOptionGroup(
-        containsPathModified: true,
-        containsEmptyAlbum: true,
-      ),
-    );
-    final pathIds = paths.map((e) => int.parse(e.id));
+  Future<List<int>> foldersSync(List<AssetPathEntity> deviceFolders) async {
+    final pathIds = deviceFolders.map((e) => int.parse(e.id));
     final dbIds = (await (selectOnly(folders)..addColumns([folders.id])).get())
         .map((e) => e.read(folders.id)!);
     // Folders that are on device but on in db
-    final foldersToAdd = paths.map((e) => FoldersCompanion.insert(
+    final foldersToAdd = deviceFolders.map((e) => FoldersCompanion.insert(
           id: Value(int.parse(e.id)),
           name: e.name,
           lastModified: Value(e.lastModified ?? DateTime.now()),
@@ -82,6 +68,19 @@ extension MediaSync on Memebase {
     });
     return foldersToAdd.map((e) => e.id.value).toList();
   }
+
+  static Future<List<AssetPathEntity>> getMediaFolders() =>
+      _mm.getAssetPathList(
+        hasAll: false,
+        type: RequestType.image,
+        // IDEA: Make this faster - "only folders newer than newest in db"
+        // Tho this requires extra table field (folder creation date),
+        // and assumes we didn't break anything (highly unlikely)
+        filterOption: FilterOptionGroup(
+          containsPathModified: true,
+          containsEmptyAlbum: true,
+        ),
+      );
 }
 
 // Maybe move this to media_manager ?

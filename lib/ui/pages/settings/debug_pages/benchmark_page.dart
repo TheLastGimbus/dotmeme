@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:photo_manager/photo_manager.dart';
 
 import '../../../../database/bloc.dart';
 import '../../../../database/media_sync.dart';
@@ -15,6 +16,9 @@ class BenchmarkPage extends StatefulWidget {
 }
 
 class _BenchmarkPageState extends State<BenchmarkPage> {
+  // TODO: Change this to MediaSyncCubit
+  final Future<List<AssetPathEntity>> _deviceFolders =
+      MediaSync.getMediaFolders();
   int? _timeFoldersSync;
   int? _timeEnabledFoldersMemeSync;
 
@@ -36,15 +40,16 @@ class _BenchmarkPageState extends State<BenchmarkPage> {
           Text("Enabled folders meme sync: ${_timeEnabledFoldersMemeSync}ms"),
           ElevatedButton(
             onPressed: () async {
-              _timeFoldersSync = await _time(db.foldersSync);
+              _timeFoldersSync =
+                  await _time(() async => db.foldersSync(await _deviceFolders));
               setState(() {});
             },
             child: const Text("Folders sync"),
           ),
           ElevatedButton(
             onPressed: () async {
-              _timeEnabledFoldersMemeSync =
-                  await _time(db.enabledFoldersMemeSync);
+              _timeEnabledFoldersMemeSync = await _time(
+                  () async => db.enabledFoldersMemeSync(await _deviceFolders));
               setState(() {});
             },
             child: const Text("Enabled folders meme sync"),
