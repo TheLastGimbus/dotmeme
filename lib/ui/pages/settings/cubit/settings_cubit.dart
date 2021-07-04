@@ -15,9 +15,8 @@ class SettingsCubit extends Cubit<SettingsState> {
   void _init() async {
     // TODO: Stream
     final fol = await db.allFolders.get();
-    _state = await Future.wait(fol
-        .map((e) async => MapEntry(e, await db.folderMemesCount(e.id)))
-        .toList());
+    final counts = await db.foldersMemeCounts(fol.map((e) => e.id).toList());
+    _state = fol.map((e) => MapEntry(e, counts[e.id]!)).toList();
     emit(SettingsLoadedState(_state));
   }
 

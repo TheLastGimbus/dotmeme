@@ -16,11 +16,25 @@ extension Queries on Memebase {
 
   Future<int> folderMemesCount(int id) async {
     final exp = memes.id.count();
-    return (selectOnly(memes)
+    final res = await (selectOnly(memes)
           ..addColumns([exp])
-          ..where(memes.id.equals(id)))
-        .map((row) => row.read(exp))
+          ..where(memes.folderId.equals(id)))
         .getSingle();
+    return res.read(exp);
+  }
+
+  /// Batch of folders meme counts
+  /// Returns a Map<folderId, memeCount>
+  Future<Map<int, int>> foldersMemeCounts(List<int> ids) async {
+    final res = await customSelect(
+      "SELECT folder_id, COUNT(id) "
+      "FROM memes WHERE folder_id IN (${ids.join(",")}) "
+      "GROUP BY (folder_id);",
+      readsFrom: {memes},
+    ).get();
+    return {
+      for (final row in res) row.read<int>("folder_id"): row.read("COUNT(id)")
+    };
   }
 
   // ############ Memes ############
