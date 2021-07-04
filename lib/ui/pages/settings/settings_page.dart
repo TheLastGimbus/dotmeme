@@ -1,3 +1,4 @@
+import 'package:dotmeme/ui/pages/settings/debug_pages/benchmark_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:settings_ui/settings_ui.dart';
@@ -40,6 +41,33 @@ class _LoadedBody extends StatelessWidget {
     // Idk if we should use pre-made settings - probably should make our own
     return SettingsList(
       sections: [
+        // Hide this later in release
+        SettingsSection(
+          title: "Debug stuff",
+          tiles: [
+            SettingsTile(
+              title: "Benchmark page",
+              onPressed: (context) =>
+                  Navigator.of(context).push(BenchmarkPage.route()),
+            ),
+            SettingsTile(
+              title: "Enable all folders",
+              onPressed: (_) {
+                for(final f in state.folders) {
+                  cbt.setFolderEnabled(f.key.id, true);
+                }
+              },
+            ),
+            SettingsTile(
+              title: "Disable all folders",
+              onPressed: (_) {
+                for(final f in state.folders) {
+                  cbt.setFolderEnabled(f.key.id, false);
+                }
+              },
+            ),
+          ],
+        ),
         SettingsSection(
           title: "Enabled folders",
           subtitle: const Text("Which folders should be scanned and showed"),

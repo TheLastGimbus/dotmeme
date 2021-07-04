@@ -9,12 +9,44 @@ import 'tables/memes.dart';
 
 final _mm = GetIt.I<MediaManager>();
 
+// TODO: Optimize communication with media_manager with some batching
 /// This extension syncs index of media from device to db
 /// Note that those operations may take a while (some 500ms!),
 /// and simultaneously, are super important for good experience
 /// - use with caution and awareness
 extension MediaSync on Memebase {
   Future<void> fullSync() async {}
+
+  Future<void> enabledFoldersMemeSync() async {
+    final enabled = await (select(folders)
+          ..where((tbl) => tbl.scanningEnabled.equals(true)))
+        .get();
+    final fs = <Future>[];
+    for (final f in enabled) {
+      fs.add(folderMemeSync(f.id));
+    }
+    await Future.wait(fs);
+  }
+
+  Future<void> folderMemeSync(int id) async {
+    final path = await _mm.assetPathEntityFromId(
+      id.toString(),
+      type: RequestType.common,
+    );
+    final assets = await path.assetList;
+    final newMemes = assets.map((e) => Meme(
+          id: int.parse(e.id),
+          folderId: id,
+          memeType: e.type.toMemeType().index,
+        ));
+    await batch((b) {
+      b.insertAllOnConflictUpdate(memes, newMemes.toList());
+      b.deleteWhere(
+        memes,
+        (Memes tbl) => tbl.id.isNotIn(assets.map((e) => int.parse(e.id))),
+      );
+    });
+  }
 
   /// Sync device folders both ways (create new ones and delete non-existing)
   /// Also deletes memes from non-existing folders
@@ -49,5 +81,18 @@ extension MediaSync on Memebase {
       b.deleteWhere(folders, (Folders tbl) => tbl.id.isIn(foldersToDelete));
     });
     return foldersToAdd.map((e) => e.id.value).toList();
+  }
+}
+
+// Maybe move this to media_manager ?
+extension _Help on AssetType {
+  MemeType toMemeType() {
+    if (this == AssetType.image) {
+      return MemeType.image;
+    } else if (this == AssetType.video) {
+      return MemeType.video;
+    } else {
+      throw UnsupportedError("Unsupported asset type - not a meme");
+    }
   }
 }
