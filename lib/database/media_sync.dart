@@ -21,28 +21,24 @@ extension MediaSync on Memebase {
     final enabled = await (select(folders)
           ..where((tbl) => tbl.scanningEnabled.equals(true)))
         .get();
-    final fs = <Future>[];
-    for (final f in enabled) {
-      fs.add(folderMemeSync(
-          f.id, deviceFolders.firstWhere((e) => int.parse(e.id) == f.id)));
-    }
-    await Future.wait(fs);
-  }
+    await batch((b) async {
+      for (final f in enabled) {
+        final assets = await deviceFolders
+            .firstWhere((e) => int.parse(e.id) == f.id)
+            .assetList;
+        final newMemes = assets.map((e) => Meme(
+              id: int.parse(e.id),
+              folderId: f.id,
+              memeType: e.type.toMemeType().index,
+            ));
 
-  Future<void> folderMemeSync(int id, AssetPathEntity deviceFolder) async {
-    final assets = await deviceFolder.assetList;
-    final newMemes = assets.map((e) => Meme(
-          id: int.parse(e.id),
-          folderId: id,
-          memeType: e.type.toMemeType().index,
-        ));
-    await batch((b) {
-      b.insertAllOnConflictUpdate(memes, newMemes.toList());
-      b.deleteWhere(
-        memes,
-        (Memes tbl) => (tbl.folderId.equals(id) &
-            tbl.id.isNotIn(assets.map((e) => int.parse(e.id)))),
-      );
+        b.insertAllOnConflictUpdate(memes, newMemes.toList());
+        b.deleteWhere(
+          memes,
+          (Memes tbl) => (tbl.folderId.equals(f.id) &
+              tbl.id.isNotIn(assets.map((e) => int.parse(e.id)))),
+        );
+      }
     });
   }
 
