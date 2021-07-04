@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:photo_manager/photo_manager.dart';
@@ -16,6 +18,7 @@ import 'home_state.dart';
 
 class HomeCubit extends Cubit<HomeState> {
   final Memebase db;
+  StreamSubscription? _allMemesStream;
 
   HomeCubit(this.db) : super(HomeLoadingState()) {
     init();
@@ -24,16 +27,26 @@ class HomeCubit extends Cubit<HomeState> {
   /// Check permissions
   /// Load memes
   void init() async {
-    // TODO: Stream
-    // Start fetching them in background already
-    final memes = db.allMemes.get();
     final res =
         GetIt.I<MediaManager>().requestPermissionExtend().then((v) => v.isAuth);
+    // Start fetching them in background already (don't wait for permission)
+    _allMemesStream?.cancel();
+    _allMemesStream = db.allMemes.watch().listen((event) async {
+      // ...but wait before displaying them
+      if (await res) {
+        emit(HomeSuccessState(event));
+      }
+    });
 
     if (!await res) {
       emit(HomeNoPermissionState());
       return;
     }
-    emit(HomeSuccessState(await memes));
+  }
+
+  @override
+  Future<void> close() async {
+    await _allMemesStream?.cancel();
+    await super.close();
   }
 }
