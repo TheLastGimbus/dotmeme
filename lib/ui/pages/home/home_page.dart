@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -104,31 +105,30 @@ class _SuccessBody extends StatelessWidget {
 
   const _SuccessBody(this.state, {Key? key}) : super(key: key);
 
-  Future<File?> _getFile(Meme meme) async {
+  Future<Uint8List?> _getThumb(Meme meme) async {
     final ass =
         await GetIt.I<MediaManager>().assetEntityFromId(meme.id.toString());
-    return ass?.file;
+    return ass?.thumbData;
   }
 
   @override
   Widget build(BuildContext context) {
-    // TODO: Memes grid
     return state.memes.isNotEmpty
-        ? ListView.builder(
-            itemCount: state.memes.length,
+        ? GridView.builder(
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 3),
             itemBuilder: (context, index) {
-              return AspectRatio(
-                aspectRatio: 2 / 1,
-                child: FutureBuilder(
-                  future: _getFile(state.memes[index]),
-                  builder: (_, AsyncSnapshot<File?> snap) => snap.hasData
-                      ? snap.data != null
-                          ? Image.file(snap.data!)
-                          : const Text("No meme! Where funny??")
-                      : const Icon(Icons.autorenew),
-                ),
+              return FutureBuilder(
+                future: _getThumb(state.memes[index]),
+                builder: (_, AsyncSnapshot<Uint8List?> snap) => snap.hasData
+                    ? snap.data != null
+                        ? Image.memory(snap.data!, fit: BoxFit.cover)
+                        : const Text("No meme! Where funny??")
+                    : const Icon(Icons.autorenew),
               );
             },
+            itemCount: state.memes.length,
+            cacheExtent: 200,
           )
         : const Center(
             child: Text("You don't have any memes :/"),
