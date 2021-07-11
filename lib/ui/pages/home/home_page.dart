@@ -1,8 +1,10 @@
-import 'dart:io';
+import 'dart:typed_data';
 
+import 'package:blurhash_dart/blurhash_dart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
+import 'package:image/image.dart' as img;
 
 import '../../../database/bloc.dart';
 import '../../../database/memebase.dart';
@@ -104,31 +106,38 @@ class _SuccessBody extends StatelessWidget {
 
   const _SuccessBody(this.state, {Key? key}) : super(key: key);
 
-  Future<File?> _getFile(Meme meme) async {
+  Future<Uint8List?> _getThumb(Meme meme) async {
     final ass =
         await GetIt.I<MediaManager>().assetEntityFromId(meme.id.toString());
-    return ass?.file;
+    return ass?.thumbData;
   }
 
   @override
   Widget build(BuildContext context) {
     // TODO: Memes grid
     return state.memes.isNotEmpty
-        ? ListView.builder(
-            itemCount: state.memes.length,
-            itemBuilder: (context, index) {
-              return AspectRatio(
-                aspectRatio: 2 / 1,
-                child: FutureBuilder(
-                  future: _getFile(state.memes[index]),
-                  builder: (_, AsyncSnapshot<File?> snap) => snap.hasData
+        ? GridView.builder(
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 3),
+            itemBuilder: (context, i) {
+              final m = state.memes[i];
+              if(m.blurhash != null ){
+                final image = BlurHash.decode(m.blurhash!).toImage(200, 200);
+                return Image.memory(Uint8List.fromList(img.encodeJpg(image)));
+              } else {
+                return FutureBuilder(
+                future: _getThumb(state.memes[i]),
+                builder: (context, snap) {
+                  return snap.hasData
                       ? snap.data != null
-                          ? Image.file(snap.data!)
-                          : const Text("No meme! Where funny??")
-                      : const Icon(Icons.autorenew),
-                ),
+                          ? Image.memory(snap.data as Uint8List, fit: BoxFit.cover)
+                          : Icon(Icons.warning)
+                      : Icon(Icons.autorenew);
+                },
               );
+              }
             },
+            itemCount: state.memes.length,
           )
         : const Center(
             child: Text("You don't have any memes :/"),

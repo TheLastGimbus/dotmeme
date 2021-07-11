@@ -286,6 +286,7 @@ class Meme extends DataClass implements Insertable<Meme> {
 
   /// [MemeType] - image or video
   final int memeType;
+  final String? blurhash;
 
   /// Text from OCR - can be null if not scanned yet
   final String? scannedText;
@@ -293,6 +294,7 @@ class Meme extends DataClass implements Insertable<Meme> {
       {required this.id,
       required this.folderId,
       required this.memeType,
+      this.blurhash,
       this.scannedText});
   factory Meme.fromData(Map<String, dynamic> data, GeneratedDatabase db,
       {String? prefix}) {
@@ -304,6 +306,8 @@ class Meme extends DataClass implements Insertable<Meme> {
           .mapFromDatabaseResponse(data['${effectivePrefix}folder_id'])!,
       memeType: const IntType()
           .mapFromDatabaseResponse(data['${effectivePrefix}meme_type'])!,
+      blurhash: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}blurhash']),
       scannedText: const StringType()
           .mapFromDatabaseResponse(data['${effectivePrefix}scanned_text']),
     );
@@ -314,6 +318,9 @@ class Meme extends DataClass implements Insertable<Meme> {
     map['id'] = Variable<int>(id);
     map['folder_id'] = Variable<int>(folderId);
     map['meme_type'] = Variable<int>(memeType);
+    if (!nullToAbsent || blurhash != null) {
+      map['blurhash'] = Variable<String?>(blurhash);
+    }
     if (!nullToAbsent || scannedText != null) {
       map['scanned_text'] = Variable<String?>(scannedText);
     }
@@ -325,6 +332,9 @@ class Meme extends DataClass implements Insertable<Meme> {
       id: Value(id),
       folderId: Value(folderId),
       memeType: Value(memeType),
+      blurhash: blurhash == null && nullToAbsent
+          ? const Value.absent()
+          : Value(blurhash),
       scannedText: scannedText == null && nullToAbsent
           ? const Value.absent()
           : Value(scannedText),
@@ -338,6 +348,7 @@ class Meme extends DataClass implements Insertable<Meme> {
       id: serializer.fromJson<int>(json['id']),
       folderId: serializer.fromJson<int>(json['folderId']),
       memeType: serializer.fromJson<int>(json['memeType']),
+      blurhash: serializer.fromJson<String?>(json['blurhash']),
       scannedText: serializer.fromJson<String?>(json['scannedText']),
     );
   }
@@ -348,15 +359,22 @@ class Meme extends DataClass implements Insertable<Meme> {
       'id': serializer.toJson<int>(id),
       'folderId': serializer.toJson<int>(folderId),
       'memeType': serializer.toJson<int>(memeType),
+      'blurhash': serializer.toJson<String?>(blurhash),
       'scannedText': serializer.toJson<String?>(scannedText),
     };
   }
 
-  Meme copyWith({int? id, int? folderId, int? memeType, String? scannedText}) =>
+  Meme copyWith(
+          {int? id,
+          int? folderId,
+          int? memeType,
+          String? blurhash,
+          String? scannedText}) =>
       Meme(
         id: id ?? this.id,
         folderId: folderId ?? this.folderId,
         memeType: memeType ?? this.memeType,
+        blurhash: blurhash ?? this.blurhash,
         scannedText: scannedText ?? this.scannedText,
       );
   @override
@@ -365,6 +383,7 @@ class Meme extends DataClass implements Insertable<Meme> {
           ..write('id: $id, ')
           ..write('folderId: $folderId, ')
           ..write('memeType: $memeType, ')
+          ..write('blurhash: $blurhash, ')
           ..write('scannedText: $scannedText')
           ..write(')'))
         .toString();
@@ -374,7 +393,9 @@ class Meme extends DataClass implements Insertable<Meme> {
   int get hashCode => $mrjf($mrjc(
       id.hashCode,
       $mrjc(
-          folderId.hashCode, $mrjc(memeType.hashCode, scannedText.hashCode))));
+          folderId.hashCode,
+          $mrjc(memeType.hashCode,
+              $mrjc(blurhash.hashCode, scannedText.hashCode)))));
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -382,6 +403,7 @@ class Meme extends DataClass implements Insertable<Meme> {
           other.id == this.id &&
           other.folderId == this.folderId &&
           other.memeType == this.memeType &&
+          other.blurhash == this.blurhash &&
           other.scannedText == this.scannedText);
 }
 
@@ -389,17 +411,20 @@ class MemesCompanion extends UpdateCompanion<Meme> {
   final Value<int> id;
   final Value<int> folderId;
   final Value<int> memeType;
+  final Value<String?> blurhash;
   final Value<String?> scannedText;
   const MemesCompanion({
     this.id = const Value.absent(),
     this.folderId = const Value.absent(),
     this.memeType = const Value.absent(),
+    this.blurhash = const Value.absent(),
     this.scannedText = const Value.absent(),
   });
   MemesCompanion.insert({
     this.id = const Value.absent(),
     required int folderId,
     required int memeType,
+    this.blurhash = const Value.absent(),
     this.scannedText = const Value.absent(),
   })  : folderId = Value(folderId),
         memeType = Value(memeType);
@@ -407,12 +432,14 @@ class MemesCompanion extends UpdateCompanion<Meme> {
     Expression<int>? id,
     Expression<int>? folderId,
     Expression<int>? memeType,
+    Expression<String?>? blurhash,
     Expression<String?>? scannedText,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (folderId != null) 'folder_id': folderId,
       if (memeType != null) 'meme_type': memeType,
+      if (blurhash != null) 'blurhash': blurhash,
       if (scannedText != null) 'scanned_text': scannedText,
     });
   }
@@ -421,11 +448,13 @@ class MemesCompanion extends UpdateCompanion<Meme> {
       {Value<int>? id,
       Value<int>? folderId,
       Value<int>? memeType,
+      Value<String?>? blurhash,
       Value<String?>? scannedText}) {
     return MemesCompanion(
       id: id ?? this.id,
       folderId: folderId ?? this.folderId,
       memeType: memeType ?? this.memeType,
+      blurhash: blurhash ?? this.blurhash,
       scannedText: scannedText ?? this.scannedText,
     );
   }
@@ -442,6 +471,9 @@ class MemesCompanion extends UpdateCompanion<Meme> {
     if (memeType.present) {
       map['meme_type'] = Variable<int>(memeType.value);
     }
+    if (blurhash.present) {
+      map['blurhash'] = Variable<String?>(blurhash.value);
+    }
     if (scannedText.present) {
       map['scanned_text'] = Variable<String?>(scannedText.value);
     }
@@ -454,6 +486,7 @@ class MemesCompanion extends UpdateCompanion<Meme> {
           ..write('id: $id, ')
           ..write('folderId: $folderId, ')
           ..write('memeType: $memeType, ')
+          ..write('blurhash: $blurhash, ')
           ..write('scannedText: $scannedText')
           ..write(')'))
         .toString();
@@ -497,6 +530,17 @@ class $MemesTable extends Memes with TableInfo<$MemesTable, Meme> {
     );
   }
 
+  final VerificationMeta _blurhashMeta = const VerificationMeta('blurhash');
+  @override
+  late final GeneratedTextColumn blurhash = _constructBlurhash();
+  GeneratedTextColumn _constructBlurhash() {
+    return GeneratedTextColumn(
+      'blurhash',
+      $tableName,
+      true,
+    );
+  }
+
   final VerificationMeta _scannedTextMeta =
       const VerificationMeta('scannedText');
   @override
@@ -510,7 +554,8 @@ class $MemesTable extends Memes with TableInfo<$MemesTable, Meme> {
   }
 
   @override
-  List<GeneratedColumn> get $columns => [id, folderId, memeType, scannedText];
+  List<GeneratedColumn> get $columns =>
+      [id, folderId, memeType, blurhash, scannedText];
   @override
   $MemesTable get asDslTable => this;
   @override
@@ -536,6 +581,10 @@ class $MemesTable extends Memes with TableInfo<$MemesTable, Meme> {
           memeType.isAcceptableOrUnknown(data['meme_type']!, _memeTypeMeta));
     } else if (isInserting) {
       context.missing(_memeTypeMeta);
+    }
+    if (data.containsKey('blurhash')) {
+      context.handle(_blurhashMeta,
+          blurhash.isAcceptableOrUnknown(data['blurhash']!, _blurhashMeta));
     }
     if (data.containsKey('scanned_text')) {
       context.handle(

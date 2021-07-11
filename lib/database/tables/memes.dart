@@ -14,6 +14,8 @@ class Memes extends Table {
   /// [MemeType] - image or video
   IntColumn get memeType => integer()();
 
+  TextColumn get blurhash => text().nullable()();
+
   /// Text from OCR - can be null if not scanned yet
   TextColumn get scannedText => text().nullable()();
 

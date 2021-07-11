@@ -12,6 +12,8 @@ dependencies:
 
   # UI
   settings_ui: ^1.0.0
+  blurhash_dart: ^1.0.2
+  image: ^3.0.2
 
   # Logic and stuff
   ## DB

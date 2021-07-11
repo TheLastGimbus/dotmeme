@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:photo_manager/photo_manager.dart';
 
 import '../../../../database/bloc.dart';
+import '../../../../database/blurhash.dart';
 import '../../../../database/media_sync.dart';
 
 class BenchmarkPage extends StatefulWidget {
@@ -22,6 +23,7 @@ class _BenchmarkPageState extends State<BenchmarkPage> {
   int? _timeFoldersSync;
   int? _timeEnabledFoldersMemeSync;
   int? _timeAllFoldersMemeSync;
+  int? _timeEncodeBlurhashes;
 
   Future<int> _time(Function func) async {
     final w = Stopwatch()..start();
@@ -40,6 +42,7 @@ class _BenchmarkPageState extends State<BenchmarkPage> {
           Text("Time folderSync: ${_timeFoldersSync}ms"),
           Text("Enabled folders meme sync: ${_timeEnabledFoldersMemeSync}ms"),
           Text("All folders meme sync: ${_timeAllFoldersMemeSync}ms"),
+          Text("Encode blurhashes: ${_timeEncodeBlurhashes}ms"),
           ElevatedButton(
             onPressed: () async {
               _timeFoldersSync =
@@ -64,6 +67,14 @@ class _BenchmarkPageState extends State<BenchmarkPage> {
             },
             child: const Text("All folders meme sync"),
           ),
+          ElevatedButton(
+            onPressed: () async {
+              _timeEncodeBlurhashes =
+                  await _time(() async => await db.encodeBlurhashes().last);
+              setState(() {});
+            },
+            child: const Text("Encode blurhashes"),
+          )
         ],
       ),
     );
