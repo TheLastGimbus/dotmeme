@@ -189,54 +189,35 @@ class $FoldersTable extends Folders with TableInfo<$FoldersTable, Folder> {
   final String? _alias;
   $FoldersTable(this._db, [this._alias]);
   final VerificationMeta _idMeta = const VerificationMeta('id');
-  @override
-  late final GeneratedIntColumn id = _constructId();
-  GeneratedIntColumn _constructId() {
-    return GeneratedIntColumn(
-      'id',
-      $tableName,
-      false,
-    );
-  }
-
+  late final GeneratedColumn<int?> id = GeneratedColumn<int?>(
+      'id', aliasedName, false,
+      typeName: 'INTEGER', requiredDuringInsert: false);
   final VerificationMeta _nameMeta = const VerificationMeta('name');
-  @override
-  late final GeneratedTextColumn name = _constructName();
-  GeneratedTextColumn _constructName() {
-    return GeneratedTextColumn(
-      'name',
-      $tableName,
-      false,
-    );
-  }
-
+  late final GeneratedColumn<String?> name = GeneratedColumn<String?>(
+      'name', aliasedName, false,
+      typeName: 'TEXT', requiredDuringInsert: true);
   final VerificationMeta _scanningEnabledMeta =
       const VerificationMeta('scanningEnabled');
-  @override
-  late final GeneratedBoolColumn scanningEnabled = _constructScanningEnabled();
-  GeneratedBoolColumn _constructScanningEnabled() {
-    return GeneratedBoolColumn('scanning_enabled', $tableName, false,
-        defaultValue: const Constant(false));
-  }
-
+  late final GeneratedColumn<bool?> scanningEnabled = GeneratedColumn<bool?>(
+      'scanning_enabled', aliasedName, false,
+      typeName: 'INTEGER',
+      requiredDuringInsert: false,
+      defaultConstraints: 'CHECK (scanning_enabled IN (0, 1))',
+      defaultValue: const Constant(false));
   final VerificationMeta _lastModifiedMeta =
       const VerificationMeta('lastModified');
-  @override
-  late final GeneratedDateTimeColumn lastModified = _constructLastModified();
-  GeneratedDateTimeColumn _constructLastModified() {
-    return GeneratedDateTimeColumn('last_modified', $tableName, false,
-        defaultValue: currentDateAndTime);
-  }
-
+  late final GeneratedColumn<DateTime?> lastModified =
+      GeneratedColumn<DateTime?>('last_modified', aliasedName, false,
+          typeName: 'INTEGER',
+          requiredDuringInsert: false,
+          defaultValue: currentDateAndTime);
   @override
   List<GeneratedColumn> get $columns =>
       [id, name, scanningEnabled, lastModified];
   @override
-  $FoldersTable get asDslTable => this;
+  String get aliasedName => _alias ?? 'folders';
   @override
-  String get $tableName => _alias ?? 'folders';
-  @override
-  final String actualTableName = 'folders';
+  String get actualTableName => 'folders';
   @override
   VerificationContext validateIntegrity(Insertable<Folder> instance,
       {bool isInserting = false}) {
@@ -465,58 +446,28 @@ class $MemesTable extends Memes with TableInfo<$MemesTable, Meme> {
   final String? _alias;
   $MemesTable(this._db, [this._alias]);
   final VerificationMeta _idMeta = const VerificationMeta('id');
-  @override
-  late final GeneratedIntColumn id = _constructId();
-  GeneratedIntColumn _constructId() {
-    return GeneratedIntColumn(
-      'id',
-      $tableName,
-      false,
-    );
-  }
-
+  late final GeneratedColumn<int?> id = GeneratedColumn<int?>(
+      'id', aliasedName, false,
+      typeName: 'INTEGER', requiredDuringInsert: false);
   final VerificationMeta _folderIdMeta = const VerificationMeta('folderId');
-  @override
-  late final GeneratedIntColumn folderId = _constructFolderId();
-  GeneratedIntColumn _constructFolderId() {
-    return GeneratedIntColumn(
-      'folder_id',
-      $tableName,
-      false,
-    );
-  }
-
+  late final GeneratedColumn<int?> folderId = GeneratedColumn<int?>(
+      'folder_id', aliasedName, false,
+      typeName: 'INTEGER', requiredDuringInsert: true);
   final VerificationMeta _memeTypeMeta = const VerificationMeta('memeType');
-  @override
-  late final GeneratedIntColumn memeType = _constructMemeType();
-  GeneratedIntColumn _constructMemeType() {
-    return GeneratedIntColumn(
-      'meme_type',
-      $tableName,
-      false,
-    );
-  }
-
+  late final GeneratedColumn<int?> memeType = GeneratedColumn<int?>(
+      'meme_type', aliasedName, false,
+      typeName: 'INTEGER', requiredDuringInsert: true);
   final VerificationMeta _scannedTextMeta =
       const VerificationMeta('scannedText');
-  @override
-  late final GeneratedTextColumn scannedText = _constructScannedText();
-  GeneratedTextColumn _constructScannedText() {
-    return GeneratedTextColumn(
-      'scanned_text',
-      $tableName,
-      true,
-    );
-  }
-
+  late final GeneratedColumn<String?> scannedText = GeneratedColumn<String?>(
+      'scanned_text', aliasedName, true,
+      typeName: 'TEXT', requiredDuringInsert: false);
   @override
   List<GeneratedColumn> get $columns => [id, folderId, memeType, scannedText];
   @override
-  $MemesTable get asDslTable => this;
+  String get aliasedName => _alias ?? 'memes';
   @override
-  String get $tableName => _alias ?? 'memes';
-  @override
-  final String actualTableName = 'memes';
+  String get actualTableName => 'memes';
   @override
   VerificationContext validateIntegrity(Insertable<Meme> instance,
       {bool isInserting = false}) {
