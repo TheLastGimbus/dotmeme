@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../database/memebase.dart';
@@ -6,26 +8,26 @@ import 'settings_state.dart';
 
 class SettingsCubit extends Cubit<SettingsState> {
   final Memebase db;
-  List<MapEntry<Folder, int>> _state = [];
+  StreamSubscription? _foldersWatch;
 
   SettingsCubit(this.db) : super(SettingsLoadingState()) {
     _init();
   }
 
   void _init() async {
-    // TODO: Stream
-    final fol = await db.allFolders.get();
-    final counts = await db.foldersMemeCounts(fol.map((e) => e.id).toList());
-    _state = fol.map((e) => MapEntry(e, counts[e.id] ?? 0)).toList();
-    emit(SettingsLoadedState(_state));
+    _foldersWatch?.cancel();
+    _foldersWatch = db
+        .allFoldersMemeCounts()
+        .watch()
+        .listen((event) => emit(SettingsLoadedState(event)));
   }
 
-  Future<void> setFolderEnabled(int id, bool enabled) async {
-    await db.setFolderEnabled(id, enabled);
-    final i = _state.indexWhere((e) => e.key.id == id);
-    _state = _state.toList(); // Cubit and equality :/
-    _state[i] = MapEntry(
-        _state[i].key.copyWith(scanningEnabled: enabled), _state[i].value);
-    emit(SettingsLoadedState(_state));
+  Future<void> setFolderEnabled(int id, bool enabled) =>
+      db.setFolderEnabled(id, enabled);
+
+  @override
+  Future<void> close() async {
+    await _foldersWatch?.cancel();
+    return super.close();
   }
 }
