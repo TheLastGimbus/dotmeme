@@ -5,10 +5,18 @@ import 'memebase.dart';
 extension Queries on Memebase {
   // ############ Folders ############
 
-  MultiSelectable<Folder> get allFolders => select(folders);
+  MultiSelectable<Folder> get allFolders => select(folders)
+    ..orderBy([
+      (tbl) =>
+          OrderingTerm(expression: tbl.lastModified, mode: OrderingMode.desc)
+    ]);
 
-  MultiSelectable<Folder> get enabledFolders =>
-      (select(folders)..where((tbl) => tbl.scanningEnabled.equals(true)));
+  MultiSelectable<Folder> get enabledFolders => (select(folders)
+    ..where((tbl) => tbl.scanningEnabled.equals(true))
+    ..orderBy([
+      (tbl) =>
+          OrderingTerm(expression: tbl.lastModified, mode: OrderingMode.desc)
+    ]));
 
   Future<void> setFolderEnabled(int id, bool enabled) async =>
       (update(folders)..where((tbl) => tbl.id.equals(id)))
@@ -45,6 +53,9 @@ extension Queries on Memebase {
       innerJoin(folders, folders.id.equalsExp(memes.folderId)),
     ]));
     q.where(folders.scanningEnabled.equals(true));
+    q.orderBy([
+      OrderingTerm(expression: memes.lastModified, mode: OrderingMode.desc)
+    ]);
     return q.map((row) => row.readTable(memes));
   }
 }

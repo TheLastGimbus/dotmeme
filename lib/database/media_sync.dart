@@ -48,13 +48,14 @@ extension MediaSync on Memebase {
               id: int.parse(e.id),
               folderId: f.id,
               memeType: e.type.toMemeType().index,
+              lastModified: e.modifiedDateTime,
             ));
 
         b.insertAllOnConflictUpdate(memes, newMemes.toList());
         b.deleteWhere(
           memes,
-              (Memes tbl) => (tbl.folderId.equals(f.id) &
-          tbl.id.isNotIn(assets.map((e) => int.parse(e.id)))),
+          (Memes tbl) => (tbl.folderId.equals(f.id) &
+              tbl.id.isNotIn(assets.map((e) => int.parse(e.id)))),
         );
       }
     });

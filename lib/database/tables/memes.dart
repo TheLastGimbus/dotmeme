@@ -14,6 +14,10 @@ class Memes extends Table {
   /// [MemeType] - image or video
   IntColumn get memeType => integer()();
 
+  // For sorting them
+  DateTimeColumn get lastModified =>
+      dateTime().clientDefault(() => DateTime.now())();
+
   /// Text from OCR - can be null if not scanned yet
   TextColumn get scannedText => text().nullable()();
 
