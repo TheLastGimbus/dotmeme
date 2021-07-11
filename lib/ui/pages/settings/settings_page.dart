@@ -53,7 +53,7 @@ class _LoadedBody extends StatelessWidget {
             SettingsTile(
               title: "Enable all folders",
               onPressed: (_) {
-                for(final f in state.folders) {
+                for (final f in state.folders) {
                   cbt.setFolderEnabled(f.key.id, true);
                 }
               },
@@ -61,7 +61,7 @@ class _LoadedBody extends StatelessWidget {
             SettingsTile(
               title: "Disable all folders",
               onPressed: (_) {
-                for(final f in state.folders) {
+                for (final f in state.folders) {
                   cbt.setFolderEnabled(f.key.id, false);
                 }
               },
