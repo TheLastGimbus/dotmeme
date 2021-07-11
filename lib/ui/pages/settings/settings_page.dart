@@ -1,4 +1,3 @@
-import 'package:dotmeme/ui/pages/settings/debug_pages/benchmark_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:settings_ui/settings_ui.dart';
@@ -6,6 +5,7 @@ import 'package:settings_ui/settings_ui.dart';
 import '../../../database/bloc.dart';
 import 'cubit/settings_cubit.dart';
 import 'cubit/settings_state.dart';
+import 'debug_pages/benchmark_page.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({Key? key}) : super(key: key);
