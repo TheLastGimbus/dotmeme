@@ -1,6 +1,16 @@
+import 'dart:convert' as convert;
+import 'dart:io' as io;
+import 'dart:typed_data';
+import 'dart:ui';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:image/image.dart' as imglib;
+import 'package:image_size_getter/file_input.dart' as isgfi;
+import 'package:image_size_getter/image_size_getter.dart' as imgsizeget;
+import 'package:mime/mime.dart' as mime;
 import 'package:mockito/mockito.dart';
+import 'package:path/path.dart' as path;
 import 'package:photo_manager/photo_manager.dart';
 
 import 'media_manager.dart';
@@ -15,6 +25,33 @@ class MediaPermissionException implements Exception {}
 class MockMediaManager extends Mock implements MediaManager {
   bool _hasPermission = false;
   bool _ignorePermissionCheck = false;
+  final io.Directory _mediaFolder;
+  late Map _index;
+
+  MockMediaManager({io.Directory? mediaFolder})
+      : _mediaFolder = mediaFolder ?? io.Directory('test/media/') {
+    assert(_mediaFolder.existsSync());
+    final iFile = io.File(path.join(_mediaFolder.path, 'index.json'));
+    assert(iFile.existsSync());
+    _index = convert.jsonDecode(iFile.readAsStringSync());
+    assert(_index.containsKey("paths"));
+  }
+
+  // ############# Test env filesystem helpers #############
+  /// Returns Map (json object from index.json) of asset,
+  /// with additional [filepath] field
+  Map? _findAsset(String id) {
+    for (final pathId in (_index["paths"] as Map).keys) {
+      for (final assetId in (_index["paths"][pathId]["assets"] as Map).keys) {
+        if (assetId == id) {
+          final ass = Map.from(_index["paths"][pathId]["assets"][assetId]);
+          ass["filepath"] =
+              path.join(_index["paths"][pathId]["path"], ass["filename"]);
+          return ass;
+        }
+      }
+    }
+  }
 
   void _permissionCheck() {
     if (!_ignorePermissionCheck && !_hasPermission) {
@@ -22,25 +59,14 @@ class MockMediaManager extends Mock implements MediaManager {
     }
   }
 
-  /// in android WRITE_EXTERNAL_STORAGE  READ_EXTERNAL_STORAGE
-  ///
-  /// in ios request the photo permission
-  ///
-  /// Use [requestPermissionExtend] to instead;
+  /// See [requestPermissionExtend]
   // @Deprecated("Use requestPermissionExtend")
   @override
   Future<bool> requestPermission() async =>
       (await requestPermissionExtend()).isAuth;
 
-  /// Android: WRITE_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE, MEDIA_LOCATION
-  ///
-  /// iOS: NSPhotoLibraryUsageDescription of info.plist
-  ///
-  /// macOS of Release.entitlements:
-  ///  - com.apple.security.assets.movies.read-write
-  ///  - com.apple.security.assets.music.read-write
-  ///
-  /// Also see [PermissionState].
+  /// Waits two seconds the first time and returns true, then returns instantly
+  /// TODO: Emulate no/random permission
   @override
   Future<PermissionState> requestPermissionExtend({
     PermisstionRequestOption requestOption = const PermisstionRequestOption(),
@@ -111,8 +137,22 @@ class MockMediaManager extends Mock implements MediaManager {
   Future<MockAssetPathEntity?> fetchPathProperties({
     required AssetPathEntity entity,
     required FilterOptionGroup filterOptionGroup,
-  }) =>
-      throw UnimplementedError("TODO");
+  }) async {
+    final assPath = _index["paths"][entity.id] as Map?;
+    if (assPath == null) return null;
+    final mock = MockAssetPathEntity()
+      ..id = entity.id
+      ..name = assPath["name"]
+      ..assetCount = (assPath["assets"] as Map).length
+      ..filterOption = filterOptionGroup;
+    if (filterOptionGroup.containsPathModified) {
+      mock.lastModified =
+          io.Directory(path.join(_mediaFolder.path, assPath["path"]))
+              .statSync()
+              .modified;
+    }
+    return mock;
+  }
 
   /// Does nothing
   @override
@@ -130,29 +170,68 @@ class MockMediaManager extends Mock implements MediaManager {
   @override
   Future<bool> setCacheAtOriginBytes(bool cache) async => cache;
 
+  // If all of this actual file parsing will ever be too much, feel free
+  // to replace this with hand-written info in index.json
   @override
-  Future<MockAssetEntity?> refreshAssetProperties(String id) =>
-      throw UnimplementedError("TODO");
+  Future<MockAssetEntity?> refreshAssetProperties(String id) async {
+    final ass = _findAsset(id);
+    if (ass == null) return null;
+    final file = io.File(path.join(_mediaFolder.path, ass["filepath"]));
+    assert(file.existsSync());
+    final stat = file.statSync();
+    final size = imgsizeget.ImageSizeGetter.getSize(isgfi.FileInput(file));
+    final mimeType = mime.lookupMimeType(file.path);
+    final _type = mimeType?.split('/')[0];
+    var type = AssetType.other;
+    switch (_type) {
+      case 'image':
+        type = AssetType.image;
+        break;
+      case 'video':
+        type = AssetType.video;
+        break;
+      case 'audio':
+        type = AssetType.audio;
+        break;
+    }
+    return MockAssetEntity(
+      id: id,
+      typeInt: type.index,
+      width: size.width,
+      height: size.height,
+      duration: ass["duration"],
+      orientation: 0,
+      isFavorite: false,
+      title: ass["filename"],
+      createDtSecond: stat.modified.millisecondsSinceEpoch ~/ 1000,
+      modifiedDateSecond: stat.modified.millisecondsSinceEpoch ~/ 1000,
+      relativePath: file.path,
+      mimeType: mimeType,
+      file: file,
+    );
+  }
 
   // ############### MY OWN METHODS ################
   // They replace static methods of AssetEntities
 
   @override
   Future<MockAssetEntity?> assetEntityFromId(String id) =>
-      MockAssetEntity.fromId(id);
+      refreshAssetProperties(id);
 
   @override
-  Future<AssetPathEntity> assetPathEntityFromId(
+  Future<AssetPathEntity?> assetPathEntityFromId(
     String id, {
     FilterOptionGroup? filterOption,
     RequestType type = RequestType.common,
     int albumType = 1,
   }) =>
-      MockAssetPathEntity.fromId(
-        id,
-        filterOption: filterOption,
-        type: type,
-        albumType: albumType,
+      fetchPathProperties(
+        entity: MockAssetPathEntity()
+          ..id = id
+          ..filterOption = filterOption ?? FilterOptionGroup()
+          ..typeInt = type.index
+          ..albumType = 1,
+        filterOptionGroup: filterOption ?? FilterOptionGroup(),
       );
 }
 
@@ -163,17 +242,147 @@ class MockMediaManager extends Mock implements MediaManager {
 // And .jpg files saved in test/ dir
 // (or preferably, git submodule to not make repo heavy)
 
-class MockAssetPathEntity extends Mock implements AssetPathEntity {
-  static Future<MockAssetPathEntity> fromId(
-    String id, {
-    FilterOptionGroup? filterOption,
-    RequestType type = RequestType.common,
-    int albumType = 1,
-  }) =>
-      throw UnimplementedError("TODO");
-}
+// TODO
+class MockAssetPathEntity extends Mock implements AssetPathEntity {}
 
 class MockAssetEntity extends Mock implements AssetEntity {
-  static Future<MockAssetEntity?> fromId(String id) =>
-      throw UnimplementedError("TODO");
+  MockAssetEntity(
+      {required this.id,
+      required this.typeInt,
+      required this.width,
+      required this.height,
+      this.duration = 0,
+      this.orientation = 0,
+      this.isFavorite = false,
+      this.title,
+      this.createDtSecond,
+      this.modifiedDateSecond,
+      this.relativePath,
+      this.mimeType,
+      required file})
+      : _file = file;
+
+  @override
+  String id;
+
+  @override
+  String? title;
+
+  @override
+  AssetType get type {
+    switch (typeInt) {
+      case 1:
+        return AssetType.image;
+      case 2:
+        return AssetType.video;
+      case 3:
+        return AssetType.audio;
+      default:
+        return AssetType.other;
+    }
+  }
+
+  @override
+  int typeInt;
+
+  @override
+  int duration;
+
+  @override
+  int width;
+
+  @override
+  int height;
+
+  final io.File _file;
+
+  @override
+  Future<io.File?> get file =>
+      Future.delayed(const Duration(milliseconds: 5), () => _file);
+
+  /// Same as [file]
+  @override
+  Future<io.File?> get originFile => file;
+
+  @override
+  Future<Uint8List?> get originBytes => file.then((f) => f!.readAsBytes());
+
+  Uint8List? _getResized(Uint8List image) {
+    final img = imglib.decodeImage(image);
+    if (img == null) return null;
+    return imglib.copyResize(img, width: width, height: height).getBytes();
+  }
+
+  @override
+  Future<Uint8List?> get thumbData => thumbDataWithSize(150, 150);
+
+  @override
+  Future<Uint8List?> thumbDataWithSize(
+    int width,
+    int height, {
+    ThumbFormat format = ThumbFormat.jpeg,
+    int quality = 100,
+    PMProgressHandler? progressHandler,
+  }) async {
+    assert(width > 0 && height > 0, "The width and height must better 0.");
+    assert(quality > 0 && quality <= 100, "The quality must between 0 and 100");
+    if (type != AssetType.image) return null;
+    return compute(_getResized, await _file.readAsBytes());
+  }
+
+  @override
+  Duration get videoDuration => Duration(seconds: duration);
+
+  @override
+  Size get size => Size(width.toDouble(), height.toDouble());
+
+  @override
+  int? createDtSecond;
+
+  @override
+  DateTime get createDateTime =>
+      DateTime.fromMillisecondsSinceEpoch((createDtSecond ?? 0) * 1000);
+
+  @override
+  int? modifiedDateSecond;
+
+  @override
+  DateTime get modifiedDateTime =>
+      DateTime.fromMillisecondsSinceEpoch(modifiedDateSecond ?? 0 * 1000);
+
+  @override
+  Future<bool> get exists async => true;
+
+  @override
+  Future<String?> getMediaUrl() async => _file.absolute.path;
+
+  @override
+  int orientation;
+
+  @override
+  bool isFavorite;
+
+  @override
+  String? relativePath;
+
+  @override
+  String? mimeType;
+
+  @override
+  int get hashCode {
+    return id.hashCode;
+  }
+
+  @override
+  bool operator ==(other) {
+    if (other is! AssetEntity) {
+      return false;
+    }
+    return id == other.id;
+  }
+
+  @override
+  String toString() {
+    return "AssetEntity{ id:$id , type: $type}";
+  }
 }
