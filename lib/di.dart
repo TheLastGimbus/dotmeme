@@ -1,4 +1,5 @@
 import 'package:get_it/get_it.dart';
+import 'package:logger/logger.dart';
 
 import 'database/memebase.dart';
 import 'device_media/media_manager.dart';
@@ -15,9 +16,19 @@ void init(Environment env) {
     getIt
         .registerLazySingleton<Memebase>(() => Memebase(Memebase.diskDatabase));
     getIt.registerSingleton<MediaManager>(MediaManager());
+    getIt.registerSingleton<Logger>(
+      Logger(
+        filter: ProductionFilter()..level = Level.verbose,
+      ),
+    );
   } else if (env == Environment.test) {
     getIt.registerLazySingleton<Memebase>(
         () => Memebase(Memebase.virtualDatabase));
     getIt.registerSingleton<MediaManager>(getMockManager());
+    getIt.registerSingleton<Logger>(
+      Logger(
+        filter: DevelopmentFilter()..level = Level.verbose,
+      ),
+    );
   }
 }
