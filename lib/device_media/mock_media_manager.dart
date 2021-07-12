@@ -17,11 +17,6 @@ import 'package:photo_manager/photo_manager.dart';
 
 import 'media_manager.dart';
 
-MediaManager getMockManager() {
-  // TODO: Some way of getting test images
-  return MockMediaManager();
-}
-
 class MediaPermissionException implements Exception {}
 
 class MockMediaManager extends Mock implements MediaManager {

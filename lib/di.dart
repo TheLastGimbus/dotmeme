@@ -24,7 +24,7 @@ void init(Environment env) {
   } else if (env == Environment.test) {
     getIt.registerLazySingleton<Memebase>(
         () => Memebase(Memebase.virtualDatabase));
-    getIt.registerSingleton<MediaManager>(getMockManager());
+    getIt.registerSingleton<MediaManager>(MockMediaManager());
     getIt.registerSingleton<Logger>(
       Logger(
         filter: DevelopmentFilter()..level = Level.verbose,
