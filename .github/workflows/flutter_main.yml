@@ -27,4 +27,6 @@ jobs:
     - run: flutter format --set-exit-if-changed lib test
     - run: flutter analyze lib test
     - name: Run tests
-      run: flutter test --no-pub --coverage
+      run: |
+        ./scripts/setup-test-media.sh
+        flutter test --no-pub --coverage

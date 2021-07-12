@@ -8,7 +8,7 @@
 ///
 ///     test/
 ///     ├── basic_home_test.dart
-///     ├── media/
+///     ├── _test_media/
 ///     │   ├── index.json
 ///     │   └── paths/
 ///     │       ├── Camera/
@@ -32,10 +32,12 @@
 ///           "assets": {  // All assets inside it
 ///             "437854092489234": {
 ///               "filename": "goth_girl_rule.jpg",  // Relative to folder
+///               "lastModified": 1625853387,  // Unix epoch
 ///               "duration": 0  // Duration for video - 0 for photos
 ///             },
 ///             "1315402535634264": {
 ///               "filename": "iphone_rule.jpg",
+///               "lastModified": 1625843300,
 ///               "duration": 0
 ///             }
 ///           }
@@ -44,8 +46,8 @@
 ///     }
 ///
 /// ...but you don't need to actually understand everything above
-/// (unless you're modifying it!) can (TODO) download and set up whole `media/`
-/// folder with script
+/// (unless you're modifying it!) you can download and set up whole `media/`
+/// folder by running `setup-test-media.sh` script
 ///
 /// Notes:
 /// - idk if I shouldn't also move this (mock_manager) to `test/` folder
@@ -81,7 +83,7 @@ class MockMediaManager extends Mock implements MediaManager {
   late Map _index;
 
   MockMediaManager({io.Directory? mediaFolder})
-      : _mediaFolder = mediaFolder ?? io.Directory('test/media/') {
+      : _mediaFolder = mediaFolder ?? io.Directory('test/_test_media/') {
     assert(_mediaFolder.existsSync());
     final iFile = io.File(path.join(_mediaFolder.path, 'index.json'));
     assert(iFile.existsSync());
