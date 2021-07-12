@@ -13,5 +13,5 @@ for path_id in index['paths'].keys():
         asset_map = path_map['assets'][asset_id]
         os.utime(
             media_folder / path_map['path'] / asset_map['filename'],
-            asset_map['lastModified']
+            (asset_map['lastModified'], asset_map['lastModified'])
         )
