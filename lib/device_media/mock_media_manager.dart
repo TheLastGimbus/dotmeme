@@ -1,53 +1,14 @@
-/// What the hell is this and how it works?
+/// # What the hell is this and how it works?
 ///
 /// Here, I managed to emulate whole MediaManager on normal desktop system
 /// (should work on both Linux, MacOS and Windoza)
 ///
-/// It works like this: in `test/` folder, you place folder called "media" with
-/// such structure:
+/// Detailed info about test media structure is in [test repo README.md](https://github.com/TheLastGimbus/__dotmeme_test_media__)
 ///
-///     test/
-///     ├── basic_home_test.dart
-///     ├── _test_media/
-///     │   ├── index.json
-///     │   └── paths/
-///     │       ├── Camera/
-///     │       │   └── IMG_20210709_164812.jpg
-///     │       ├── Reddit/
-///     │       │   ├── meme.jpg
-///     │       │   └── another_meme.jpg
-///     │       └── Screenshots/
-///     └── README.md
+/// This class reads info from `index.json` and emulates folders on real device
 ///
-/// `index.json` contains required info about media inside. Some info is
-/// read from files themselves (like lastModified) and some need to be
-/// hand-written because it's too hard to read (video length)
-///
-/// Structure of `index.json`:
-///
-///     {
-///       "paths": {  // All paths
-///         "876683": {  // Path id
-///           "path": "paths/Reddit/",  // Folder path - relative to index file
-///           "assets": {  // All assets inside it
-///             "437854092489234": {
-///               "filename": "goth_girl_rule.jpg",  // Relative to folder
-///               "lastModified": 1625853387,  // Unix epoch
-///               "duration": 0  // Duration for video - 0 for photos
-///             },
-///             "1315402535634264": {
-///               "filename": "iphone_rule.jpg",
-///               "lastModified": 1625843300,
-///               "duration": 0
-///             }
-///           }
-///         }
-///       }
-///     }
-///
-/// ...but you don't need to actually understand everything above
-/// (unless you're modifying it!) you can download and set up whole `media/`
-/// folder by running `setup-test-media.sh` script
+/// You can download and set up whole `_test_media/` folder by running
+/// `setup-test-media.sh` script
 ///
 /// Notes:
 /// - idk if I shouldn't also move this (mock_manager) to `test/` folder

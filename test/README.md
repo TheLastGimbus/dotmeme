@@ -8,9 +8,11 @@ Right now, we only have database and photo_manager there :)
 
 ## photo_manager
 
-Because `PhotoManager` is full of static methods, I created separate proxy class in `lib/device_media/media_manager.dart` that we later mock and emulate.
+I actually managed to make kind of proxy class called `MediaManager`, which has it's mocked version (`MockMediaManager`), and is replaced instead of it with `get_it` while testing
 
-Currently, there is no emulation of photos and videos themselves - this is TODO
+It requires you to have folder with test media - set it up by running `./scripts/setup-test-media.sh`
+
+More info about this is in `lib/device_media/mock_media_manager.dart` and at [test Github repo README.md](https://github.com/TheLastGimbus/__dotmeme_test_media__)
 
 ## moor
 
