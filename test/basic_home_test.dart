@@ -4,6 +4,7 @@ import 'package:dotmeme/di.dart' as di;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 
+// ignore_for_file: avoid_print
 void main() {
   testWidgets('Basic home test', (WidgetTester tester) async {
     // Initialize DI (database etc) with test data
