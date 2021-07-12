@@ -157,7 +157,7 @@ class MediaManager {
 
   Future<AssetEntity?> assetEntityFromId(String id) => AssetEntity.fromId(id);
 
-  Future<AssetPathEntity> assetPathEntityFromId(
+  Future<AssetPathEntity?> assetPathEntityFromId(
     String id, {
     FilterOptionGroup? filterOption,
     RequestType type = RequestType.common,
