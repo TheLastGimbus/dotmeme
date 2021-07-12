@@ -5,9 +5,11 @@ import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:get_it/get_it.dart';
 import 'package:image/image.dart' as imglib;
 import 'package:image_size_getter/file_input.dart' as isgfi;
 import 'package:image_size_getter/image_size_getter.dart' as imgsizeget;
+import 'package:logger/logger.dart';
 import 'package:mime/mime.dart' as mime;
 import 'package:mockito/mockito.dart';
 import 'package:path/path.dart' as path;
@@ -60,7 +62,7 @@ class MockMediaManager extends Mock implements MediaManager {
   }
 
   /// See [requestPermissionExtend]
-  // @Deprecated("Use requestPermissionExtend")
+  @Deprecated("Use requestPermissionExtend")
   @override
   Future<bool> requestPermission() async =>
       (await requestPermissionExtend()).isAuth;
@@ -79,24 +81,25 @@ class MockMediaManager extends Mock implements MediaManager {
   @override
   Editor get editor => throw UnimplementedError("TODO");
 
-  /// get gallery list
-  ///
-  /// 获取相册"文件夹" 列表
-  ///
-  /// [hasAll] contains all path, such as "Camera Roll" on ios or "Recent" on android.
-  /// [hasAll] 包含所有项目的相册
-  ///
-  /// [onlyAll] If true, Return only one album with all resources.
-  /// [onlyAll] 如果为真, 则只返回一个包含所有项目的相册
   @override
   Future<List<MockAssetPathEntity>> getAssetPathList({
     bool hasAll = true,
     bool onlyAll = false,
     RequestType type = RequestType.common,
     FilterOptionGroup? filterOption,
-  }) {
+  }) async {
     _permissionCheck();
-    throw UnimplementedError("TODO");
+    if (hasAll || onlyAll) {
+      throw UnimplementedError("'All' folder is not implemented yet");
+    }
+    if (type != RequestType.common || filterOption != null) {
+      GetIt.I<Logger>()
+          .w("RequestType and Filter option are not implemented in Mock yet!");
+    }
+    return [
+      for (String id in (_index["paths"] as Map).keys)
+        (await assetPathEntityFromId(id))!
+    ];
   }
 
   /// Don't throw exceptions when accessing stuff without permission
@@ -140,10 +143,12 @@ class MockMediaManager extends Mock implements MediaManager {
   }) async {
     final assPath = _index["paths"][entity.id] as Map?;
     if (assPath == null) return null;
+    final assetIds = (assPath["assets"] as Map).keys;
     final mock = MockAssetPathEntity()
+      .._assets = [for (final id in assetIds) (await assetEntityFromId(id))!]
       ..id = entity.id
       ..name = assPath["name"]
-      ..assetCount = (assPath["assets"] as Map).length
+      ..assetCount = assetIds.length
       ..filterOption = filterOptionGroup;
     if (filterOptionGroup.containsPathModified) {
       mock.lastModified =
@@ -219,7 +224,7 @@ class MockMediaManager extends Mock implements MediaManager {
       refreshAssetProperties(id);
 
   @override
-  Future<AssetPathEntity?> assetPathEntityFromId(
+  Future<MockAssetPathEntity?> assetPathEntityFromId(
     String id, {
     FilterOptionGroup? filterOption,
     RequestType type = RequestType.common,
@@ -243,7 +248,88 @@ class MockMediaManager extends Mock implements MediaManager {
 // (or preferably, git submodule to not make repo heavy)
 
 // TODO
-class MockAssetPathEntity extends Mock implements AssetPathEntity {}
+class MockAssetPathEntity extends Mock implements AssetPathEntity {
+  /// This is only in mock
+  late List<MockAssetEntity> _assets;
+
+  @override
+  late final String id;
+
+  @override
+  late String name;
+
+  // Idk if I shouldn't do it as _assets.lenght
+  // But let's leave it as dumb as it is in plugin D:
+  @override
+  late int assetCount;
+
+  late RequestType _type;
+
+  @override
+  late FilterOptionGroup filterOption;
+
+  @override
+  DateTime? lastModified;
+
+  @override
+  RequestType get type => _type;
+
+  @override
+  set type(RequestType type) {
+    _type = type;
+    typeInt = type.index;
+  }
+
+  @override
+  int get typeInt => type.value;
+
+  @override
+  set typeInt(int typeInt) {
+    _type = RequestType(typeInt);
+  }
+
+  @override
+  bool isAll = false;
+
+  @override
+  Future<List<AssetEntity>> getAssetListPaged(int page, int pageSize) =>
+      getAssetListRange(
+          start: pageSize * page, end: (pageSize * (page + 1)) - 1);
+
+  @override
+  Future<List<AssetEntity>> getAssetListRange({
+    required int start,
+    required int end,
+  }) async {
+    assert(albumType == 1, "Only album type can get asset.");
+    assert(start >= 0, "The start must better than 0.");
+    assert(end > start, "The end must better than start.");
+    // Emulate how slow plugin is D:
+    return Future.delayed(
+      Duration(milliseconds: (end - start) * 1),
+      () => _assets.sublist(start, end),
+    );
+  }
+
+  @override
+  Future<List<AssetEntity>> get assetList => getAssetListPaged(0, assetCount);
+
+  @override
+  bool operator ==(other) {
+    if (other is! AssetPathEntity) {
+      return false;
+    }
+    return id == other.id;
+  }
+
+  @override
+  int get hashCode => id.hashCode;
+
+  @override
+  String toString() {
+    return "AssetPathEntity{ name: $name, id:$id, length = $assetCount }";
+  }
+}
 
 class MockAssetEntity extends Mock implements AssetEntity {
   MockAssetEntity(
