@@ -193,6 +193,7 @@ class MockMediaManager extends Mock implements MediaManager {
     required AssetPathEntity entity,
     required FilterOptionGroup filterOptionGroup,
   }) async {
+    entity = entity as MockAssetPathEntity;
     final assPath = _index["paths"][entity.id] as Map?;
     if (assPath == null) return null;
     final assetIds = (assPath["assets"] as Map).keys;
@@ -201,7 +202,9 @@ class MockMediaManager extends Mock implements MediaManager {
       ..id = entity.id
       ..name = path.basename(assPath["path"])
       ..assetCount = assetIds.length
-      ..filterOption = filterOptionGroup;
+      .._type = entity.type
+      ..filterOption = filterOptionGroup
+      ..albumType = entity.albumType;
     if (filterOptionGroup.containsPathModified) {
       mock.lastModified =
           io.Directory(path.join(_mediaFolder.path, assPath["path"]))
@@ -281,15 +284,17 @@ class MockMediaManager extends Mock implements MediaManager {
     FilterOptionGroup? filterOption,
     RequestType type = RequestType.common,
     int albumType = 1,
-  }) =>
-      fetchPathProperties(
-        entity: MockAssetPathEntity()
-          ..id = id
-          ..filterOption = filterOption ?? FilterOptionGroup()
-          ..typeInt = type.index
-          ..albumType = 1,
-        filterOptionGroup: filterOption ?? FilterOptionGroup(),
-      );
+  }) {
+    final en = MockAssetPathEntity()
+      ..id = id
+      ..filterOption = filterOption ?? FilterOptionGroup()
+      ..typeInt = type.index
+      ..albumType = albumType;
+    return fetchPathProperties(
+      entity: en,
+      filterOptionGroup: filterOption ?? FilterOptionGroup(),
+    );
+  }
 }
 
 class MockAssetPathEntity extends Mock implements AssetPathEntity {
@@ -306,6 +311,9 @@ class MockAssetPathEntity extends Mock implements AssetPathEntity {
   // But let's leave it as dumb as it is in plugin D:
   @override
   late int assetCount;
+
+  @override
+  late int albumType;
 
   late RequestType _type;
 
@@ -337,8 +345,7 @@ class MockAssetPathEntity extends Mock implements AssetPathEntity {
 
   @override
   Future<List<AssetEntity>> getAssetListPaged(int page, int pageSize) =>
-      getAssetListRange(
-          start: pageSize * page, end: (pageSize * (page + 1)) - 1);
+      getAssetListRange(start: pageSize * page, end: (pageSize * (page + 1)));
 
   @override
   Future<List<AssetEntity>> getAssetListRange({
