@@ -1,3 +1,55 @@
+/// What the hell is this and how it works?
+///
+/// Here, I managed to emulate whole MediaManager on normal desktop system
+/// (should work on both Linux, MacOS and Windoza)
+///
+/// It works like this: in `test/` folder, you place folder called "media" with
+/// such structure:
+///
+///     test/
+///     ├── basic_home_test.dart
+///     ├── media/
+///     │   ├── index.json
+///     │   └── paths/
+///     │       ├── Camera/
+///     │       │   └── IMG_20210709_164812.jpg
+///     │       ├── Reddit/
+///     │       │   ├── meme.jpg
+///     │       │   └── another_meme.jpg
+///     │       └── Screenshots/
+///     └── README.md
+///
+/// `index.json` contains required info about media inside. Some info is
+/// read from files themselves (like lastModified) and some need to be
+/// hand-written because it's too hard to read (video length)
+///
+/// Structure of `index.json`:
+///
+///     {
+///       "paths": {  // All paths
+///         "876683": {  // Path id
+///           "path": "paths/Reddit/",  // Folder path - relative to index file
+///           "assets": {  // All assets inside it
+///             "437854092489234": {
+///               "filename": "goth_girl_rule.jpg",  // Relative to folder
+///               "duration": 0  // Duration for video - 0 for photos
+///             },
+///             "1315402535634264": {
+///               "filename": "iphone_rule.jpg",
+///               "duration": 0
+///             }
+///           }
+///         }
+///       }
+///     }
+///
+/// ...but you don't need to actually understand everything above
+/// (unless you're modifying it!) can (TODO) download and set up whole `media/`
+/// folder with script
+///
+/// Notes:
+/// - idk if I shouldn't also move this (mock_manager) to `test/` folder
+///
 import 'dart:convert' as convert;
 import 'dart:io' as io;
 import 'dart:typed_data';
@@ -20,6 +72,9 @@ import 'media_manager.dart';
 class MediaPermissionException implements Exception {}
 
 class MockMediaManager extends Mock implements MediaManager {
+  // All implementations here are very similar (ugly and bad) as in original
+  // photo_manager
+
   bool _hasPermission = false;
   bool _ignorePermissionCheck = false;
   final io.Directory _mediaFolder;
@@ -110,6 +165,7 @@ class MockMediaManager extends Mock implements MediaManager {
   @override
   Future releaseCache() => Future.delayed(const Duration(milliseconds: 50));
 
+  // Idk if I will every implement this, it sucks anyway :/
   @override
   void addChangeCallback(ValueChanged<MethodCall> callback) =>
       throw UnimplementedError("TODO");
@@ -118,7 +174,6 @@ class MockMediaManager extends Mock implements MediaManager {
   void removeChangeCallback(ValueChanged<MethodCall> callback) =>
       UnimplementedError("TODO");
 
-  /// TODO: This stream
   @override
   bool get notifyingOfChange => throw UnimplementedError("TODO");
 
@@ -142,7 +197,7 @@ class MockMediaManager extends Mock implements MediaManager {
     final mock = MockAssetPathEntity()
       .._assets = [for (final id in assetIds) (await assetEntityFromId(id))!]
       ..id = entity.id
-      ..name = assPath["name"]
+      ..name = path.basename(assPath["path"])
       ..assetCount = assetIds.length
       ..filterOption = filterOptionGroup;
     if (filterOptionGroup.containsPathModified) {
@@ -235,14 +290,6 @@ class MockMediaManager extends Mock implements MediaManager {
       );
 }
 
-// BIG TODO: Some magic way to get media while testing
-// We possibly need to emulate whole system
-// This could be in a form of some json file containing data
-// (Like id, isFavourite, etc)
-// And .jpg files saved in test/ dir
-// (or preferably, git submodule to not make repo heavy)
-
-// TODO
 class MockAssetPathEntity extends Mock implements AssetPathEntity {
   /// This is only in mock
   late List<MockAssetEntity> _assets;
@@ -253,7 +300,7 @@ class MockAssetPathEntity extends Mock implements AssetPathEntity {
   @override
   late String name;
 
-  // Idk if I shouldn't do it as _assets.lenght
+  // Idk if I shouldn't do it as _assets.length
   // But let's leave it as dumb as it is in plugin D:
   @override
   late int assetCount;
