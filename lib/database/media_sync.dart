@@ -19,7 +19,7 @@ extension MediaSync on Memebase {
   // This should be done otherwise
   // But i don't have better idea for now, just put it in BenchmarkPage
   Future<void> allFoldersMemeSync(List<AssetPathEntity> deviceFolders) async =>
-      _foldersMemeSync(await select(folders).get(), deviceFolders);
+      await _foldersMemeSync(await select(folders).get(), deviceFolders);
 
   Future<void> enabledFoldersMemeSync(
       List<AssetPathEntity> deviceFolders) async {
