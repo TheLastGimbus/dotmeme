@@ -13,8 +13,10 @@ enum Environment { prod, test }
 /// Decide whether you want fake data or real one with [env]
 void init(Environment env) {
   if (env == Environment.prod) {
-    getIt
-        .registerLazySingleton<Memebase>(() => Memebase(Memebase.diskDatabase));
+    getIt.registerLazySingleton<Memebase>(
+      () => Memebase(Memebase.diskDatabase),
+      dispose: (db) => db.close(),
+    );
     getIt.registerSingleton<MediaManager>(MediaManager());
     getIt.registerSingleton<Logger>(
       Logger(
@@ -23,7 +25,9 @@ void init(Environment env) {
     );
   } else if (env == Environment.test) {
     getIt.registerLazySingleton<Memebase>(
-        () => Memebase(Memebase.virtualDatabase));
+      () => Memebase(Memebase.virtualDatabase),
+      dispose: (db) => db.close(),
+    );
     getIt.registerSingleton<MediaManager>(MockMediaManager());
     getIt.registerSingleton<Logger>(
       Logger(
