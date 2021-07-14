@@ -51,9 +51,13 @@ extension Queries on Memebase {
       innerJoin(folders, folders.id.equalsExp(memes.folderId)),
     ]));
     q.where(folders.scanningEnabled.equals(true));
-    q.orderBy([
-      OrderingTerm(expression: memes.lastModified, mode: OrderingMode.desc)
-    ]);
+    q.orderBy([OrderingTerm.desc(memes.lastModified)]);
     return q.map((row) => row.readTable(memes));
   }
+
+  /// Literally all memes - even from folders that are not enabled - not memes
+  /// Note that those may be less up-to-date than actual memes (less frequently
+  /// synced)
+  MultiSelectable<Meme> get allMemesLiteral =>
+      select(memes)..orderBy([(tbl) => OrderingTerm.desc(tbl.lastModified)]);
 }
