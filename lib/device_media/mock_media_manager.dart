@@ -106,12 +106,12 @@ class MockMediaManager extends Mock implements MediaManager {
       throw UnimplementedError("'All' folder is not implemented yet");
     }
     if (type != RequestType.common || filterOption != null) {
-      GetIt.I<Logger>()
-          .w("RequestType and Filter option are not implemented in Mock yet!");
+      GetIt.I<Logger>().w("RequestType and Filter option are not fully "
+          "implemented in Mock yet!");
     }
     return [
       for (String id in (_index["paths"] as Map).keys)
-        (await assetPathEntityFromId(id))!
+        (await assetPathEntityFromId(id, filterOption: filterOption))!
     ];
   }
 

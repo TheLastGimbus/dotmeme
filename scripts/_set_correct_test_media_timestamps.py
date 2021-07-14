@@ -9,9 +9,11 @@ with open(media_folder / 'index.json', 'r') as f:
 
 for path_id in index['paths'].keys():
     path_map = index['paths'][path_id]
+    newest = 0
     for asset_id in path_map['assets'].keys():
         asset_map = path_map['assets'][asset_id]
-        os.utime(
-            media_folder / path_map['path'] / asset_map['filename'],
-            (asset_map['lastModified'], asset_map['lastModified'])
-        )
+        m = asset_map['lastModified']
+        if m > newest:
+            newest = m
+        os.utime(media_folder / path_map['path'] / asset_map['filename'], (m, m))
+    os.utime(media_folder / path_map['path'], (newest, newest))
