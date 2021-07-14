@@ -32,8 +32,6 @@ import 'package:photo_manager/photo_manager.dart';
 
 import 'media_manager.dart';
 
-class MediaPermissionException implements Exception {}
-
 class MockMediaManager extends Mock implements MediaManager {
   // All implementations here are very similar (ugly and bad) as in original
   // photo_manager
@@ -42,6 +40,9 @@ class MockMediaManager extends Mock implements MediaManager {
   bool _ignorePermissionCheck = false;
   final io.Directory _mediaFolder;
   late Map _index;
+
+  /// Never give permission. Useful for testing
+  bool testNoPermission = false;
 
   MockMediaManager({io.Directory? mediaFolder})
       : _mediaFolder = mediaFolder ?? io.Directory('test/_test_media/') {
@@ -68,9 +69,13 @@ class MockMediaManager extends Mock implements MediaManager {
     }
   }
 
-  void _permissionCheck() {
+  Future<void> _permissionCheck() async {
     if (!_ignorePermissionCheck && !_hasPermission) {
-      throw MediaPermissionException();
+      if ((await requestPermissionExtend()) != PermissionState.authorized) {
+        throw PlatformException(
+            code: 'Request for permission failed.',
+            message: 'User denied permission.');
+      }
     }
   }
 
@@ -87,8 +92,10 @@ class MockMediaManager extends Mock implements MediaManager {
     PermisstionRequestOption requestOption = const PermisstionRequestOption(),
   }) =>
       Future.delayed(Duration(seconds: _hasPermission ? 0 : 2), () {
-        _hasPermission = true;
-        return PermissionState.authorized;
+        _hasPermission = !testNoPermission;
+        return _hasPermission
+            ? PermissionState.authorized
+            : PermissionState.denied;
       });
 
   @override
@@ -101,7 +108,7 @@ class MockMediaManager extends Mock implements MediaManager {
     RequestType type = RequestType.common,
     FilterOptionGroup? filterOption,
   }) async {
-    _permissionCheck();
+    await _permissionCheck();
     if (hasAll || onlyAll) {
       throw UnimplementedError("'All' folder is not implemented yet");
     }
@@ -154,6 +161,7 @@ class MockMediaManager extends Mock implements MediaManager {
     required AssetPathEntity entity,
     required FilterOptionGroup filterOptionGroup,
   }) async {
+    await _permissionCheck();
     entity = entity as MockAssetPathEntity;
     final assPath = _index["paths"][entity.id] as Map?;
     if (assPath == null) return null;
@@ -195,6 +203,7 @@ class MockMediaManager extends Mock implements MediaManager {
   // to replace this with hand-written info in index.json
   @override
   Future<MockAssetEntity?> refreshAssetProperties(String id) async {
+    await _permissionCheck();
     final ass = _findAsset(id);
     if (ass == null) return null;
     final file = io.File(path.join(_mediaFolder.path, ass["filepath"]));
@@ -237,7 +246,7 @@ class MockMediaManager extends Mock implements MediaManager {
 
   @override
   Future<MockAssetEntity?> assetEntityFromId(String id) =>
-      refreshAssetProperties(id);
+      _permissionCheck().then((value) => refreshAssetProperties(id));
 
   @override
   Future<MockAssetPathEntity?> assetPathEntityFromId(
@@ -245,7 +254,8 @@ class MockMediaManager extends Mock implements MediaManager {
     FilterOptionGroup? filterOption,
     RequestType type = RequestType.common,
     int albumType = 1,
-  }) {
+  }) async {
+    await _permissionCheck();
     final en = MockAssetPathEntity()
       ..id = id
       ..filterOption = filterOption ?? FilterOptionGroup()
