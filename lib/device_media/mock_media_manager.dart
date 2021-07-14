@@ -438,15 +438,15 @@ class MockAssetEntity extends Mock implements AssetEntity {
   int? createDtSecond;
 
   @override
-  DateTime get createDateTime =>
-      DateTime.fromMillisecondsSinceEpoch((createDtSecond ?? 0) * 1000);
+  DateTime get createDateTime => DateTime.fromMillisecondsSinceEpoch(
+      (createDtSecond ?? DateTime.now().millisecondsSinceEpoch) * 1000);
 
   @override
   int? modifiedDateSecond;
 
   @override
-  DateTime get modifiedDateTime =>
-      DateTime.fromMillisecondsSinceEpoch(modifiedDateSecond ?? 0 * 1000);
+  DateTime get modifiedDateTime => DateTime.fromMillisecondsSinceEpoch(
+      (modifiedDateSecond ?? DateTime.now().millisecondsSinceEpoch) * 1000);
 
   @override
   Future<bool> get exists async => true;
