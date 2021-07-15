@@ -94,7 +94,6 @@ void main() {
       final mm = getIt<MediaManager>();
       await mm.requestPermissionExtend();
       final mediaPaths = await MediaSync.getMediaFolders();
-      await db.foldersSync(mediaPaths);
       final memeStream = db.allMemesLiteral.watch();
       expect(
         memeStream,
@@ -109,11 +108,13 @@ void main() {
           ], // And then after sync here they are
         ]),
       );
+      await db.foldersSync(mediaPaths);
       await db.setFolderEnabled(
         (await db.allFolders.get()).firstWhere((f) => f.name == "Reddit").id,
         true,
       );
       await db.enabledFoldersMemeSync(mediaPaths);
+      await Future.delayed(const Duration(milliseconds: 1)); // ¯\_(ツ)_/¯
 
       await getIt.reset();
     });

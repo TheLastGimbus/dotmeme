@@ -19,7 +19,7 @@ extension Queries on Memebase {
     ]));
 
   Future<void> setFolderEnabled(int id, bool enabled) async =>
-      (update(folders)..where((tbl) => tbl.id.equals(id)))
+      await (update(folders)..where((tbl) => tbl.id.equals(id)))
           .write(FoldersCompanion(scanningEnabled: Value(enabled)));
 
   Future<int> folderMemesCount(int id) async {
