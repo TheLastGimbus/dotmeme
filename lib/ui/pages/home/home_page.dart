@@ -11,6 +11,7 @@
 import 'dart:typed_data';
 
 import 'package:dotmeme/ui/common/cubit/media_sync_cubit.dart';
+import 'package:dotmeme/ui/pages/swiping/swiping_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
@@ -139,21 +140,34 @@ class _SuccessBody extends StatelessWidget {
         ? GridView.builder(
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 3),
-            itemBuilder: (context, index) {
-              return FutureBuilder(
-                future: _getThumb(state.memes[index]),
-                builder: (_, AsyncSnapshot<Uint8List?> snap) => snap.hasData
-                    ? snap.data != null
-                        ? Image.memory(snap.data!, fit: BoxFit.cover)
-                        : const Text("No meme! Where funny??")
-                    : const Icon(Icons.autorenew),
-              );
-            },
+            itemBuilder: (context, index) => GestureDetector(
+              child: Container(
+                margin: const EdgeInsets.all(0.5),
+                child: _memeThumbnail(state.memes[index]),
+              ),
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) =>
+                      SwipingPage(memes: state.memes, initialIndex: index),
+                ),
+              ),
+            ),
             itemCount: state.memes.length,
             cacheExtent: 200,
           )
         : const Center(
             child: Text("You don't have any memes :/"),
           );
+  }
+
+  Widget _memeThumbnail(Meme meme) {
+    return FutureBuilder(
+      future: _getThumb(meme),
+      builder: (_, AsyncSnapshot<Uint8List?> snap) => snap.hasData
+          ? snap.data != null
+              ? Image.memory(snap.data!, fit: BoxFit.cover)
+              : const Text("No meme! Where funny??")
+          : const Icon(Icons.autorenew),
+    );
   }
 }
