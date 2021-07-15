@@ -1,3 +1,13 @@
+/// Here is the main home page
+/// It is very important, because it manages the file storage permission
+/// It does it simple and straightforward - if user gives permission, then go on
+/// with the app. But if not, beg him to give it, and don't let him go anywhere
+/// else!
+///
+/// This way, we don't need to worry about it *anywhere else* in the app - yay!
+/// // This may bite back when we will want to do some crazy shit like
+///    "press on notification -> go to a specific page"
+///    but we'll figure that out :D
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';

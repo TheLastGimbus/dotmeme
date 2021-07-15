@@ -1,5 +1,3 @@
-
-
 import 'package:flutter/material.dart';
 
 class WaitingForPermissionPage extends StatelessWidget {
@@ -14,7 +12,6 @@ class WaitingForPermissionPage extends StatelessWidget {
     );
   }
 }
-
 
 class NoPermissionPage extends StatelessWidget {
   final VoidCallback onRequestPermissionPressed;

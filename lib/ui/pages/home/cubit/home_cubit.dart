@@ -22,12 +22,9 @@ class HomeCubit extends Cubit<HomeState> {
 
   /// Load memes
   void init() async {
-    // Start fetching them in background already (don't wait for permission)
     _allMemesStream?.cancel();
-    _allMemesStream = db.allMemes.watch().listen((event) async {
-      // ...but wait before displaying them
-        emit(HomeSuccessState(event));
-    });
+    _allMemesStream =
+        db.allMemes.watch().listen((event) => emit(HomeSuccessState(event)));
   }
 
   @override
