@@ -11,6 +11,8 @@
 /// `setup-test-media.sh` script
 ///
 /// Notes:
+/// - when doing stuff with filesystem, use "someStuffSync()" methods instead of
+///   async ones. There's something weird with flutter test :/
 /// - idk if I shouldn't also move this (mock_manager) to `test/` folder
 ///
 import 'dart:convert' as convert;
@@ -413,12 +415,13 @@ class MockAssetEntity extends Mock implements AssetEntity {
   Future<io.File?> get originFile => file;
 
   @override
-  Future<Uint8List?> get originBytes => file.then((f) => f!.readAsBytes());
+  Future<Uint8List?> get originBytes => file.then((f) => f!.readAsBytesSync());
 
-  Uint8List? _getResized(Uint8List image) {
+  // ignore: unused_element
+  Uint8List? _getResized(Uint8List image, int w, int h) {
     final img = imglib.decodeImage(image);
     if (img == null) return null;
-    return imglib.copyResize(img, width: width, height: height).getBytes();
+    return imglib.copyResize(img, width: w, height: h).getBytes();
   }
 
   @override
@@ -435,7 +438,10 @@ class MockAssetEntity extends Mock implements AssetEntity {
     assert(width > 0 && height > 0, "The width and height must better 0.");
     assert(quality > 0 && quality <= 100, "The quality must between 0 and 100");
     if (type != AssetType.image) return null;
-    return compute(_getResized, await _file.readAsBytes());
+    final bytes = _file.readAsBytesSync();
+    // TODO:  Sorry but this wasn't working D: images couldn't load :(
+    // final res = _getResized(bytes, width, height);
+    return bytes;
   }
 
   @override
