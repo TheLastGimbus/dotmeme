@@ -15,5 +15,3 @@ class HomeSuccessState extends Equatable implements HomeState {
   @override
   List<Object?> get props => [memes];
 }
-
-class HomeNoPermissionState implements HomeState {}

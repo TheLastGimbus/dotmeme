@@ -1,16 +1,12 @@
 import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get_it/get_it.dart';
-import 'package:photo_manager/photo_manager.dart';
 
 import '../../../../database/memebase.dart';
 import '../../../../database/queries.dart';
-import '../../../../device_media/media_manager.dart';
 import 'home_state.dart';
 
 /// This cubit manages what's visible on home page meme roll
-/// - storage permission, first and foremost
 /// - getting all memes (whole roll)
 /// - managing any filters that could be there (only videos, etc)
 ///   (this possibly should go to some other cubit)
@@ -24,24 +20,14 @@ class HomeCubit extends Cubit<HomeState> {
     init();
   }
 
-  /// Check permissions
   /// Load memes
   void init() async {
-    final res =
-        GetIt.I<MediaManager>().requestPermissionExtend().then((v) => v.isAuth);
     // Start fetching them in background already (don't wait for permission)
     _allMemesStream?.cancel();
     _allMemesStream = db.allMemes.watch().listen((event) async {
       // ...but wait before displaying them
-      if (await res) {
         emit(HomeSuccessState(event));
-      }
     });
-
-    if (!await res) {
-      emit(HomeNoPermissionState());
-      return;
-    }
   }
 
   @override

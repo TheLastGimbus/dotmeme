@@ -7,22 +7,49 @@ import 'package:get_it/get_it.dart';
 import '../../../database/bloc.dart';
 import '../../../database/memebase.dart';
 import '../../../device_media/media_manager.dart';
-import '../../common/cubit/media_sync_cubit.dart';
 import '../settings/settings_page.dart';
 import 'cubit/home_cubit.dart';
 import 'cubit/home_state.dart';
+import 'widgets/permission_pages.dart' as pp;
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
 
   @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  bool? _hasPermission;
+  final _mm = GetIt.I<MediaManager>();
+
+  _permission() async {
+    final req = await _mm.requestPermissionExtend();
+    _hasPermission = req == PermissionState.authorized;
+    setState(() {});
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    // TODO: It would be nice to have some .hasPermission() method
+    // to first ask the user gently
+    _permission();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    // Idk if this is safe
-    context.read<MediaSyncCubit>().appOpenSync();
-    return BlocProvider(
-      create: (_) => HomeCubit(context.watch<DbCubit>().state),
-      child: const HomeView(),
-    );
+    return _hasPermission != null
+        ? _hasPermission!
+            ? BlocProvider(
+                create: (_) => HomeCubit(context.watch<DbCubit>().state),
+                child: const HomeView(),
+              )
+            : pp.NoPermissionPage(
+                onRequestPermissionPressed: _permission,
+                onOpenSettingsPressed: _mm.openSetting,
+              )
+        : const pp.WaitingForPermissionPage();
   }
 }
 
@@ -37,8 +64,6 @@ class HomeView extends StatelessWidget {
     // like normal Kotlin people do
     if (state is HomeLoadingState) {
       body = const _LoadingBody();
-    } else if (state is HomeNoPermissionState) {
-      body = const _NoPermissionBody();
     } else if (state is HomeSuccessState) {
       body = _SuccessBody(state);
     }
@@ -69,30 +94,6 @@ class _LoadingBody extends StatelessWidget {
         children: const [
           Text("Loading..."),
           Icon(Icons.autorenew),
-        ],
-      ),
-    );
-  }
-}
-
-class _NoPermissionBody extends StatelessWidget {
-  const _NoPermissionBody({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Text("App doesn't have permission for photos :("),
-          TextButton(
-            onPressed: () => context.read<HomeCubit>().init(),
-            child: const Text("Give permission"),
-          ),
-          TextButton(
-            onPressed: () => GetIt.I<MediaManager>().openSetting(),
-            child: const Text("Go to settings"),
-          ),
         ],
       ),
     );
