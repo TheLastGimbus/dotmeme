@@ -39,7 +39,8 @@ extension Queries on Memebase {
       leftOuterJoin(memes, memes.folderId.equalsExp(folders.id)),
     ])
           ..addColumns([exp])
-          ..groupBy([folders.id]))
+          ..groupBy([folders.id])
+          ..orderBy([OrderingTerm.desc(folders.lastModified)]))
         .map((row) => MapEntry(row.readTable(folders), row.read(exp)));
   }
 
