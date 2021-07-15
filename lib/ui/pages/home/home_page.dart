@@ -10,6 +10,7 @@
 ///    but we'll figure that out :D
 import 'dart:typed_data';
 
+import 'package:dotmeme/ui/common/cubit/media_sync_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
@@ -63,8 +64,19 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-class HomeView extends StatelessWidget {
+class HomeView extends StatefulWidget {
   const HomeView({Key? key}) : super(key: key);
+
+  @override
+  _HomeViewState createState() => _HomeViewState();
+}
+
+class _HomeViewState extends State<HomeView> {
+  @override
+  void initState() {
+    super.initState();
+    context.read<MediaSyncCubit>().appOpenSync();
+  }
 
   @override
   Widget build(BuildContext context) {
