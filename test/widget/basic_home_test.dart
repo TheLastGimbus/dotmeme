@@ -2,6 +2,7 @@ import 'package:dotmeme/database/memebase.dart';
 import 'package:dotmeme/database/queries.dart';
 import 'package:dotmeme/di.dart' as di;
 import 'package:dotmeme/main.dart';
+import 'package:dotmeme/ui/pages/home/widgets/permission_pages.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
@@ -14,8 +15,7 @@ void main() {
     final db = GetIt.I<Memebase>();
 
     await tester.pumpWidget(MyApp());
-    expect(find.text("dotmeme"), findsOneWidget);
-    expect(find.text("Loading..."), findsOneWidget);
+    expect(find.byType(WaitingForPermissionPage), findsOneWidget);
     // Wait for sync to complete
     await tester.pumpAndSettle(const Duration(seconds: 4));
     expect(find.text("You don't have any memes :/"), findsOneWidget);
