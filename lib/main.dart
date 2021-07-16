@@ -16,7 +16,18 @@ void main() {
 }
 
 // ignore: use_key_in_widget_constructors
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance!.addObserver(this);
+  }
+
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
@@ -30,5 +41,18 @@ class MyApp extends StatelessWidget {
         home: const HomePage(),
       ),
     );
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.detached) {
+      di.dispose();
+    }
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance!.removeObserver(this);
+    super.dispose();
   }
 }

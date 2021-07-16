@@ -28,13 +28,14 @@ void init(Environment env) {
         filter: ProductionFilter()..level = Level.verbose,
       ),
     );
-    getIt.registerSingleton<ForegroundServiceManager>(
-      ForegroundServiceManager(),
+    // This must be lazy, otherwise it doesn't work
+    getIt.registerLazySingleton<ForegroundServiceManager>(
+      () => ForegroundServiceManager(),
       dispose: (fsm) => fsm.dispose(),
     );
   } else if (env == Environment.test) {
     getIt.registerLazySingleton<Memebase>(
-          () => Memebase(Memebase.virtualDatabase),
+      () => Memebase(Memebase.virtualDatabase),
       dispose: (db) => db.close(),
     );
     getIt.registerSingleton<MediaManager>(MockMediaManager());
@@ -47,3 +48,5 @@ void init(Environment env) {
   }
   _isInitialized = true;
 }
+
+Future<void> dispose() => getIt.reset();

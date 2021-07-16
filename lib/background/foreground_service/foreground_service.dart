@@ -8,6 +8,8 @@ import 'package:logger/logger.dart';
 
 import '../../di.dart' as di;
 
+// TODO: Shrink this as much as possible and move everything to
+//  plugin-independent code (maybe another class with streams?)
 void _mainCallback() {
   ReceivePort? receivePort;
   FlutterForegroundTask.initDispatcher(
@@ -19,6 +21,15 @@ void _mainCallback() {
       final log = GetIt.I<Logger>();
       log.d("Initializing ForegroundService");
       receivePort = ReceivePort(ForegroundServiceManager.servicePortName);
+      // If, for some weird reason, it wasn't un-registered
+      if (IsolateNameServer.lookupPortByName(
+              ForegroundServiceManager.servicePortName) !=
+          null) {
+        IsolateNameServer.removePortNameMapping(
+            ForegroundServiceManager.servicePortName);
+      }
+      IsolateNameServer.registerPortWithName(
+          receivePort!.sendPort, ForegroundServiceManager.servicePortName);
       receivePort!.listen((message) async {
         log.i("(Service) received from ui: $message");
         await FlutterForegroundTask.update(
@@ -26,7 +37,6 @@ void _mainCallback() {
           notificationText: message.toString(),
         );
         if (message is String && message.startsWith("ECHO")) {
-          // TODO: Make this work
           final uiPort = IsolateNameServer.lookupPortByName(
               ForegroundServiceManager.uiPortName);
           if (uiPort != null) {
@@ -36,8 +46,6 @@ void _mainCallback() {
           }
         }
       });
-      IsolateNameServer.registerPortWithName(
-          receivePort!.sendPort, ForegroundServiceManager.servicePortName);
     },
     onDestroy: (timestamp) async {
       IsolateNameServer.removePortNameMapping(
@@ -56,7 +64,13 @@ class ForegroundServiceManager {
   SendPort? get _serviceSendPort =>
       IsolateNameServer.lookupPortByName(servicePortName);
 
-  // TODO: Make this work
+  ForegroundServiceManager() {
+    if (IsolateNameServer.lookupPortByName(uiPortName) != null) {
+      IsolateNameServer.removePortNameMapping(uiPortName);
+    }
+    IsolateNameServer.registerPortWithName(_receivePort.sendPort, uiPortName);
+  }
+
   /// Stream with data that service sent to ui
   Stream get receiveStream => _receivePort;
 
@@ -76,7 +90,6 @@ class ForegroundServiceManager {
   /// False when not (meaning service is not running)
   Future<bool> startService() async {
     if (_serviceSendPort != null) return true;
-
     await FlutterForegroundTask.init(
       notificationOptions: const NotificationOptions(
         channelId: 'test',
@@ -90,9 +103,13 @@ class ForegroundServiceManager {
       notificationText: "1/100",
       callback: _mainCallback,
     );
-    if (_serviceSendPort != null) {
+    try {
+      await Stream.periodic(
+        const Duration(milliseconds: 50),
+        (_) => _serviceSendPort != null,
+      ).firstWhere((e) => e).timeout(const Duration(seconds: 15));
       return true;
-    } else {
+    } on TimeoutException catch (_) {
       return false;
     }
   }
@@ -102,6 +119,7 @@ class ForegroundServiceManager {
   }
 
   Future<void> dispose() async {
+    IsolateNameServer.removePortNameMapping(uiPortName);
     _receivePort.close();
   }
 }
