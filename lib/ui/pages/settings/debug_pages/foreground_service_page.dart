@@ -39,6 +39,31 @@ class ForegroundServicePage extends StatelessWidget {
               onPressed: () => fsm.stopService(),
               child: const Text("Stop service"),
             ),
+            TextField(
+              decoration: const InputDecoration(
+                  hintText: "Type here to send to service"),
+              onSubmitted: (text) {
+                fsm.send(text);
+              },
+              textInputAction: TextInputAction.send,
+            ),
+            const SizedBox(height: 16),
+            const Text("Data from service:"),
+            StreamBuilder(
+              stream: fsm.receiveStream,
+              builder: (context, snap) {
+                switch (snap.connectionState) {
+                  case ConnectionState.active:
+                    return Text(snap.data.toString());
+                  case ConnectionState.done:
+                    return const Text("Stream is done");
+                  case ConnectionState.none:
+                    return const Text("Stream is none");
+                  case ConnectionState.waiting:
+                    return const Text("Stream is waiting");
+                }
+              },
+            ),
           ],
         ),
       ),

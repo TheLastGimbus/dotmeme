@@ -29,7 +29,9 @@ void init(Environment env) {
       ),
     );
     getIt.registerSingleton<ForegroundServiceManager>(
-        ForegroundServiceManager());
+      ForegroundServiceManager(),
+      dispose: (fsm) => fsm.dispose(),
+    );
   } else if (env == Environment.test) {
     getIt.registerLazySingleton<Memebase>(
           () => Memebase(Memebase.virtualDatabase),
