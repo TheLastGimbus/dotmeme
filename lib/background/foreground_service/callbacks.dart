@@ -25,15 +25,17 @@ void scanServiceCallback() {
 /// This functions sets everything up for given [service]
 /// - lifecycle, communication with ui, etc
 void _setupService(TheForegroundService service) {
+  if (!di.isInitialized) {
+    // We are in different isolate
+    di.init(di.Environment.prod);
+  }
+  final log = GetIt.I<Logger>();
   ReceivePort? receivePort;
   FlutterForegroundTask.initDispatcher(
-        (timestamp) async {
+    (timestamp) async {
+      // If not null then we're already set up
       if (receivePort != null) return;
-      if (!di.isInitialized) {
-        di.init(di.Environment.prod);
-      }
-      final log = GetIt.I<Logger>();
-      log.d("(FService) Initializing ForegroundService");
+      log.d("Initializing $service in foreground service");
 
       /// Send message to ui - returns false if port not found
       bool send(dynamic message) {
@@ -51,7 +53,7 @@ void _setupService(TheForegroundService service) {
       receivePort = ReceivePort(ForegroundServiceManager.servicePortName);
       // If, for some weird reason, it wasn't un-registered
       if (IsolateNameServer.lookupPortByName(
-          ForegroundServiceManager.servicePortName) !=
+              ForegroundServiceManager.servicePortName) !=
           null) {
         IsolateNameServer.removePortNameMapping(
             ForegroundServiceManager.servicePortName);
@@ -59,12 +61,11 @@ void _setupService(TheForegroundService service) {
       IsolateNameServer.registerPortWithName(
           receivePort!.sendPort, ForegroundServiceManager.servicePortName);
 
-      receivePort!.listen((message) async {
-        log.d("(FService) received from ui: $message");
-        service.input(message);
-      });
+      // Pipe all received data to service
+      // Logging and debugging etc is up to it, not here
+      receivePort!.listen(service.input);
 
-      // Don't worry, this will be closed with scanFService.dispose()
+      // Don't worry, those will be closed with scanFService.dispose()
       service.output.listen(send);
       service.notificationUpdates.listen((event) {
         FlutterForegroundTask.update(
@@ -76,6 +77,7 @@ void _setupService(TheForegroundService service) {
       IsolateNameServer.removePortNameMapping(
           ForegroundServiceManager.servicePortName);
       receivePort?.close(); // This will also close all StreamSubscriptions
+      log.d("Foreground service with $service was closed");
     },
   );
 }
