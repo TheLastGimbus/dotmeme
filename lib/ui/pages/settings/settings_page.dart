@@ -6,6 +6,7 @@ import '../../../database/bloc.dart';
 import 'cubit/settings_cubit.dart';
 import 'cubit/settings_state.dart';
 import 'debug_pages/benchmark_page.dart';
+import 'debug_pages/foreground_service_page.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({Key? key}) : super(key: key);
@@ -49,6 +50,11 @@ class _LoadedBody extends StatelessWidget {
               title: "Benchmark page",
               onPressed: (context) =>
                   Navigator.of(context).push(BenchmarkPage.route()),
+            ),
+            SettingsTile(
+              title: "Foreground service",
+              onPressed: (context) =>
+                  Navigator.of(context).push(ForegroundServicePage.route()),
             ),
             SettingsTile(
               title: "Enable all folders",
