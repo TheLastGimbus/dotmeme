@@ -66,6 +66,10 @@ void _setupService(TheForegroundService service) {
 
       // Don't worry, this will be closed with scanFService.dispose()
       service.output.listen(send);
+      service.notificationUpdates.listen((event) {
+        FlutterForegroundTask.update(
+            notificationTitle: event.title, notificationText: event.text);
+      });
     },
     onDestroy: (timestamp) async {
       await service.dispose();
