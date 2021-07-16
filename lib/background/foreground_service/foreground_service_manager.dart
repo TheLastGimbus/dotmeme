@@ -4,7 +4,7 @@ import 'dart:ui';
 
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 
-import '_foreground_service.dart' as fservice;
+import 'callbacks.dart' as callbacks;
 
 class ForegroundServiceManager {
   static String uiPortName = "ui_isolate_port";
@@ -53,7 +53,7 @@ class ForegroundServiceManager {
     await FlutterForegroundTask.start(
       notificationTitle: "dotmeme scanning",
       notificationText: "1/100",
-      callback: fservice.mainCallback,
+      callback: callbacks.echoServiceCallback,
     );
     // We need to wait a little for service to connect
     try {

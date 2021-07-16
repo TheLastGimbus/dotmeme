@@ -1,7 +1,8 @@
+/// This file contains static global functions that will be passed to the plugin
+///
 /// Everything in this file should be accessed only by
 /// [ForegroundServiceManager] !!!
 ///
-import 'dart:async';
 import 'dart:isolate';
 import 'dart:ui';
 
@@ -11,14 +12,22 @@ import 'package:logger/logger.dart';
 
 import '../../di.dart' as di;
 import 'foreground_service_manager.dart';
+import 'the_foreground_services.dart';
 
-// TODO: Shrink this as much as possible and move everything to
-//  plugin-independent code (maybe another class with streams?)
-void mainCallback() {
-  EchoForegroundService? scanFService;
+void echoServiceCallback() {
+  _setupService(EchoForegroundService());
+}
+
+void scanServiceCallback() {
+  _setupService(ScanForegroundService());
+}
+
+/// This functions sets everything up for given [service]
+/// - lifecycle, communication with ui, etc
+void _setupService(TheForegroundService service) {
   ReceivePort? receivePort;
   FlutterForegroundTask.initDispatcher(
-    (timestamp) async {
+        (timestamp) async {
       if (receivePort != null) return;
       if (!di.isInitialized) {
         di.init(di.Environment.prod);
@@ -38,13 +47,11 @@ void mainCallback() {
         }
       }
 
-      scanFService = EchoForegroundService();
-
       // Register the port for communication with UI
       receivePort = ReceivePort(ForegroundServiceManager.servicePortName);
       // If, for some weird reason, it wasn't un-registered
       if (IsolateNameServer.lookupPortByName(
-              ForegroundServiceManager.servicePortName) !=
+          ForegroundServiceManager.servicePortName) !=
           null) {
         IsolateNameServer.removePortNameMapping(
             ForegroundServiceManager.servicePortName);
@@ -54,69 +61,17 @@ void mainCallback() {
 
       receivePort!.listen((message) async {
         log.d("(FService) received from ui: $message");
-        scanFService!.input(message);
+        service.input(message);
       });
 
       // Don't worry, this will be closed with scanFService.dispose()
-      scanFService!.output.listen(send);
+      service.output.listen(send);
     },
     onDestroy: (timestamp) async {
-      await scanFService?.dispose();
+      await service.dispose();
       IsolateNameServer.removePortNameMapping(
           ForegroundServiceManager.servicePortName);
       receivePort?.close(); // This will also close all StreamSubscriptions
     },
   );
-}
-
-/// *Abstract* class to hold the concept of *foreground service*
-/// Basically, I'm re-writing the Android API in Dart :sunglasses:
-abstract class TheForegroundService {
-  /// Anything that you want service to hear
-  void input(dynamic message);
-
-  /// Anything the service wants to say
-  Stream get output;
-
-  /// Pack your stuff
-  Future<void> dispose();
-}
-
-/// Sample echo service
-/// Used for... debugging, I guess?
-class EchoForegroundService implements TheForegroundService {
-  @override
-  Future<void> dispose() async {}
-
-  @override
-  void input(message) {
-    _ctrl.sink.add(message);
-  }
-
-  final StreamController _ctrl = StreamController();
-
-  @override
-  Stream get output => _ctrl.stream;
-}
-
-/// Service that will do all the scanning
-/// For now, just OCR
-// TODO: OCR scanning
-class ScanForegroundService implements TheForegroundService {
-  final _log = GetIt.I<Logger>();
-
-  @override
-  void input(message) {
-    _log.d("(SFS) Received message: $message");
-  }
-
-  final StreamController _outputCtrl = StreamController();
-
-  @override
-  Stream get output => _outputCtrl.stream;
-
-  @override
-  Future<void> dispose() async {
-    await _outputCtrl.close();
-  }
 }
