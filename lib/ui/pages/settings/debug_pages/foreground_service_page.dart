@@ -4,8 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 
-import '../../../../background/foreground_service/foreground_service.dart'
-    as foreground;
+import '../../../../background/foreground_service/foreground_service_manager.dart';
 
 class ForegroundServicePage extends StatelessWidget {
   const ForegroundServicePage({Key? key}) : super(key: key);
@@ -15,7 +14,7 @@ class ForegroundServicePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fsm = GetIt.I<foreground.ForegroundServiceManager>();
+    final fsm = GetIt.I<ForegroundServiceManager>();
     final log = GetIt.I<Logger>();
     return Scaffold(
       appBar: AppBar(title: const Text("Foreground service debug")),

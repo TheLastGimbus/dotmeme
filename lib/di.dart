@@ -1,7 +1,7 @@
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 
-import 'background/foreground_service/foreground_service.dart';
+import 'background/foreground_service/foreground_service_manager.dart';
 import 'database/memebase.dart';
 import 'device_media/media_manager.dart';
 import 'device_media/mock_media_manager.dart';
