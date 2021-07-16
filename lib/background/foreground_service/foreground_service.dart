@@ -19,7 +19,9 @@ void _mainCallback() {
         di.init(di.Environment.prod);
       }
       final log = GetIt.I<Logger>();
-      log.d("Initializing ForegroundService");
+      log.d("(FService) Initializing ForegroundService");
+
+      // Register the port for communication with UI
       receivePort = ReceivePort(ForegroundServiceManager.servicePortName);
       // If, for some weird reason, it wasn't un-registered
       if (IsolateNameServer.lookupPortByName(
@@ -30,19 +32,20 @@ void _mainCallback() {
       }
       IsolateNameServer.registerPortWithName(
           receivePort!.sendPort, ForegroundServiceManager.servicePortName);
+
       receivePort!.listen((message) async {
-        log.i("(Service) received from ui: $message");
-        await FlutterForegroundTask.update(
-          notificationTitle: "Receiving messages - last one:",
-          notificationText: message.toString(),
-        );
+        log.d("(FService) received from ui: $message");
+
+        // Do some logic here
+
+        // Basic echo for testing
         if (message is String && message.startsWith("ECHO")) {
           final uiPort = IsolateNameServer.lookupPortByName(
               ForegroundServiceManager.uiPortName);
           if (uiPort != null) {
             uiPort.send(message);
           } else {
-            log.w("(Service) UI Port not found!");
+            log.e("(FService) UI Port not found when doing echo!");
           }
         }
       });
@@ -65,6 +68,7 @@ class ForegroundServiceManager {
       IsolateNameServer.lookupPortByName(servicePortName);
 
   ForegroundServiceManager() {
+    // If .dispose() wasn't called properly
     if (IsolateNameServer.lookupPortByName(uiPortName) != null) {
       IsolateNameServer.removePortNameMapping(uiPortName);
     }
@@ -103,6 +107,7 @@ class ForegroundServiceManager {
       notificationText: "1/100",
       callback: _mainCallback,
     );
+    // We need to wait a little for service to connect
     try {
       await Stream.periodic(
         const Duration(milliseconds: 50),
@@ -118,6 +123,7 @@ class ForegroundServiceManager {
     await FlutterForegroundTask.stop();
   }
 
+  /// You *probably* can not call this, but it would be a lot cooler if you did
   Future<void> dispose() async {
     IsolateNameServer.removePortNameMapping(uiPortName);
     _receivePort.close();
