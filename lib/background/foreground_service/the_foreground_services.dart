@@ -13,7 +13,7 @@ import 'package:logger/logger.dart';
 // (idk why we would want this), it seems like the current plugin supports
 // something like this - we would need to change this class a bit...
 // Tho I think, running multiple services *inside* other big daddy service
-// - they are plugin indepentent! we can just pipe their streams into
+// - they are plugin independent! we can just pipe their streams into
 // each other! - would be a better idea...
 /// Just a little class to hold info for notification
 class _NotificationData {
