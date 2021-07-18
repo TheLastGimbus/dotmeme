@@ -15,26 +15,31 @@ import 'foreground_service_manager.dart';
 import 'the_foreground_services.dart';
 
 void echoServiceCallback() {
-  _setupService(EchoForegroundService());
+  _setupService(() => EchoForegroundService());
 }
 
 void scanServiceCallback() {
-  _setupService(ScanForegroundService());
+  _setupService(() => ScanForegroundService());
 }
 
 /// This functions sets everything up for given [service]
 /// - lifecycle, communication with ui, etc
-void _setupService(TheForegroundService service) {
+///
+/// You need to pass service in lazy way, because di is not initialized yet
+void _setupService(TheForegroundService Function() createService) {
   if (!di.isInitialized) {
     // We are in different isolate
     di.init(di.Environment.prod);
   }
   final log = GetIt.I<Logger>();
+  late TheForegroundService service;
   ReceivePort? receivePort;
   FlutterForegroundTask.initDispatcher(
     (timestamp) async {
       // If not null then we're already set up
       if (receivePort != null) return;
+      // We need to create it inside initDispatcher to have access to plugins
+      service = createService();
       log.d("Initializing $service in foreground service");
 
       /// Send message to ui - returns false if port not found
