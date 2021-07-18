@@ -40,7 +40,7 @@ class NoPermissionPage extends StatelessWidget {
           children: [
             Text(
               "dotmeme doesn't have permission to access your photos \u{1F615} ",
-              style: Theme.of(context).textTheme.headline5,
+              style: th.textTheme.headline5,
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 32),

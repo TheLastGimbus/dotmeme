@@ -1,10 +1,10 @@
 import 'dart:typed_data';
 
-import 'package:dotmeme/device_media/media_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 import '../../../database/memebase.dart';
+import '../../../device_media/media_manager.dart';
 
 class SwipingPage extends StatelessWidget {
   final List<Meme> memes;

@@ -10,8 +10,6 @@
 ///    but we'll figure that out :D
 import 'dart:typed_data';
 
-import 'package:dotmeme/ui/common/cubit/media_sync_cubit.dart';
-import 'package:dotmeme/ui/pages/swiping/swiping_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
@@ -19,7 +17,9 @@ import 'package:get_it/get_it.dart';
 import '../../../database/bloc.dart';
 import '../../../database/memebase.dart';
 import '../../../device_media/media_manager.dart';
+import '../../common/cubit/media_sync_cubit.dart';
 import '../settings/settings_page.dart';
+import '../swiping/swiping_page.dart';
 import 'cubit/home_cubit.dart';
 import 'cubit/home_state.dart';
 import 'widgets/permission_pages.dart' as pp;
