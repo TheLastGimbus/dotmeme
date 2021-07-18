@@ -35,20 +35,21 @@ class MockForegroundServiceManager extends Mock
   }
 
   @override
-  Future<bool> startEchoService() async {
-    // Matching real behavior
-    if (_currentService != null) return true;
-    _currentService = EchoForegroundService();
-    _currentService!.output.listen(_receiveStreamCtrl.sink.add);
-    return true;
-  }
+  Future<bool> startEchoService() =>
+      _startService(() => EchoForegroundService());
 
   @override
-  Future<bool> startScanService() async {
+  Future<bool> startScanService() =>
+      _startService(() => ScanForegroundService());
+
+  Future<bool> _startService(TheForegroundService Function() create) async {
     // Matching real behavior
     if (_currentService != null) return true;
-    _currentService = ScanForegroundService();
+    _currentService = create();
     _currentService!.output.pipe(_receiveStreamCtrl);
+    // WTF: Streams need to be listened to to close nicely later
+    // They are very needy
+    _currentService!.notificationUpdates.listen(null);
     return true;
   }
 
