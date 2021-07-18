@@ -4,6 +4,7 @@ import 'package:moor/isolate.dart';
 import 'package:moor/moor.dart';
 
 import 'background/foreground_service/foreground_service_manager.dart';
+import 'background/foreground_service/mock_foreground_service_manager.dart';
 import 'database/memebase.dart';
 import 'device_media/media_manager.dart';
 import 'device_media/mock_media_manager.dart';
@@ -59,7 +60,10 @@ void init(Environment env) {
         filter: DevelopmentFilter()..level = Level.verbose,
       ),
     );
-    // TODO: MockForegroundServiceManager
+    getIt.registerLazySingleton<ForegroundServiceManager>(
+      () => MockForegroundServiceManager(),
+      dispose: (fsm) => fsm.dispose(),
+    );
   }
   _isInitialized = true;
 }
