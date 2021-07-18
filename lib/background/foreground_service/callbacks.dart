@@ -29,7 +29,7 @@ void scanServiceCallback() {
 void _setupService(TheForegroundService Function() createService) {
   if (!di.isInitialized) {
     // We are in different isolate
-    di.init(di.Environment.prod);
+    di.init(di.Environment.prodBackground);
   }
   final log = GetIt.I<Logger>();
   late TheForegroundService service;
@@ -88,6 +88,7 @@ void _setupService(TheForegroundService Function() createService) {
       // This will indicate that we are already closing (for logic above)
       receivePort = null;
       await service.dispose();
+      await di.dispose();
       log.d("Foreground service with $service was closed");
     },
   );

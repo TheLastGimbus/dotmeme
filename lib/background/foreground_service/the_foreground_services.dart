@@ -8,6 +8,10 @@ import 'dart:async';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 
+import '../../database/media_sync.dart';
+import '../../database/memebase.dart';
+import '../../device_media/media_manager.dart';
+
 // Note: if we, some day, for some reason, want to start other services
 // from other services (one gets the job done, but wants the other to finish it)
 // (idk why we would want this), it seems like the current plugin supports
@@ -70,10 +74,25 @@ class EchoForegroundService implements TheForegroundService {
 /// For now, just OCR
 // TODO: OCR scanning
 class ScanForegroundService implements TheForegroundService {
+  final _db = GetIt.I<Memebase>();
+  final _mm = GetIt.I<MediaManager>();
   final _log = GetIt.I<Logger>();
 
   final _ctrl = StreamController();
   final _notifyCtrl = StreamController<_NotificationData>();
+
+  ScanForegroundService() {
+    _task();
+  }
+
+  void _task() async {
+    await _mm.setIgnorePermissionCheck(true);
+    final deviceFolders = await MediaSync.getMediaFolders();
+    await _db.foldersSync(deviceFolders);
+    await _db.allFoldersMemeSync(deviceFolders);
+
+    await _ctrl.close();
+  }
 
   @override
   void input(message) {

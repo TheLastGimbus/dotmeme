@@ -556,6 +556,7 @@ class $MemesTable extends Memes with TableInfo<$MemesTable, Meme> {
 
 abstract class _$Memebase extends GeneratedDatabase {
   _$Memebase(QueryExecutor e) : super(SqlTypeSystem.defaultInstance, e);
+  _$Memebase.connect(DatabaseConnection c) : super.connect(c);
   late final $FoldersTable folders = $FoldersTable(this);
   late final $MemesTable memes = $MemesTable(this);
   @override

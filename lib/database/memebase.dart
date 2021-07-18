@@ -14,6 +14,8 @@ part 'memebase.g.dart';
 class Memebase extends _$Memebase {
   Memebase(QueryExecutor q) : super(q);
 
+  Memebase.connect(DatabaseConnection conn) : super.connect(conn);
+
   static const databaseFileName = 'memebase_v1.sqlite';
 
   static LazyDatabase get diskDatabase {
