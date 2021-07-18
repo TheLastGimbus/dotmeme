@@ -29,7 +29,7 @@ void scanServiceCallback() {
 void _setupService(TheForegroundService Function() createService) {
   if (!di.isInitialized) {
     // We are in different isolate
-    di.init(di.Environment.prodBackground);
+    di.init(di.Environment.prod);
   }
   final log = GetIt.I<Logger>();
   late TheForegroundService service;

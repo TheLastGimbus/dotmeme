@@ -1,7 +1,6 @@
+import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
-import 'package:moor/isolate.dart';
-import 'package:moor/moor.dart';
 
 import 'background/foreground_service/foreground_service_manager.dart';
 import 'background/foreground_service/mock_foreground_service_manager.dart';
@@ -11,7 +10,7 @@ import 'device_media/mock_media_manager.dart';
 
 GetIt getIt = GetIt.instance;
 
-enum Environment { prod, prodBackground, test }
+enum Environment { prod, test }
 
 /// This is useful when dealing with multiple isolates
 bool get isInitialized => _isInitialized;
@@ -20,24 +19,14 @@ bool _isInitialized = false;
 /// Initializes all singletons that will provide us data/stuff
 /// Decide whether you want fake data or real one with [env]
 void init(Environment env) {
-  if (env == Environment.prod || env == Environment.prodBackground) {
-    if (env == Environment.prodBackground) {
-      getIt.registerLazySingleton<Memebase>(
-        () => Memebase.connect(
-          DatabaseConnection.delayed(
-            MoorIsolate.inCurrent(
-              () => DatabaseConnection.fromExecutor(Memebase.diskDatabase),
-            ).connect(),
-          ),
-        ),
-        dispose: (db) => db.close(),
-      );
-    } else {
-      getIt.registerLazySingleton<Memebase>(
-        () => Memebase(Memebase.diskDatabase),
-        dispose: (db) => db.close(),
-      );
-    }
+  if (env == Environment.prod) {
+    // WTF: Databases on UI and fservice don't react with each other :)))
+    // (when using query.watch() )
+    // Someday todo: Make databases on UI and fservice react to each other
+    getIt.registerLazySingleton<Memebase>(
+      () => Memebase(Memebase.diskDatabase),
+      dispose: (db) => db.close(),
+    );
     getIt.registerSingleton<MediaManager>(MediaManager());
     getIt.registerSingleton<Logger>(
       Logger(
@@ -46,7 +35,11 @@ void init(Environment env) {
     );
     // This must be lazy, otherwise it doesn't work
     getIt.registerLazySingleton<ForegroundServiceManager>(
-      () => ForegroundServiceManager(),
+      // Save few hours wasted on re-installing the app
+      // Because hot-reload doesn't work in FServices
+      () => kDebugMode
+          ? MockForegroundServiceManager()
+          : ForegroundServiceManager(),
       dispose: (fsm) => fsm.dispose(),
     );
   } else if (env == Environment.test) {
