@@ -18,10 +18,10 @@ import '../../../database/bloc.dart';
 import '../../../database/memebase.dart';
 import '../../../device_media/media_manager.dart';
 import '../../common/cubit/media_sync_cubit.dart';
-import '../settings/settings_page.dart';
 import '../swiping/swiping_page.dart';
 import 'cubit/home_cubit.dart';
 import 'cubit/home_state.dart';
+import 'widgets/home_page_app_bar.dart';
 import 'widgets/permission_pages.dart' as pp;
 
 class HomePage extends StatefulWidget {
@@ -90,17 +90,8 @@ class _HomeViewState extends State<HomeView> {
     } else if (state is HomeSuccessState) {
       body = _SuccessBody(state);
     }
-
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("dotmeme"),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.settings),
-            onPressed: () => Navigator.of(context).push(SettingsPage.route()),
-          )
-        ],
-      ),
+      appBar: const HomePageAppBar(),
       body: body,
     );
   }

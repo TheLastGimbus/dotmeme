@@ -2,7 +2,6 @@ import 'dart:isolate';
 
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:logger/logger.dart';
 
 import '../../../../background/foreground_service/foreground_service_manager.dart';
 
@@ -15,7 +14,6 @@ class ForegroundServicePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final fsm = GetIt.I<ForegroundServiceManager>();
-    final log = GetIt.I<Logger>();
     return Scaffold(
       appBar: AppBar(title: const Text("Foreground service debug")),
       body: Container(
@@ -28,11 +26,12 @@ class ForegroundServicePage extends StatelessWidget {
               "${Isolate.current.hashCode}",
             ),
             ElevatedButton(
-              onPressed: () async {
-                final res = await fsm.startService();
-                log.i("Started service: $res");
-              },
-              child: const Text("Start service"),
+              onPressed: () => fsm.startEchoService(),
+              child: const Text("Start echo service"),
+            ),
+            ElevatedButton(
+              onPressed: () => fsm.startScanService(),
+              child: const Text("Start scan service"),
             ),
             ElevatedButton(
               onPressed: () => fsm.stopService(),

@@ -37,24 +37,8 @@ class ForegroundServiceManager {
     }
   }
 
-  /// Returns true if starting and connecting to service was successful or it
-  /// already existed (meaning service is running and connected now)
-  /// False when not (meaning service is not running)
-  Future<bool> startService() async {
-    if (_serviceSendPort != null) return true;
-    await FlutterForegroundTask.init(
-      notificationOptions: const NotificationOptions(
-        channelId: 'test',
-        channelName: 'Test channel',
-      ),
-      foregroundTaskOptions: const ForegroundTaskOptions(interval: 5000),
-      printDevLog: true,
-    );
-    await FlutterForegroundTask.start(
-      notificationTitle: "dotmeme scanning",
-      notificationText: "1/100",
-      callback: callbacks.echoServiceCallback,
-    );
+  /// Waits 15 seconds for service to connect, then returns false
+  Future<bool> _serviceConnected() async {
     // We need to wait a little for service to connect
     try {
       await Stream.periodic(
@@ -65,6 +49,57 @@ class ForegroundServiceManager {
     } on TimeoutException catch (_) {
       return false;
     }
+  }
+
+  /// Returns true if starting and connecting to service was successful or it
+  /// already existed (meaning service is running and connected now)
+  /// False when not (meaning service is not running)
+  ///
+  /// Note that some other service (not one you want) may be running and this
+  /// still returns true.
+  // IDEA: Maybe some way to check what type of service is running?
+  Future<bool> startScanService() async {
+    if (_serviceSendPort != null) return true;
+    await FlutterForegroundTask.init(
+      notificationOptions: const NotificationOptions(
+        channelId: "foreground_service.scan",
+        channelName: "Scanning service",
+        channelDescription: "Foreground service that scans memes",
+        channelImportance: NotificationChannelImportance.LOW,
+        priority: NotificationPriority.LOW,
+        playSound: false,
+      ),
+      foregroundTaskOptions: const ForegroundTaskOptions(interval: 5000),
+      printDevLog: true,
+    );
+    await FlutterForegroundTask.start(
+      notificationTitle: "dotmeme is scanning memes",
+      notificationText: "Syncing...",
+      callback: callbacks.scanServiceCallback,
+    );
+    return _serviceConnected();
+  }
+
+  Future<bool> startEchoService() async {
+    if (_serviceSendPort != null) return true;
+    await FlutterForegroundTask.init(
+      notificationOptions: const NotificationOptions(
+        channelId: "foreground_service.echo",
+        channelName: "Echo service",
+        channelDescription: "Sample debug service that echos everything",
+        channelImportance: NotificationChannelImportance.DEFAULT,
+        priority: NotificationPriority.DEFAULT,
+        playSound: false,
+      ),
+      foregroundTaskOptions: const ForegroundTaskOptions(interval: 5000),
+      printDevLog: true,
+    );
+    await FlutterForegroundTask.start(
+      notificationTitle: "Echo service",
+      notificationText: "Waiting for first message...",
+      callback: callbacks.echoServiceCallback,
+    );
+    return _serviceConnected();
   }
 
   Future<void> stopService() async {
