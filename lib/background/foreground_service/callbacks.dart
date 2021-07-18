@@ -66,17 +66,23 @@ void _setupService(TheForegroundService service) {
       receivePort!.listen(service.input);
 
       // Don't worry, those will be closed with scanFService.dispose()
-      service.output.listen(send);
+      service.output.listen(send, onDone: () {
+        // This will also execute when we call .dispose()
+        // So we need to check if it's really the service that wants to close
+        if (receivePort != null) FlutterForegroundTask.stop();
+      });
       service.notificationUpdates.listen((event) {
         FlutterForegroundTask.update(
             notificationTitle: event.title, notificationText: event.text);
       });
     },
     onDestroy: (timestamp) async {
-      await service.dispose();
       IsolateNameServer.removePortNameMapping(
           ForegroundServiceManager.servicePortName);
       receivePort?.close(); // This will also close all StreamSubscriptions
+      // This will indicate that we are already closing (for logic above)
+      receivePort = null;
+      await service.dispose();
       log.d("Foreground service with $service was closed");
     },
   );

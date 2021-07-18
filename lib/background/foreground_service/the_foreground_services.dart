@@ -25,12 +25,12 @@ class _NotificationData {
 
 /// *Abstract* class to hold the concept of *foreground service*
 /// Basically, I'm re-writing the Android API in Dart :sunglasses:
-// TODO: Notification update
 abstract class TheForegroundService {
   /// Anything that you want service to hear
   void input(dynamic message);
 
   /// Anything the service wants to say
+  /// When this finishes, that means service is all done and can be closed
   Stream get output;
 
   Stream<_NotificationData> get notificationUpdates;
@@ -49,6 +49,8 @@ class EchoForegroundService implements TheForegroundService {
   void input(message) {
     _ctrl.sink.add(message);
     _notifyCtrl.add(_NotificationData("Echo", message.toString()));
+    // Test of service closing itself
+    if (message == "CLOSE") _ctrl.close();
   }
 
   @override
