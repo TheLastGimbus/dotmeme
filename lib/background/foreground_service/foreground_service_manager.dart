@@ -16,6 +16,7 @@ class ForegroundServiceManager {
       IsolateNameServer.lookupPortByName(servicePortName);
 
   ForegroundServiceManager() {
+    receiveStream = _receivePort.asBroadcastStream();
     // If .dispose() wasn't called properly
     if (IsolateNameServer.lookupPortByName(uiPortName) != null) {
       IsolateNameServer.removePortNameMapping(uiPortName);
@@ -24,7 +25,7 @@ class ForegroundServiceManager {
   }
 
   /// Stream with data that service sent to ui
-  Stream get receiveStream => _receivePort;
+  late final Stream receiveStream;
 
   /// Sends a message to Service. Returns true if service is up and message was
   /// sent, false otherwise
