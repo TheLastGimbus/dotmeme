@@ -15,8 +15,12 @@ class MockForegroundServiceManager extends Mock
 
   TheForegroundService? _currentService;
 
+  MockForegroundServiceManager() {
+    receiveStream = _receiveStreamCtrl.stream.asBroadcastStream();
+  }
+
   @override
-  Stream get receiveStream => _receiveStreamCtrl.stream;
+  late final Stream receiveStream;
 
   @override
   Future<void> dispose() async {
