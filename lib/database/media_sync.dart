@@ -95,6 +95,9 @@ extension MediaSync on Memebase {
         filterOption: FilterOptionGroup(
           containsPathModified: true,
           containsEmptyAlbum: true,
+          imageOption: const FilterOption(
+            sizeConstraint: SizeConstraint(ignoreSize: true),
+          ),
         ),
       );
 }
