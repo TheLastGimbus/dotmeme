@@ -30,7 +30,5 @@ jobs:
       run: |
         ./scripts/setup-test-media.sh
         ./scripts/setup-ocr.sh
-      # Only test
-    - run:  tesseract --help-extra
     - name: Run tests
       run: flutter test --no-pub --coverage
