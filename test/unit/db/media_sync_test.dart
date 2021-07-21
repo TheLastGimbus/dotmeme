@@ -110,7 +110,8 @@ void main() {
       final mediaPaths = await MediaSync.getMediaFolders();
       final memeStream = db.allMemesLiteral.watch();
       expect(
-        memeStream,
+        memeStream.map((e) =>
+            e.map((e) => e.copyWith(lastModified: e.lastModified.toUtc()))),
         emitsInOrder([
           [], // First there are no memes
           [], // Then Reddit is enabled but not synced yet
