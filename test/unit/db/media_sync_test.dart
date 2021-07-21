@@ -115,10 +115,8 @@ void main() {
           [], // First there are no memes
           [], // Then Reddit is enabled but not synced yet
           [
-            _meme(1315402535634264, 876683, 0,
-                DateTime(2021, 07, 09, 13, 34, 00)),
-            _meme(
-                437854092489234, 876683, 0, DateTime(2021, 07, 09, 12, 34, 00))
+            _meme(1315402535634264, 876683, 0, _utc(2021, 07, 09, 11, 34, 00)),
+            _meme(437854092489234, 876683, 0, _utc(2021, 07, 09, 10, 34, 00))
           ], // And then after sync here they are
         ]),
       );
