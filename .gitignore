@@ -47,6 +47,6 @@ app.*.map.json
 
 # ======== Finally my own stuff ========
 # Don't version traineddata files (yet) (they are heavy)
-assets/tessdata/*
+assets/tessdata/*.traineddata
 
 _ocr_output.txt
