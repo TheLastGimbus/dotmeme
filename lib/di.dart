@@ -1,8 +1,8 @@
-import 'package:dotmeme/analysis/vision/ocr/ocr_scanner.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 
+import 'analysis/vision/ocr/ocr_scanner.dart';
 import 'analysis/vision/ocr/terminal_ocr_scanner.dart';
 import 'background/foreground_service/foreground_service_manager.dart';
 import 'background/foreground_service/mock_foreground_service_manager.dart';
