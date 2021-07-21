@@ -244,6 +244,15 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.4"
+  flutter_tesseract_ocr:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: master
+      resolved-ref: "2db9827ea0dd0a20f0602a0fb8f9568b83628d18"
+      url: "https://github.com/khjde1207/tesseract_ocr"
+    source: git
+    version: "0.3.7"
   flutter_test:
     dependency: "direct dev"
     description: flutter
