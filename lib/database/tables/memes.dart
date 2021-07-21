@@ -15,6 +15,8 @@ class Memes extends Table {
   IntColumn get memeType => integer()();
 
   // For sorting them
+  /// WARNING: Turns out moor returns DateTimes in local time!
+  /// This, for example, brakes tests!
   DateTimeColumn get lastModified =>
       dateTime().clientDefault(() => DateTime.now())();
 

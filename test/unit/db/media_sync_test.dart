@@ -32,6 +32,18 @@ void main() {
           scanningEnabled: scanningEnabled,
           lastModified: lastModified,
         );
+    _utc(
+      int year, [
+      int month = 1,
+      int day = 1,
+      int hour = 0,
+      int minute = 0,
+      int second = 0,
+      int millisecond = 0,
+      int microsecond = 0,
+    ]) =>
+        DateTime.utc(
+            year, month, day, hour, minute, second, millisecond, microsecond);
 
     /// Test if folders are good, have correct lastModified values and are
     /// properly sorted
@@ -48,12 +60,12 @@ void main() {
       final dbFolders = await db.allFolders.get();
 
       expect(
-        dbFolders,
+        dbFolders.map((e) => e.copyWith(lastModified: e.lastModified.toUtc())),
         [
-          _folder(6654389, "Screenshots", false,
-              DateTime(2021, 07, 10, 22, 55, 32)),
-          _folder(254352, "Camera", false, DateTime(2021, 07, 09, 19, 56, 27)),
-          _folder(876683, "Reddit", false, DateTime(2021, 07, 09, 13, 34, 00)),
+          _folder(
+              6654389, "Screenshots", false, _utc(2021, 07, 10, 20, 55, 32)),
+          _folder(254352, "Camera", false, _utc(2021, 07, 09, 17, 56, 27)),
+          _folder(876683, "Reddit", false, _utc(2021, 07, 09, 11, 34, 00)),
         ],
       );
       // Reset DI (mainly db) after each test

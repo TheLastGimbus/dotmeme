@@ -11,6 +11,8 @@ class Folders extends Table {
       boolean().withDefault(const Constant(false))();
 
   // This should help with media sync
+  /// WARNING: Turns out moor returns DateTimes in local time!
+  /// This, for example, brakes tests!
   DateTimeColumn get lastModified =>
       dateTime().withDefault(currentDateAndTime)();
 

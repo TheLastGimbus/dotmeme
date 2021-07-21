@@ -177,10 +177,13 @@ class MockMediaManager extends Mock implements MediaManager {
       ..filterOption = filterOptionGroup
       ..albumType = entity.albumType;
     if (filterOptionGroup.containsPathModified) {
-      mock.lastModified =
-          io.Directory(path.join(_mediaFolder.path, assPath["path"]))
-              .statSync()
-              .modified;
+      mock.lastModified = io.Directory(
+              path.join(_mediaFolder.path, assPath["path"]))
+          .statSync()
+          .modified
+          // Note: Idk if PhotoManager returns UTC (probably not) and whether we
+          // should convert it in MediaManager (to have it clean in the db)
+          .toUtc();
     }
     return mock;
   }
@@ -235,8 +238,10 @@ class MockMediaManager extends Mock implements MediaManager {
       orientation: 0,
       isFavorite: false,
       title: ass["filename"],
-      createDtSecond: stat.modified.millisecondsSinceEpoch ~/ 1000,
-      modifiedDateSecond: stat.modified.millisecondsSinceEpoch ~/ 1000,
+      // Note: Idk if PhotoManager returns UTC (probably not) and whether we
+      // should convert it in MediaManager (to have it clean in the db)
+      createDtSecond: stat.modified.toUtc().millisecondsSinceEpoch ~/ 1000,
+      modifiedDateSecond: stat.modified.toUtc().millisecondsSinceEpoch ~/ 1000,
       relativePath: file.path,
       mimeType: mimeType,
       file: file,
