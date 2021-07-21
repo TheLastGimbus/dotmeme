@@ -61,4 +61,17 @@ extension Queries on Memebase {
   /// synced)
   MultiSelectable<Meme> get allMemesLiteral =>
       select(memes)..orderBy([(tbl) => OrderingTerm.desc(tbl.lastModified)]);
+
+  Future<void> setMemeScannedText(int id, String text) =>
+      (update(memes)..where((tbl) => tbl.id.equals(id)))
+          .write(MemesCompanion(scannedText: Value(text)));
+
+  Future<int> get scannedMemesCount async {
+    final exp = memes.id.count();
+    final raw = await (selectOnly(memes)
+          ..addColumns([exp, memes.scannedText])
+          ..where(memes.scannedText.equals(null).not()))
+        .getSingle();
+    return raw.read(exp);
+  }
 }

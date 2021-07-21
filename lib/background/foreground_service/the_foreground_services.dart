@@ -7,9 +7,12 @@ import 'dart:async';
 
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
+import 'package:moor/moor.dart';
 
+import '../../analysis/vision/ocr/ocr_scanner.dart';
 import '../../database/media_sync.dart';
 import '../../database/memebase.dart';
+import '../../database/queries.dart';
 import '../../device_media/media_manager.dart';
 
 // Note: if we, some day, for some reason, want to start other services
@@ -76,20 +79,64 @@ class EchoForegroundService implements TheForegroundService {
 class ScanForegroundService implements TheForegroundService {
   final _db = GetIt.I<Memebase>();
   final _mm = GetIt.I<MediaManager>();
+  final _ocr = GetIt.I<OcrScanner>();
   final _log = GetIt.I<Logger>();
 
   final _ctrl = StreamController();
   final _notifyCtrl = StreamController<_NotificationData>();
 
+  late final StreamSubscription _allMemesStream;
+  StreamSubscription? _scanStream;
+
   ScanForegroundService() {
     _task();
   }
 
+  Stream<MemesCompanion> scanMemes(Iterable<Meme> memes) async* {
+    for (final meme in memes) {
+      final ass = await _mm.assetEntityFromId(meme.id.toString());
+      final file = await ass?.file;
+      if (file == null) {
+        _log.e("$meme returned null file - skipping scan");
+        continue;
+      }
+      String? text;
+      try {
+        text = await _ocr.scan(file);
+      } catch (e) {
+        _log.e("Scanning $meme threw error: $e");
+      }
+      if (text == null) continue;
+      yield MemesCompanion(id: Value(meme.id), scannedText: Value(text));
+    }
+  }
+
   void _task() async {
+    // TODO: Check permission with other plugin
     await _mm.setIgnorePermissionCheck(true);
+    _notifyCtrl.add(_NotificationData("dotmeme scanning", "Indexing memes..."));
     final deviceFolders = await MediaSync.getMediaFolders();
     await _db.foldersSync(deviceFolders);
     await _db.allFoldersMemeSync(deviceFolders);
+
+    _allMemesStream = _db.allMemes.watch().listen((allMemes) {
+      _scanStream?.cancel();
+      // Scan oldest memes first
+      _scanStream = scanMemes(allMemes.reversed).listen(
+        (event) async {
+          await _db.setMemeScannedText(
+              event.id.value, event.scannedText.value!);
+          final scanned = await _db.scannedMemesCount;
+          _notifyCtrl.add(_NotificationData(
+            "dotmeme scanning",
+            "$scanned/${allMemes.length}",
+          ));
+        },
+        onDone: _allMemesStream.cancel,
+      );
+    });
+
+    await _allMemesStream.asFuture();
 
     await _ctrl.close();
   }
@@ -107,6 +154,8 @@ class ScanForegroundService implements TheForegroundService {
 
   @override
   Future<void> dispose() async {
+    await _allMemesStream.cancel();
+    await _scanStream?.cancel();
     await _ctrl.close();
     await _notifyCtrl.close();
   }
