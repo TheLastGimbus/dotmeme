@@ -19,15 +19,15 @@ a
 \f""";
 
 void main() {
+  const _paths = "test/_test_media/paths";
   test("Test if TerminalOcrScanner is working", () async {
     final ocr = TerminalOcrScanner();
     expect(
-      await ocr.scan(
-          File('test/_test_media/paths/Screenshots/2021-07-10-205430.png')),
+      await ocr.scan(File('$_paths/Screenshots/2021-07-10-205430.png')),
       _ss1,
     );
     expect(
-      await ocr.scan(File('test/_test_media/paths/Reddit/iphone_rule.jpg')),
+      await ocr.scan(File('$_paths/Reddit/iphone_rule.jpg')),
       _iphone,
     );
   });
