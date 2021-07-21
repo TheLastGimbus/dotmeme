@@ -1,7 +1,9 @@
+import 'package:dotmeme/analysis/vision/ocr/ocr_scanner.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 
+import 'analysis/vision/ocr/terminal_ocr_scanner.dart';
 import 'background/foreground_service/foreground_service_manager.dart';
 import 'background/foreground_service/mock_foreground_service_manager.dart';
 import 'database/memebase.dart';
@@ -42,6 +44,7 @@ void init(Environment env) {
           : ForegroundServiceManager(),
       dispose: (fsm) => fsm.dispose(),
     );
+    getIt.registerLazySingleton<OcrScanner>(() => OcrScanner());
   } else if (env == Environment.test) {
     getIt.registerLazySingleton<Memebase>(
       () => Memebase(Memebase.virtualDatabase),
@@ -57,6 +60,7 @@ void init(Environment env) {
       () => MockForegroundServiceManager(),
       dispose: (fsm) => fsm.dispose(),
     );
+    getIt.registerLazySingleton<OcrScanner>(() => TerminalOcrScanner());
   }
   _isInitialized = true;
 }
