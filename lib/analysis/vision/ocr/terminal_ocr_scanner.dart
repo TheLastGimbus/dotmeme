@@ -14,6 +14,6 @@ class TerminalOcrScanner implements OcrScanner {
       _outputFile,
     ]);
     if (res.exitCode != 0) throw "tesseract return non-0 code";
-    return await File(_outputFile).readAsString();
+    return await File(_outputFile + ".txt").readAsString();
   }
 }

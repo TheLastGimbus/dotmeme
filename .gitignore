@@ -49,4 +49,4 @@ app.*.map.json
 # Don't version traineddata files (yet) (they are heavy)
 assets/tessdata/*
 
-_ocr_output
+_ocr_output.txt
