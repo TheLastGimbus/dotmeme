@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'ocr_scanner.dart';
+// ignore_for_file: avoid_print
 
 class TerminalOcrScanner implements OcrScanner {
   static const _outputFile = "_ocr_output";
