@@ -12,7 +12,9 @@ import 'package:logger/logger.dart';
 
 import '../../di.dart' as di;
 import 'foreground_service_manager.dart';
-import 'the_foreground_services.dart';
+import 'services/echo_foreground_service.dart';
+import 'services/scan_foreground_service.dart';
+import 'services/the_foreground_service.dart';
 
 void echoServiceCallback() {
   _setupService(() => EchoForegroundService());

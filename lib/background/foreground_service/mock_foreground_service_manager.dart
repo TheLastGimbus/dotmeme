@@ -3,7 +3,9 @@ import 'dart:async';
 import 'package:mockito/mockito.dart';
 
 import 'foreground_service_manager.dart';
-import 'the_foreground_services.dart';
+import 'services/echo_foreground_service.dart';
+import 'services/scan_foreground_service.dart';
+import 'services/the_foreground_service.dart';
 
 /// Mock that actually runs everything normally, just on same isolate
 // Maybe if I would launch stuff on new isolate (don't know how Dart test would
