@@ -56,6 +56,18 @@ extension Queries on Memebase {
     return q.map((row) => row.readTable(memes));
   }
 
+  /// All memes from enabled folders that are not scanned yet
+  MultiSelectable<Meme> get allNotScannedMemes {
+    final q = (select(memes).join([
+      innerJoin(folders, folders.id.equalsExp(memes.folderId)),
+    ]));
+    q.where(folders.scanningEnabled.equals(true));
+    q.where(memes.scannedText.isNull());
+    // Scan oldest memes first
+    q.orderBy([OrderingTerm.asc(memes.lastModified)]);
+    return q.map((row) => row.readTable(memes));
+  }
+
   /// Literally all memes - even from folders that are not enabled - not memes
   /// Note that those may be less up-to-date than actual memes (less frequently
   /// synced)

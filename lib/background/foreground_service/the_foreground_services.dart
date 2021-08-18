@@ -119,10 +119,17 @@ class ScanForegroundService implements TheForegroundService {
     await _db.foldersSync(deviceFolders);
     await _db.allFoldersMemeSync(deviceFolders);
 
-    _allMemesStream = _db.allMemes.watch().listen((allMemes) {
+    //.watch() watches everything - so it will run each time we call .setText()
+    // (omg Native Android PTSD) - so we check if length is same.
+    // Of course, this isn't very safe, but it's best we can do and will work
+    // 99.999% of times
+    int lastLength = -1;
+    // Actually - I don't know if re-running allMemes query *every time* is good
+    _allMemesStream = _db.allNotScannedMemes.watch().listen((allMemes) {
+      if (lastLength == allMemes.length) return;
+      lastLength = allMemes.length;
       _scanStream?.cancel();
-      // Scan oldest memes first
-      _scanStream = scanMemes(allMemes.reversed).listen(
+      _scanStream = scanMemes(allMemes).listen(
         (event) async {
           await _db.setMemeScannedText(
               event.id.value, event.scannedText.value!);
@@ -132,13 +139,12 @@ class ScanForegroundService implements TheForegroundService {
             "$scanned/${allMemes.length}",
           ));
         },
-        onDone: _allMemesStream.cancel,
+        onDone: () async {
+          await _allMemesStream.cancel();
+          await _ctrl.close();
+        },
       );
     });
-
-    await _allMemesStream.asFuture();
-
-    await _ctrl.close();
   }
 
   @override
