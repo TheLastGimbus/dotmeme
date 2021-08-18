@@ -74,9 +74,14 @@ extension Queries on Memebase {
   MultiSelectable<Meme> get allMemesLiteral =>
       select(memes)..orderBy([(tbl) => OrderingTerm.desc(tbl.lastModified)]);
 
-  Future<void> setMemeScannedText(int id, String text) =>
-      (update(memes)..where((tbl) => tbl.id.equals(id)))
-          .write(MemesCompanion(scannedText: Value(text)));
+  Future<void> setMemeScannedText(int id, String text) async {
+    // NOTE: Maybe some shorter/common way to handle this
+    var affectedRows = await (update(memes)..where((tbl) => tbl.id.equals(id)))
+        .write(MemesCompanion(scannedText: Value(text)));
+    if (affectedRows == 1) return;
+    if (affectedRows == 0) throw "No meme with given id found!";
+    throw "WTF: This should never happen";
+  }
 
   Future<int> get scannedMemesCount async {
     final exp = memes.id.count();
