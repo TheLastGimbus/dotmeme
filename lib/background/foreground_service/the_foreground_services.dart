@@ -75,7 +75,6 @@ class EchoForegroundService implements TheForegroundService {
 
 /// Service that will do all the scanning
 /// For now, just OCR
-// TODO: OCR scanning
 class ScanForegroundService implements TheForegroundService {
   final _db = GetIt.I<Memebase>();
   final _mm = GetIt.I<MediaManager>();
@@ -134,6 +133,7 @@ class ScanForegroundService implements TheForegroundService {
           await _db.setMemeScannedText(
               event.id.value, event.scannedText.value!);
           final scanned = await _db.scannedMemesCount;
+          // TODO: Emit some states to UI with default stream
           _notifyCtrl.add(_NotificationData(
             "dotmeme scanning",
             "$scanned/${allMemes.length}",

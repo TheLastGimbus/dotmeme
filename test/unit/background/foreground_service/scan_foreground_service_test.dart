@@ -5,7 +5,6 @@ import 'package:dotmeme/database/queries.dart';
 import 'package:dotmeme/di.dart' as di;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
-import 'package:logger/logger.dart';
 
 void main() {
   group("Scan foreground service", () {
@@ -20,7 +19,6 @@ void main() {
       di.init(di.Environment.test);
       // Init stuff and enable "Reddit"
       final db = GetIt.I<Memebase>();
-      final log = GetIt.I<Logger>();
       final deviceFolders = await MediaSync.getMediaFolders();
       await db.foldersSync(deviceFolders);
       await db.setFolderEnabled(
@@ -30,9 +28,7 @@ void main() {
 
       final fsm = GetIt.I<ForegroundServiceManager>();
       await fsm.startScanService();
-      await fsm.receiveStream.listen((event) {
-        print(event);
-      }).asFuture();
+      await fsm.receiveStream.listen((event) {}).asFuture();
 
       for (final m in await db.allMemes.get()) {
         expect(m.scannedText, _texts[m.id]);
