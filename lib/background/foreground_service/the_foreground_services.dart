@@ -106,7 +106,11 @@ class ScanForegroundService implements TheForegroundService {
         _log.e("Scanning $meme threw error: $e");
       }
       if (text == null) continue;
-      yield MemesCompanion(id: Value(meme.id), scannedText: Value(text));
+      yield MemesCompanion(
+        id: Value(meme.id),
+        scannedText: Value(text),
+        textScannerVersion: Value(_ocr.version),
+      );
     }
   }
 
@@ -131,7 +135,10 @@ class ScanForegroundService implements TheForegroundService {
       _scanStream = scanMemes(allMemes).listen(
         (event) async {
           await _db.setMemeScannedText(
-              event.id.value, event.scannedText.value!);
+            event.id.value,
+            event.scannedText.value!,
+            event.textScannerVersion.value!,
+          );
           final scanned = await _db.scannedMemesCount;
           // TODO: Emit some states to UI with default stream
           _notifyCtrl.add(_NotificationData(

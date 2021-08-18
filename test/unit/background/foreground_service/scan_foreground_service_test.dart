@@ -1,3 +1,4 @@
+import 'package:dotmeme/analysis/vision/ocr/terminal_ocr_scanner.dart';
 import 'package:dotmeme/background/foreground_service/foreground_service_manager.dart';
 import 'package:dotmeme/database/media_sync.dart';
 import 'package:dotmeme/database/memebase.dart';
@@ -51,7 +52,11 @@ void main() {
 
       // Set text ourselves before scan service does it
       for (final id in _texts.keys) {
-        await db.setMemeScannedText(id, "Pre-set text here :)");
+        await db.setMemeScannedText(
+          id,
+          "Pre-set text here :)",
+          TerminalOcrScanner().version,
+        );
       }
 
       final fsm = GetIt.I<ForegroundServiceManager>();

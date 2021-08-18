@@ -13,6 +13,9 @@ class Folder extends DataClass implements Insertable<Folder> {
 
   /// Whether to show and scan memes from this folder
   final bool scanningEnabled;
+
+  /// WARNING: Turns out moor returns DateTimes in local time!
+  /// This, for example, brakes tests!
   final DateTime lastModified;
   Folder(
       {required this.id,
@@ -267,16 +270,29 @@ class Meme extends DataClass implements Insertable<Meme> {
 
   /// [MemeType] - image or video
   final int memeType;
+
+  /// WARNING: Turns out moor returns DateTimes in local time!
+  /// This, for example, brakes tests!
   final DateTime lastModified;
 
   /// Text from OCR - can be null if not scanned yet
   final String? scannedText;
+
+  /// Version of OCR scanner. If it's lower than current one, it means we have
+  /// some new, better one, and we may want to re-scan those images
+  ///
+  /// The exception is when it's [-1] - then it means it was labeled by hand
+  /// - don't touch this!
+  ///
+  /// It's nullable, because meme may not be scanned yet
+  final int? textScannerVersion;
   Meme(
       {required this.id,
       required this.folderId,
       required this.memeType,
       required this.lastModified,
-      this.scannedText});
+      this.scannedText,
+      this.textScannerVersion});
   factory Meme.fromData(Map<String, dynamic> data, GeneratedDatabase db,
       {String? prefix}) {
     final effectivePrefix = prefix ?? '';
@@ -291,6 +307,8 @@ class Meme extends DataClass implements Insertable<Meme> {
           .mapFromDatabaseResponse(data['${effectivePrefix}last_modified'])!,
       scannedText: const StringType()
           .mapFromDatabaseResponse(data['${effectivePrefix}scanned_text']),
+      textScannerVersion: const IntType().mapFromDatabaseResponse(
+          data['${effectivePrefix}text_scanner_version']),
     );
   }
   @override
@@ -302,6 +320,9 @@ class Meme extends DataClass implements Insertable<Meme> {
     map['last_modified'] = Variable<DateTime>(lastModified);
     if (!nullToAbsent || scannedText != null) {
       map['scanned_text'] = Variable<String?>(scannedText);
+    }
+    if (!nullToAbsent || textScannerVersion != null) {
+      map['text_scanner_version'] = Variable<int?>(textScannerVersion);
     }
     return map;
   }
@@ -315,6 +336,9 @@ class Meme extends DataClass implements Insertable<Meme> {
       scannedText: scannedText == null && nullToAbsent
           ? const Value.absent()
           : Value(scannedText),
+      textScannerVersion: textScannerVersion == null && nullToAbsent
+          ? const Value.absent()
+          : Value(textScannerVersion),
     );
   }
 
@@ -327,6 +351,7 @@ class Meme extends DataClass implements Insertable<Meme> {
       memeType: serializer.fromJson<int>(json['memeType']),
       lastModified: serializer.fromJson<DateTime>(json['lastModified']),
       scannedText: serializer.fromJson<String?>(json['scannedText']),
+      textScannerVersion: serializer.fromJson<int?>(json['textScannerVersion']),
     );
   }
   @override
@@ -338,6 +363,7 @@ class Meme extends DataClass implements Insertable<Meme> {
       'memeType': serializer.toJson<int>(memeType),
       'lastModified': serializer.toJson<DateTime>(lastModified),
       'scannedText': serializer.toJson<String?>(scannedText),
+      'textScannerVersion': serializer.toJson<int?>(textScannerVersion),
     };
   }
 
@@ -346,13 +372,15 @@ class Meme extends DataClass implements Insertable<Meme> {
           int? folderId,
           int? memeType,
           DateTime? lastModified,
-          String? scannedText}) =>
+          String? scannedText,
+          int? textScannerVersion}) =>
       Meme(
         id: id ?? this.id,
         folderId: folderId ?? this.folderId,
         memeType: memeType ?? this.memeType,
         lastModified: lastModified ?? this.lastModified,
         scannedText: scannedText ?? this.scannedText,
+        textScannerVersion: textScannerVersion ?? this.textScannerVersion,
       );
   @override
   String toString() {
@@ -361,7 +389,8 @@ class Meme extends DataClass implements Insertable<Meme> {
           ..write('folderId: $folderId, ')
           ..write('memeType: $memeType, ')
           ..write('lastModified: $lastModified, ')
-          ..write('scannedText: $scannedText')
+          ..write('scannedText: $scannedText, ')
+          ..write('textScannerVersion: $textScannerVersion')
           ..write(')'))
         .toString();
   }
@@ -371,8 +400,10 @@ class Meme extends DataClass implements Insertable<Meme> {
       id.hashCode,
       $mrjc(
           folderId.hashCode,
-          $mrjc(memeType.hashCode,
-              $mrjc(lastModified.hashCode, scannedText.hashCode)))));
+          $mrjc(
+              memeType.hashCode,
+              $mrjc(lastModified.hashCode,
+                  $mrjc(scannedText.hashCode, textScannerVersion.hashCode))))));
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -381,7 +412,8 @@ class Meme extends DataClass implements Insertable<Meme> {
           other.folderId == this.folderId &&
           other.memeType == this.memeType &&
           other.lastModified == this.lastModified &&
-          other.scannedText == this.scannedText);
+          other.scannedText == this.scannedText &&
+          other.textScannerVersion == this.textScannerVersion);
 }
 
 class MemesCompanion extends UpdateCompanion<Meme> {
@@ -390,12 +422,14 @@ class MemesCompanion extends UpdateCompanion<Meme> {
   final Value<int> memeType;
   final Value<DateTime> lastModified;
   final Value<String?> scannedText;
+  final Value<int?> textScannerVersion;
   const MemesCompanion({
     this.id = const Value.absent(),
     this.folderId = const Value.absent(),
     this.memeType = const Value.absent(),
     this.lastModified = const Value.absent(),
     this.scannedText = const Value.absent(),
+    this.textScannerVersion = const Value.absent(),
   });
   MemesCompanion.insert({
     this.id = const Value.absent(),
@@ -403,6 +437,7 @@ class MemesCompanion extends UpdateCompanion<Meme> {
     required int memeType,
     this.lastModified = const Value.absent(),
     this.scannedText = const Value.absent(),
+    this.textScannerVersion = const Value.absent(),
   })  : folderId = Value(folderId),
         memeType = Value(memeType);
   static Insertable<Meme> custom({
@@ -411,6 +446,7 @@ class MemesCompanion extends UpdateCompanion<Meme> {
     Expression<int>? memeType,
     Expression<DateTime>? lastModified,
     Expression<String?>? scannedText,
+    Expression<int?>? textScannerVersion,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -418,6 +454,8 @@ class MemesCompanion extends UpdateCompanion<Meme> {
       if (memeType != null) 'meme_type': memeType,
       if (lastModified != null) 'last_modified': lastModified,
       if (scannedText != null) 'scanned_text': scannedText,
+      if (textScannerVersion != null)
+        'text_scanner_version': textScannerVersion,
     });
   }
 
@@ -426,13 +464,15 @@ class MemesCompanion extends UpdateCompanion<Meme> {
       Value<int>? folderId,
       Value<int>? memeType,
       Value<DateTime>? lastModified,
-      Value<String?>? scannedText}) {
+      Value<String?>? scannedText,
+      Value<int?>? textScannerVersion}) {
     return MemesCompanion(
       id: id ?? this.id,
       folderId: folderId ?? this.folderId,
       memeType: memeType ?? this.memeType,
       lastModified: lastModified ?? this.lastModified,
       scannedText: scannedText ?? this.scannedText,
+      textScannerVersion: textScannerVersion ?? this.textScannerVersion,
     );
   }
 
@@ -454,6 +494,9 @@ class MemesCompanion extends UpdateCompanion<Meme> {
     if (scannedText.present) {
       map['scanned_text'] = Variable<String?>(scannedText.value);
     }
+    if (textScannerVersion.present) {
+      map['text_scanner_version'] = Variable<int?>(textScannerVersion.value);
+    }
     return map;
   }
 
@@ -464,7 +507,8 @@ class MemesCompanion extends UpdateCompanion<Meme> {
           ..write('folderId: $folderId, ')
           ..write('memeType: $memeType, ')
           ..write('lastModified: $lastModified, ')
-          ..write('scannedText: $scannedText')
+          ..write('scannedText: $scannedText, ')
+          ..write('textScannerVersion: $textScannerVersion')
           ..write(')'))
         .toString();
   }
@@ -498,9 +542,14 @@ class $MemesTable extends Memes with TableInfo<$MemesTable, Meme> {
   late final GeneratedColumn<String?> scannedText = GeneratedColumn<String?>(
       'scanned_text', aliasedName, true,
       typeName: 'TEXT', requiredDuringInsert: false);
+  final VerificationMeta _textScannerVersionMeta =
+      const VerificationMeta('textScannerVersion');
+  late final GeneratedColumn<int?> textScannerVersion = GeneratedColumn<int?>(
+      'text_scanner_version', aliasedName, true,
+      typeName: 'INTEGER', requiredDuringInsert: false);
   @override
   List<GeneratedColumn> get $columns =>
-      [id, folderId, memeType, lastModified, scannedText];
+      [id, folderId, memeType, lastModified, scannedText, textScannerVersion];
   @override
   String get aliasedName => _alias ?? 'memes';
   @override
@@ -536,6 +585,12 @@ class $MemesTable extends Memes with TableInfo<$MemesTable, Meme> {
           _scannedTextMeta,
           scannedText.isAcceptableOrUnknown(
               data['scanned_text']!, _scannedTextMeta));
+    }
+    if (data.containsKey('text_scanner_version')) {
+      context.handle(
+          _textScannerVersionMeta,
+          textScannerVersion.isAcceptableOrUnknown(
+              data['text_scanner_version']!, _textScannerVersionMeta));
     }
     return context;
   }

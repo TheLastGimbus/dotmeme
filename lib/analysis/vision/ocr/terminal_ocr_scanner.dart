@@ -26,4 +26,7 @@ class TerminalOcrScanner implements OcrScanner {
     }
     return await File(_outputFile + ".txt").readAsString();
   }
+
+  @override
+  int get version => 1;
 }

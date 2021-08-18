@@ -23,6 +23,15 @@ class Memes extends Table {
   /// Text from OCR - can be null if not scanned yet
   TextColumn get scannedText => text().nullable()();
 
+  /// Version of OCR scanner. If it's lower than current one, it means we have
+  /// some new, better one, and we may want to re-scan those images
+  ///
+  /// The exception is when it's [-1] - then it means it was labeled by hand
+  /// - don't touch this!
+  ///
+  /// It's nullable, because meme may not be scanned yet
+  IntColumn get textScannerVersion => integer().nullable()();
+
   @override
   Set<Column> get primaryKey => {id};
 }
