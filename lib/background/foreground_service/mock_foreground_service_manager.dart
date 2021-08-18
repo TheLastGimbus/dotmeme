@@ -11,16 +11,12 @@ import 'the_foreground_services.dart';
 // is not available
 class MockForegroundServiceManager extends Mock
     implements ForegroundServiceManager {
-  final _receiveStreamCtrl = StreamController();
+  final _receiveStreamCtrl = StreamController.broadcast();
 
   TheForegroundService? _currentService;
 
-  MockForegroundServiceManager() {
-    receiveStream = _receiveStreamCtrl.stream.asBroadcastStream();
-  }
-
   @override
-  late final Stream receiveStream;
+  Stream get receiveStream => _receiveStreamCtrl.stream;
 
   @override
   Future<void> dispose() async {
@@ -50,7 +46,12 @@ class MockForegroundServiceManager extends Mock
     // Matching real behavior
     if (_currentService != null) return true;
     _currentService = create();
+    // NOTE: Idk if piping it multiple times (when we run different services)
+    // won't break this - TODO: check this some day
     _currentService!.output.pipe(_receiveStreamCtrl);
+    // Clear the service when it ends
+    _receiveStreamCtrl.stream
+        .listen((event) {}, onDone: () => _currentService = null);
     // WTF: Streams need to be listened to to close nicely later
     // They are very needy
     _currentService!.notificationUpdates.listen(null);
