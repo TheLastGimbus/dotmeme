@@ -7,7 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 
 void main() {
-  group("Scan foreground service", () {
+  group("ScanForegroundService", () {
     /// memeId <-> text that ocr is expected to spit out
     const _texts = {
       437854092489234: " \n\f",
@@ -33,6 +33,37 @@ void main() {
       for (final m in await db.allMemes.get()) {
         expect(m.scannedText, _texts[m.id]);
       }
+      await fsm.dispose();
+      await GetIt.I.reset();
+    });
+
+    test("don't re-scan memes if they have text already", () async {
+      di.init(di.Environment.test);
+      // Init stuff and enable "Reddit"
+      final db = GetIt.I<Memebase>();
+      final deviceFolders = await MediaSync.getMediaFolders();
+      await db.foldersSync(deviceFolders);
+      await db.allFoldersMemeSync(deviceFolders);
+      await db.setFolderEnabled(
+        (await db.allFolders.get()).firstWhere((f) => f.name == "Reddit").id,
+        true,
+      );
+
+      // Set text ourselves before scan service does it
+      for (final id in _texts.keys) {
+        await db.setMemeScannedText(id, "Pre-set text here :)");
+      }
+
+      final fsm = GetIt.I<ForegroundServiceManager>();
+      await fsm.startScanService();
+      await fsm.receiveStream.listen((event) {}).asFuture();
+
+      // Text didn't change
+      for (final m in await db.allMemes.get()) {
+        expect(m.scannedText, "Pre-set text here :)");
+      }
+      await fsm.dispose();
+      await GetIt.I.reset();
     });
   });
 }
