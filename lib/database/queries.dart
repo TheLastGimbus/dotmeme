@@ -98,10 +98,12 @@ extension Queries on Memebase {
 
   Future<int> get scannedMemesCount async {
     final exp = memes.id.count();
-    final raw = await (selectOnly(memes)
-          ..addColumns([exp, memes.scannedText])
-          ..where(memes.scannedText.equals(null).not()))
-        .getSingle();
+    final q = ((selectOnly(memes)..addColumns([exp])).join([
+      innerJoin(folders, folders.id.equalsExp(memes.folderId)),
+    ]));
+    q.where(folders.scanningEnabled.equals(true));
+    q.where(memes.scannedText.isNotNull());
+    final raw = await q.getSingle();
     return raw.read(exp);
   }
 }
