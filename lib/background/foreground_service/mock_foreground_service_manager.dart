@@ -48,12 +48,15 @@ class MockForegroundServiceManager extends Mock
     // Matching real behavior
     if (_currentService != null) return true;
     _currentService = create();
-    // NOTE: Idk if piping it multiple times (when we run different services)
-    // won't break this - TODO: check this some day
-    _currentService!.output.pipe(_receiveStreamCtrl);
-    // Clear the service when it ends
-    _receiveStreamCtrl.stream
-        .listen((event) {}, onDone: () => _currentService = null);
+    // Pipe output to receiveStream (without piping "closed" event)
+    // and clear the service when it ends
+    _currentService!.output.listen(
+      _receiveStreamCtrl.add,
+      onDone: () {
+        _receiveStreamCtrl.add(null);
+        _currentService = null;
+      },
+    );
     // WTF: Streams need to be listened to to close nicely later
     // They are very needy
     _currentService!.notificationUpdates.listen(null);

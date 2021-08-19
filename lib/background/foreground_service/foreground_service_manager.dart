@@ -25,6 +25,10 @@ class ForegroundServiceManager {
   }
 
   /// Stream with data that service sent to ui
+  ///
+  /// It just directly pipes output of current service - except, when it closes,
+  /// it emits a null instead of closing itself too - thus, please do not emit
+  /// nulls when implementing [TheForegroundService] yourself :)
   late final Stream receiveStream;
 
   /// Sends a message to Service. Returns true if service is up and message was

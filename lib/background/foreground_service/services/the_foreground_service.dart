@@ -15,6 +15,9 @@ abstract class TheForegroundService {
 
   /// Anything the service wants to say
   /// When this finishes, that means service is all done and can be closed
+  ///
+  /// Note that [ForegroundServiceManager] emits a null when service was
+  /// finished - so DO NOT emit any nulls from this!
   Stream get output;
 
   Stream<FServiceNotificationData> get notificationUpdates;

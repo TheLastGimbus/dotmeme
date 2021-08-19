@@ -36,6 +36,19 @@ void _setupService(TheForegroundService Function() createService) {
   final log = GetIt.I<Logger>();
   late TheForegroundService service;
   ReceivePort? receivePort;
+
+  /// Send message to ui - returns false if port not found
+  bool send(dynamic message) {
+    final uiPort =
+        IsolateNameServer.lookupPortByName(ForegroundServiceManager.uiPortName);
+    if (uiPort != null) {
+      uiPort.send(message);
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   FlutterForegroundTask.initDispatcher(
     (timestamp) async {
       // If not null then we're already set up
@@ -43,18 +56,6 @@ void _setupService(TheForegroundService Function() createService) {
       // We need to create it inside initDispatcher to have access to plugins
       service = createService();
       log.d("Initializing $service in foreground service");
-
-      /// Send message to ui - returns false if port not found
-      bool send(dynamic message) {
-        final uiPort = IsolateNameServer.lookupPortByName(
-            ForegroundServiceManager.uiPortName);
-        if (uiPort != null) {
-          uiPort.send(message);
-          return true;
-        } else {
-          return false;
-        }
-      }
 
       // Register the port for communication with UI
       receivePort = ReceivePort(ForegroundServiceManager.servicePortName);
@@ -84,6 +85,7 @@ void _setupService(TheForegroundService Function() createService) {
       });
     },
     onDestroy: (timestamp) async {
+      send(null);
       IsolateNameServer.removePortNameMapping(
           ForegroundServiceManager.servicePortName);
       receivePort?.close(); // This will also close all StreamSubscriptions
