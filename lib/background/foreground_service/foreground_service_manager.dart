@@ -66,7 +66,7 @@ class ForegroundServiceManager {
   Future<bool> startScanService() async {
     if (_serviceSendPort != null) return true;
     await FlutterForegroundTask.init(
-      notificationOptions: const NotificationOptions(
+      androidNotificationOptions: const AndroidNotificationOptions(
         channelId: "foreground_service.scan",
         channelName: "Scanning service",
         channelDescription: "Foreground service that scans memes",
@@ -74,6 +74,7 @@ class ForegroundServiceManager {
         priority: NotificationPriority.LOW,
         playSound: false,
       ),
+      iosNotificationOptions: const IOSNotificationOptions(),
       foregroundTaskOptions: const ForegroundTaskOptions(interval: 5000),
       printDevLog: true,
     );
@@ -88,7 +89,7 @@ class ForegroundServiceManager {
   Future<bool> startEchoService() async {
     if (_serviceSendPort != null) return true;
     await FlutterForegroundTask.init(
-      notificationOptions: const NotificationOptions(
+      androidNotificationOptions: const AndroidNotificationOptions(
         channelId: "foreground_service.echo",
         channelName: "Echo service",
         channelDescription: "Sample debug service that echos everything",
@@ -96,6 +97,7 @@ class ForegroundServiceManager {
         priority: NotificationPriority.DEFAULT,
         playSound: false,
       ),
+      iosNotificationOptions: const IOSNotificationOptions(),
       foregroundTaskOptions: const ForegroundTaskOptions(interval: 5000),
       printDevLog: true,
     );

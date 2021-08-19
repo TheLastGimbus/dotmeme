@@ -50,7 +50,7 @@ void _setupService(TheForegroundService Function() createService) {
   }
 
   FlutterForegroundTask.initDispatcher(
-    (timestamp) async {
+    (timestamp, _) async {
       // If not null then we're already set up
       if (receivePort != null) return;
       // We need to create it inside initDispatcher to have access to plugins
