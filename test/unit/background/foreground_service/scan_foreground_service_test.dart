@@ -29,7 +29,7 @@ void main() {
 
       final fsm = GetIt.I<ForegroundServiceManager>();
       await fsm.startScanService();
-      await fsm.receiveStream.listen((event) {}).asFuture();
+      await fsm.receiveStream.firstWhere((e) => e == null);
 
       for (final m in await db.allMemes.get()) {
         expect(m.scannedText, _texts[m.id]);
@@ -61,7 +61,7 @@ void main() {
 
       final fsm = GetIt.I<ForegroundServiceManager>();
       await fsm.startScanService();
-      await fsm.receiveStream.listen((event) {}).asFuture();
+      await fsm.receiveStream.firstWhere((e) => e == null);
 
       // Text didn't change
       for (final m in await db.allMemes.get()) {
