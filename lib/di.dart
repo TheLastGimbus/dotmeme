@@ -22,11 +22,8 @@ bool _isInitialized = false;
 /// Decide whether you want fake data or real one with [env]
 void init(Environment env) {
   if (env == Environment.prod) {
-    // WTF: Databases on UI and fservice don't react with each other :)))
-    // (when using query.watch() )
-    // Someday todo: Make databases on UI and fservice react to each other
     getIt.registerLazySingleton<Memebase>(
-      () => Memebase(Memebase.diskDatabase),
+      () => Memebase.getBackgroundDatabase(),
       dispose: (db) => db.close(),
     );
     getIt.registerSingleton<MediaManager>(MediaManager());
