@@ -13,6 +13,7 @@ void main() {
           "dupa12",
           "bla bla blabla",
           "CLOSE",
+          null,
         ]));
     fsm.send("dupa12");
     fsm.send("bla bla blabla");
