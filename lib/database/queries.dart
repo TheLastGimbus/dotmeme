@@ -86,6 +86,16 @@ extension Queries on Memebase {
     throw "WTF: This should never happen";
   }
 
+  Future<int> get allMemesCount async {
+    final exp = memes.id.count();
+    final q = ((selectOnly(memes)..addColumns([exp])).join([
+      innerJoin(folders, folders.id.equalsExp(memes.folderId)),
+    ]));
+    q.where(folders.scanningEnabled.equals(true));
+    final raw = await q.getSingle();
+    return raw.read(exp);
+  }
+
   Future<int> get scannedMemesCount async {
     final exp = memes.id.count();
     final raw = await (selectOnly(memes)

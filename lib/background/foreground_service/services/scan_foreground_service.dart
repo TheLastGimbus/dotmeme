@@ -67,23 +67,25 @@ class ScanForegroundService implements TheForegroundService {
     // Of course, this isn't very safe, but it's best we can do and will work
     // 99.999% of times
     int lastLength = -1;
-    // Actually - I don't know if re-running allMemes query *every time* is good
-    _allMemesStream = _db.allNotScannedMemes.watch().listen((allMemes) {
-      if (lastLength == allMemes.length) return;
-      lastLength = allMemes.length;
+    _allMemesStream = _db.allNotScannedMemes.watch().listen((notScannedMemes) {
+      if (lastLength == notScannedMemes.length) return;
+      lastLength = notScannedMemes.length;
+      final allCountFuture = _db.allMemesCount;
       _scanStream?.cancel();
-      _scanStream = scanMemes(allMemes).listen(
+      _scanStream = scanMemes(notScannedMemes).listen(
         (event) async {
+          // The count will decrease when we do setText()
+          lastLength--;
           await _db.setMemeScannedText(
             event.id.value,
             event.scannedText.value!,
             event.textScannerVersion.value!,
           );
-          final scanned = await _db.scannedMemesCount;
           // TODO: Emit some states to UI with default stream
+          final allCount = await allCountFuture;
           _notifyCtrl.add(FServiceNotificationData(
             "dotmeme scanning",
-            "$scanned/${allMemes.length}",
+            "${allCount - lastLength}/$allCount - $lastLength left",
           ));
         },
         onDone: () async {
