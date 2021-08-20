@@ -17,7 +17,7 @@ part 'memebase.g.dart';
 
 @UseMoor(
   tables: [Folders, Memes],
-  include: {'tables/memes_fts.moor'}
+  include: {'tables/memes_fts.moor'},
 )
 class Memebase extends _$Memebase {
   Memebase(QueryExecutor q) : super(q);
