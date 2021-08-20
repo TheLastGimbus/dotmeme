@@ -35,23 +35,21 @@ void main() {
     tearDown(() async {
       await db.close();
     });
-
-    expectSearch(Memebase db, String string, Set<int> ids) async {
+    expectSearch(String string, Set<int> ids) async {
       final result = await db.searchMemesByScannedText(string).get();
       expect(result.map((e) => e.id).toSet(), ids);
     }
 
     test("basic raw search", () async {
-      await expectSearch(db, "this", {54352, 65436, 90352, 90675});
-      await expectSearch(db, "and", {90352, 34503});
-      await expectSearch(db, "number", {54352, 65436, 90352});
-      await expectSearch(
-          db, "thats OR is", {54352, 65436, 90352, 90675, 34503});
+      await expectSearch("this", {54352, 65436, 90352, 90675});
+      await expectSearch("and", {90352, 34503});
+      await expectSearch("number", {54352, 65436, 90352});
+      await expectSearch("thats OR is", {54352, 65436, 90352, 90675, 34503});
     });
     test("delete", () async {
-      await expectSearch(db, "this", {54352, 65436, 90352, 90675});
+      await expectSearch("this", {54352, 65436, 90352, 90675});
       await (db.delete(db.memes)..where((e) => e.id.equals(65436))).go();
-      await expectSearch(db, "this", {54352, 90352, 90675});
+      await expectSearch("this", {54352, 90352, 90675});
       // Assert :100:% that fts table also deleted them
       final res = await db
           .customSelect(
@@ -60,10 +58,10 @@ void main() {
       expect(res.length, 3);
     });
     test("update", () async {
-      await expectSearch(db, "this", {54352, 65436, 90352, 90675});
+      await expectSearch("this", {54352, 65436, 90352, 90675});
       await (db.update(db.memes)..where((tbl) => tbl.id.equals(54352)))
           .write(const MemesCompanion(scannedText: Value("text number one")));
-      await expectSearch(db, "this", {65436, 90352, 90675});
+      await expectSearch("this", {65436, 90352, 90675});
     });
   });
 }
