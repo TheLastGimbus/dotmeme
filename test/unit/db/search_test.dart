@@ -1,40 +1,41 @@
 import 'package:dotmeme/database/memebase.dart';
+import 'package:dotmeme/database/search.dart';
 import 'package:dotmeme/database/tables/memes.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:moor/moor.dart';
 
 void main() {
-  group("FTS5 search functionality", () {
-    const _memez = {
-      54352: 'this is text number one',
-      65436: 'this however is text number two',
-      90352: 'and this, unexpectedly, is text number three',
-      90675: 'oh this is four',
-      34503: '...and thats five...',
-    };
-    late Memebase db;
-    setUp(() async {
-      db = Memebase(Memebase.virtualDatabase);
-      await db.batch((b) {
-        for (final entry in _memez.entries) {
-          b.insert(
-            db.memes,
-            Meme(
-              id: entry.key,
-              folderId: 69,
-              memeType: MemeType.image.index,
-              lastModified: DateTime.now(),
-              scannedText: entry.value,
-              textScannerVersion: -1,
-            ),
-          );
-        }
-      });
-      return db;
+  const _memez = {
+    54352: 'this is text number one',
+    65436: 'this however is text number two',
+    90352: 'and this, unexpectedly, is text number three',
+    90675: 'oh this is four',
+    34503: '...and thats five...',
+  };
+  late Memebase db;
+  setUp(() async {
+    db = Memebase(Memebase.virtualDatabase);
+    await db.batch((b) {
+      for (final entry in _memez.entries) {
+        b.insert(
+          db.memes,
+          Meme(
+            id: entry.key,
+            folderId: 69,
+            memeType: MemeType.image.index,
+            lastModified: DateTime.now(),
+            scannedText: entry.value,
+            textScannerVersion: -1,
+          ),
+        );
+      }
     });
-    tearDown(() async {
-      await db.close();
-    });
+    return db;
+  });
+  tearDown(() async {
+    await db.close();
+  });
+  group("Search - basic FTS5 query", () {
     expectSearch(String string, Set<int> ids) async {
       final result = await db.searchMemesByScannedText(string).get();
       expect(result.map((e) => e.id).toSet(), ids);
@@ -62,6 +63,31 @@ void main() {
       await (db.update(db.memes)..where((tbl) => tbl.id.equals(54352)))
           .write(const MemesCompanion(scannedText: Value("text number one")));
       await expectSearch("this", {65436, 90352, 90675});
+    });
+  });
+  group("Search - high-level interface", () {
+    test("basic search", () async {
+      final res =
+          await db.searchMemes("this should cover everything even five").get();
+      expect(res.map((e) => e.id).toSet(), _memez.keys.toSet());
+    });
+    test("correct sort", () async {
+      final res = await db
+          .searchMemes("and this, unexpectedly, is text number three")
+          .get();
+      expect(res.length, _memez.length);
+      expect(res.map((e) => e.id).first, 90352);
+    });
+    test("weird user gibberish resistance", () async {
+      final res = await db
+          .searchMemes(" \"'!@#\$%^&*()_+= :\"/'>< ** okay thats it  `~ ")
+          .get();
+      expect(res.map((e) => e.id).toSet(), {34503});
+    });
+    // TODO: Some for suffixes to work to :(
+    test("only prefixes also match", () async {
+      final res = await db.searchMemes("tha").get();
+      expect(res.map((e) => e.id).toSet(), {34503});
     });
   });
 }
