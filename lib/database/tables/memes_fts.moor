@@ -1,0 +1,24 @@
+import 'memes.dart';
+
+-- This will use data from 'memes' table (text won't be duplicated)
+CREATE VIRTUAL TABLE memes_fts USING fts5(
+    scanned_text,
+    content='memes',
+    content_rowid='id'
+);
+
+-- Triggers to keep the FTS index up to date.
+CREATE TRIGGER memes_ai AFTER INSERT ON memes BEGIN
+    INSERT INTO memes_fts(ROWID, scanned_text) VALUES (NEW.id, NEW.scanned_text);
+END;
+CREATE TRIGGER memes_ad AFTER DELETE ON memes BEGIN
+    INSERT INTO memes_fts(memes_fts, ROWID, scanned_text) VALUES('delete', OLD.id, OLD.scanned_text);
+END;
+CREATE TRIGGER memes_au AFTER UPDATE ON memes BEGIN
+    INSERT INTO memes_fts(memes_fts, ROWID, scanned_text) VALUES('delete', OLD.id, OLD.scanned_text);
+    INSERT INTO memes_fts(ROWID, scanned_text) VALUES (NEW.id, NEW.scanned_text);
+END;
+
+searchMemesByScannedText:
+    SELECT memes.* FROM memes INNER JOIN memes_fts mF on memes.ROWID = mF.ROWID
+    WHERE mF.scanned_text MATCH :string ORDER BY rank;
