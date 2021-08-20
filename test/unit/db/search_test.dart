@@ -44,5 +44,17 @@ void main() {
       await expectSearch(
           db, "thats OR is", {54352, 65436, 90352, 90675, 34503});
     });
+    test("delete", () async {
+      final db = await setupTestDb();
+      await expectSearch(db, "this", {54352, 65436, 90352, 90675});
+      await (db.delete(db.memes)..where((e) => e.id.equals(65436))).go();
+      await expectSearch(db, "this", {54352, 90352, 90675});
+      // Assert :100:% that fts table also deleted them
+      final res = await db
+          .customSelect(
+          "SELECT * FROM memes_fts WHERE scanned_text MATCH 'this'")
+          .get();
+      expect(res.length, 3);
+    });
   });
 }
