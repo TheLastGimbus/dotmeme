@@ -1,6 +1,7 @@
 import 'package:dotmeme/database/memebase.dart';
 import 'package:dotmeme/database/tables/memes.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:moor/moor.dart';
 
 void main() {
   const _memez = {
@@ -52,9 +53,16 @@ void main() {
       // Assert :100:% that fts table also deleted them
       final res = await db
           .customSelect(
-          "SELECT * FROM memes_fts WHERE scanned_text MATCH 'this'")
+              "SELECT * FROM memes_fts WHERE scanned_text MATCH 'this'")
           .get();
       expect(res.length, 3);
+    });
+    test("update", () async {
+      final db = await setupTestDb();
+      await expectSearch(db, "this", {54352, 65436, 90352, 90675});
+      await (db.update(db.memes)..where((tbl) => tbl.id.equals(54352)))
+          .write(const MemesCompanion(scannedText: Value("text number one")));
+      await expectSearch(db, "this", {65436, 90352, 90675});
     });
   });
 }
