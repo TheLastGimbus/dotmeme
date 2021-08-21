@@ -67,8 +67,10 @@ class ScanForegroundService implements TheForegroundService {
     // Of course, this isn't very safe, but it's best we can do and will work
     // 99.999% of times
     int lastLength = -1;
-    _allMemesStream = _db.allNotScannedMemes.watch().listen((notScannedMemes) {
-      if (lastLength == notScannedMemes.length) return;
+    _allMemesStream = _db.allNotScannedMemes
+        .watch()
+        .where((e) => e.length != lastLength)
+        .listen((notScannedMemes) {
       lastLength = notScannedMemes.length;
       final allCountFuture = _db.allMemesCount;
       _scanStream?.cancel();
