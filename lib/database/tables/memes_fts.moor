@@ -1,3 +1,4 @@
+-- This file contains declarations of FTS5 table and queries for *searching memes*
 import 'memes.dart';
 
 -- This will use data from 'memes' table (text won't be duplicated)
