@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../database/memebase.dart';
 import '../../../../database/queries.dart';
+import '../../../../database/search.dart';
 import 'home_state.dart';
 
 /// This cubit manages what's visible on home page meme roll
@@ -14,22 +15,32 @@ import 'home_state.dart';
 
 class HomeCubit extends Cubit<HomeState> {
   final Memebase db;
-  StreamSubscription? _allMemesStream;
+  StreamSubscription? _selectedMemesStream;
 
   HomeCubit(this.db) : super(HomeLoadingState()) {
-    init();
+    allMemes();
   }
 
   /// Load memes
-  void init() async {
-    _allMemesStream?.cancel();
-    _allMemesStream =
+  void allMemes() async {
+    await _selectedMemesStream?.cancel();
+    _selectedMemesStream =
         db.allMemes.watch().listen((event) => emit(HomeSuccessState(event)));
+  }
+
+  Future<void> search(String userInput) async {
+    await _selectedMemesStream?.cancel();
+    // We don't use .watch() because experience could be poor if it was
+    // scanning in background
+    final w = Stopwatch()..start();
+    emit(HomeSuccessState(await db.searchMemes(userInput).get()));
+    // ignore: avoid_print
+    print('Search took ${w.elapsedMilliseconds}ms');
   }
 
   @override
   Future<void> close() async {
-    await _allMemesStream?.cancel();
+    await _selectedMemesStream?.cancel();
     await super.close();
   }
 }

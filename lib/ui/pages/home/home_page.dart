@@ -23,6 +23,7 @@ import 'cubit/home_cubit.dart';
 import 'cubit/home_state.dart';
 import 'widgets/home_page_app_bar.dart';
 import 'widgets/permission_pages.dart' as pp;
+import 'widgets/search_bar.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -81,7 +82,8 @@ class _HomeViewState extends State<HomeView> {
 
   @override
   Widget build(BuildContext context) {
-    final state = context.watch<HomeCubit>().state;
+    final homeCbt = context.watch<HomeCubit>();
+    final state = homeCbt.state;
     Widget body = const _LoadingBody();
     // Omg google why can't you just add switch-as-statement
     // like normal Kotlin people do
@@ -92,7 +94,22 @@ class _HomeViewState extends State<HomeView> {
     }
     return Scaffold(
       appBar: const HomePageAppBar(),
-      body: body,
+      body: Stack(
+        children: [
+          body,
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              child: SearchBar(
+                onChanged: (text) => text.trim().isNotEmpty
+                    ? homeCbt.search(text)
+                    : homeCbt.allMemes(),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
