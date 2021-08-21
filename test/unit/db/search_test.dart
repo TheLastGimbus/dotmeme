@@ -90,4 +90,12 @@ void main() {
       expect(res.map((e) => e.id).toSet(), {34503});
     });
   });
+  group("Fuzzy search", () {
+    test("simple spell mistakes", () async {
+      final fiwe = await db.searchMemes("fiwe").get();
+      expect(fiwe.first.id, 34503);
+      final unexpectedly = await db.searchMemes("unekspectedly").get();
+      expect(unexpectedly.first.id, 90352);
+    });
+  }, skip: "Search isn't fuzzy yet :(");
 }
