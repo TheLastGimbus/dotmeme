@@ -22,4 +22,5 @@ END;
 
 searchMemesByScannedText:
     SELECT memes.* FROM memes INNER JOIN memes_fts mF on memes.ROWID = mF.ROWID
-    WHERE mF.scanned_text MATCH :string ORDER BY rank;
+    WHERE mF.scanned_text MATCH :string
+    ORDER BY rank ASC, memes.last_modified DESC;
