@@ -80,9 +80,9 @@ class ScanForegroundService implements TheForegroundService {
     _allMemesStream = _db.allNotScannedMemes
         .watch()
         .where((e) => e.length != lastLength)
-        .listen((notScannedMemes) {
+        .listen((notScannedMemes) async {
       lastLength = notScannedMemes.length;
-      _scanStream?.cancel();
+      await _scanStream?.cancel();
 
       final divided = lastLength == 0
           ? [<Meme>[]]
