@@ -20,6 +20,11 @@ dependencies:
   ## State management
   flutter_bloc: ^7.1.0
 
+  memoize:
+    # TODO: Change this tu pub when it gets merged
+    git:
+      url: "https://github.com/KanarekApp/memoize_dart"
+      ref: "_multiple_results_stash"
   async: ">=2.0.0 <3.0.0"
   equatable: ^2.0.3
   logger: ^1.0.0

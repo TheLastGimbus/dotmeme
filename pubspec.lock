@@ -370,6 +370,15 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.12.10"
+  memoize:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: _multiple_results_stash
+      resolved-ref: ae25f4dbbd6473f44de54c36cf4d6fb0a4ad791b
+      url: "https://github.com/KanarekApp/memoize_dart"
+    source: git
+    version: "3.0.0"
   meta:
     dependency: transitive
     description:

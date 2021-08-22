@@ -17,6 +17,7 @@ import 'package:get_it/get_it.dart';
 import '../../../database/bloc.dart';
 import '../../../database/memebase.dart';
 import '../../../device_media/media_manager.dart';
+import '../../common/cubit/common_cache_cubit.dart';
 import '../../common/cubit/media_sync_cubit.dart';
 import '../swiping/swiping_page.dart';
 import 'cubit/home_cubit.dart';
@@ -136,12 +137,6 @@ class _SuccessBody extends StatelessWidget {
 
   const _SuccessBody(this.state, {Key? key}) : super(key: key);
 
-  Future<Uint8List?> _getThumb(Meme meme) async {
-    final ass =
-        await GetIt.I<MediaManager>().assetEntityFromId(meme.id.toString());
-    return ass?.thumbData;
-  }
-
   @override
   Widget build(BuildContext context) {
     return state.memes.isNotEmpty
@@ -151,7 +146,7 @@ class _SuccessBody extends StatelessWidget {
             itemBuilder: (context, index) => GestureDetector(
               child: Container(
                 margin: const EdgeInsets.all(0.5),
-                child: _memeThumbnail(state.memes[index]),
+                child: _memeThumbnail(context, state.memes[index]),
               ),
               onTap: () => Navigator.of(context).push(
                 MaterialPageRoute(
@@ -168,9 +163,9 @@ class _SuccessBody extends StatelessWidget {
           );
   }
 
-  Widget _memeThumbnail(Meme meme) {
+  Widget _memeThumbnail(BuildContext context, Meme meme) {
     return FutureBuilder(
-      future: _getThumb(meme),
+      future: context.read<CommonCacheCubit>().getThumbWithCache(meme.id),
       builder: (_, AsyncSnapshot<Uint8List?> snap) => snap.hasData
           ? snap.data != null
               ? Image.memory(snap.data!, fit: BoxFit.cover)

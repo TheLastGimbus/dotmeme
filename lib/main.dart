@@ -1,3 +1,4 @@
+import 'package:dotmeme/ui/common/cubit/common_cache_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
@@ -36,6 +37,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         BlocProvider(create: (_) => DbCubit(GetIt.I<Memebase>())),
         BlocProvider(create: (_) => MediaSyncCubit(GetIt.I<Memebase>())),
         BlocProvider(create: (_) => BackgroundTasksCubit()),
+        BlocProvider(create: (_) => CommonCacheCubit())
       ],
       child: MaterialApp(
         title: 'dotmeme',
