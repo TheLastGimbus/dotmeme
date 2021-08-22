@@ -20,6 +20,7 @@ dependencies:
   ## State management
   flutter_bloc: ^7.1.0
 
+  async: ">=2.0.0 <3.0.0"
   equatable: ^2.0.3
   logger: ^1.0.0
 

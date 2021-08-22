@@ -1,5 +1,8 @@
 import 'dart:async';
+import 'dart:io';
+import 'dart:math';
 
+import 'package:async/async.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:moor/moor.dart';
@@ -53,6 +56,13 @@ class ScanForegroundService implements TheForegroundService {
     }
   }
 
+  /// Logic that decides how many threads we will use
+  /// Currently, uses half of available processors
+  // In future, it may use some SharedPreferences or other fancy stuff
+  int _getThreadsNumber() {
+    return max(1, Platform.numberOfProcessors ~/ 2);
+  }
+
   void _task() async {
     // TODO: Check permission with other plugin
     await _mm.setIgnorePermissionCheck(true);
@@ -72,9 +82,15 @@ class ScanForegroundService implements TheForegroundService {
         .where((e) => e.length != lastLength)
         .listen((notScannedMemes) {
       lastLength = notScannedMemes.length;
-      final allCountFuture = _db.allMemesCount;
       _scanStream?.cancel();
-      _scanStream = scanMemes(notScannedMemes).listen(
+
+      final divided = lastLength == 0
+          ? [<Meme>[]]
+          // Prevent dividing to more than there's elements
+          : notScannedMemes.divideToParts(min(lastLength, _getThreadsNumber()));
+
+      _scanStream =
+          StreamGroup.merge([for (final sub in divided) scanMemes(sub)]).listen(
         (event) async {
           // The count will decrease when we do setText()
           lastLength--;
@@ -84,7 +100,7 @@ class ScanForegroundService implements TheForegroundService {
             event.textScannerVersion.value!,
           );
           // TODO: Emit some states to UI with default stream
-          final allCount = await allCountFuture;
+          final allCount = await _db.allMemesCount;
           _notifyCtrl.add(FServiceNotificationData(
             "dotmeme scanning",
             "${allCount - lastLength}/$allCount - $lastLength left",
@@ -116,5 +132,44 @@ class ScanForegroundService implements TheForegroundService {
     await _scanStream?.cancel();
     await _ctrl.close();
     await _notifyCtrl.close();
+  }
+}
+
+extension _Util<E> on List<E> {
+  /// Divides list to smaller list, but divided like "every N-th",
+  /// not .sublist()
+  /// This way, if you have ordered list, items will be more evenly spread:
+  /// ```dart
+  /// var list = [1, 2, 3, 4, 5, 6, 7, 8];
+  /// list.divideToParts(2);
+  /// >>> [[1, 3, 5, 7], [2, 4, 6, 8]]
+  /// // But also:
+  /// list.divideToParts(3);
+  /// >>> [[1, 4], [2, 5], [3, 6, 7, 8]]
+  /// ```
+  /// ...you get what I mean
+  /// It took me 2 hours to write this beauty <3
+  List<List<E>> divideToParts(int parts) {
+    assert(parts <= length);
+    final normalSize = length ~/ parts;
+    final rest = length % parts;
+    final lastSize = normalSize + rest;
+    return List.generate(
+      parts,
+      (listN) => List.generate(
+        listN == parts - 1 ? lastSize : normalSize,
+        (i) {
+          // Offset index (every N-th)
+          var idx = listN + (i * parts);
+          // If it's out of range, than we proceed to pick up the rest normally
+          if (idx >= length) {
+            // Iterate over last left (unevenly cut) values
+            var newI = i - normalSize;
+            idx = (length - rest) + newI;
+          }
+          return this[idx];
+        },
+      ),
+    );
   }
 }

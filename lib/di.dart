@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 
@@ -36,7 +35,9 @@ void init(Environment env) {
     getIt.registerLazySingleton<ForegroundServiceManager>(
       // Save few hours wasted on re-installing the app
       // Because hot-reload doesn't work in FServices
-      () => kDebugMode
+      // Edit: actually, it became annoying the other way
+      // TODO: Some cool way to hot-switch this
+      () => /* kDebugMode */ false
           ? MockForegroundServiceManager()
           : ForegroundServiceManager(),
       dispose: (fsm) => fsm.dispose(),
