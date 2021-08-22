@@ -72,6 +72,9 @@ class ScanForegroundService implements TheForegroundService {
     await _db.foldersSync(deviceFolders);
     await _db.allFoldersMemeSync(deviceFolders);
 
+    final scanBegin = DateTime.now();
+    var scannedCount = 0;
+
     //.watch() watches everything - so it will run each time we call .setText()
     // (omg Native Android PTSD) - so we check if length is same.
     // Of course, this isn't very safe, but it's best we can do and will work
@@ -88,6 +91,7 @@ class ScanForegroundService implements TheForegroundService {
           ? [<Meme>[]]
           // Prevent dividing to more than there's elements
           : notScannedMemes.divideToParts(min(lastLength, _getThreadsNumber()));
+      _log.d("Scanning with ${divided.length} threads");
 
       _scanStream =
           StreamGroup.merge([for (final sub in divided) scanMemes(sub)]).listen(
@@ -99,6 +103,7 @@ class ScanForegroundService implements TheForegroundService {
             event.scannedText.value!,
             event.textScannerVersion.value!,
           );
+          scannedCount++;
           // TODO: Emit some states to UI with default stream
           final allCount = await _db.allMemesCount;
           _notifyCtrl.add(FServiceNotificationData(
@@ -107,6 +112,9 @@ class ScanForegroundService implements TheForegroundService {
           ));
         },
         onDone: () async {
+          final time = DateTime.now().difference(scanBegin);
+          _log.v("Finished scanning: $scannedCount memes in $time "
+              "- ${(scannedCount / time.inSeconds) * 60}memes/min");
           await _allMemesStream.cancel();
           await _ctrl.close();
         },
