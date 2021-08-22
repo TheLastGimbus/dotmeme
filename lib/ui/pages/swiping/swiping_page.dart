@@ -1,7 +1,11 @@
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:image/image.dart' as ui;
+import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../../database/memebase.dart';
@@ -67,16 +71,57 @@ class _SwipingPageState extends State<SwipingPage> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            IconButton(
-              icon: const Icon(Icons.share, color: Colors.white),
-              onPressed: () async {
-                // TODO: Watermark
+            InkWell(
+              customBorder: const CircleBorder(),
+              child: const Padding(
+                padding: EdgeInsets.all(16.0),
+                child: Icon(Icons.share, color: Colors.white),
+              ),
+              onTap: () async {
+                // TODO: Move this to separate logic
+                final currentMeme = widget.memes[pageCtrl.page!.round()];
+                final imageBytes =
+                    await cacheCbt.getImageWithCache(currentMeme.id);
+                if (imageBytes == null) throw "$currentMeme bytes is null!";
+                final orig = ui.decodeImage(imageBytes);
+                if (orig == null) throw "Can't decode $currentMeme!";
+
+                // Watermark will take 1/Nth of image width
+                const sizeFraction = 3.0;
+                const alpha = 120;
+                var watermark = ui.Image(630, 70);
+                watermark = watermark.fill(Colors.white.value);
+                watermark = ui.drawString(
+                  watermark,
+                  ui.arial_48,
+                  10,
+                  10,
+                  "Found with (new) dotmeme!",
+                  color: Colors.black.value,
+                );
+                watermark = ui.colorOffset(watermark, alpha: alpha - 255);
+                final scale = (orig.width / sizeFraction) / watermark.width;
+                watermark = ui.copyResize(
+                  watermark,
+                  width: (watermark.width * scale).round(),
+                  height: (watermark.height * scale).round(),
+                );
+
+                var withWater = ui.copyInto(orig, watermark,
+                    dstX: 0, dstY: (orig.height * 0.9).round());
+                final dir = await getApplicationDocumentsDirectory();
+                final tmpFile = File(p.join(dir.path, 'tmp.png'));
+                final w = await tmpFile.writeAsBytes(ui.encodePng(withWater));
+
+                await Share.shareFiles([w.path]);
+              },
+              // No watermark on long press
+              onLongPress: () async {
+                // TODO: Move this to separate logic
                 final currentMeme = widget.memes[pageCtrl.page!.round()];
                 final file = await cacheCbt.getFileWithCache(currentMeme.id);
-                if (file == null) {
-                  throw "Can't share meme $currentMeme because file is null!";
-                }
-                Share.shareFiles([file.path]);
+                if (file == null) throw "$currentMeme file is null!";
+                await Share.shareFiles([file.path]);
               },
             ),
           ],
