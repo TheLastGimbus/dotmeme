@@ -40,6 +40,7 @@ dependencies:
   image_size_getter: ^1.0.0
   ## Plugins
   path_provider: ^2.0.2
+  share_plus: ^2.1.4
   sqlite3_flutter_libs: ^0.5.0
 
   flutter_tesseract_ocr:
