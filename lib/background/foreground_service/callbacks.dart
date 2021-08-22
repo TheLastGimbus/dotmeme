@@ -37,6 +37,9 @@ void _setupService(TheForegroundService Function() createService) {
   late TheForegroundService service;
   ReceivePort? receivePort;
 
+  /// Measure how long service has run
+  late DateTime beginTime;
+
   /// Send message to ui - returns false if port not found
   bool send(dynamic message) {
     final uiPort =
@@ -53,6 +56,7 @@ void _setupService(TheForegroundService Function() createService) {
     (timestamp, _) async {
       // If not null then we're already set up
       if (receivePort != null) return;
+      beginTime = DateTime.now();
       // We need to create it inside initDispatcher to have access to plugins
       service = createService();
       log.d("Initializing $service in foreground service");
@@ -93,7 +97,8 @@ void _setupService(TheForegroundService Function() createService) {
       receivePort = null;
       await service.dispose();
       await di.dispose();
-      log.d("Foreground service with $service was closed");
+      log.d("Foreground service with $service was closed "
+          "- it ran for ${DateTime.now().difference(beginTime)}");
     },
   );
 }
