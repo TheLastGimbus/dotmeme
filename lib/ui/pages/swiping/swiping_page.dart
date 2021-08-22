@@ -2,10 +2,8 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get_it/get_it.dart';
 
 import '../../../database/memebase.dart';
-import '../../../device_media/media_manager.dart';
 import '../../common/cubit/common_cache_cubit.dart';
 
 class SwipingPage extends StatelessWidget {
@@ -19,16 +17,47 @@ class SwipingPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      body: PageView.builder(
-        controller: PageController(initialPage: initialIndex),
-        itemCount: memes.length,
-        itemBuilder: (context, index) => GestureDetector(
-          child: _image(context, memes[index]),
-          onVerticalDragEnd: (details) {
-            if (details.velocity.pixelsPerSecond.direction > 0) {
-              Navigator.of(context).pop();
-            }
-          },
+      body: Stack(
+        children: [
+          PageView.builder(
+            controller: PageController(initialPage: initialIndex),
+            itemCount: memes.length,
+            itemBuilder: (context, index) => GestureDetector(
+              child: _image(context, memes[index]),
+              onVerticalDragEnd: (details) {
+                if (details.velocity.pixelsPerSecond.direction > 0) {
+                  Navigator.of(context).pop();
+                }
+              },
+            ),
+          ),
+          Align(alignment: Alignment.bottomCenter, child: _bottomBar()),
+        ],
+      ),
+    );
+  }
+
+  Widget _bottomBar() {
+    return Material(
+      color: Colors.transparent,
+      child: Container(
+        height: 64,
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Colors.transparent, Colors.black54],
+          ),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            IconButton(
+              icon: const Icon(Icons.share, color: Colors.white),
+              // TODO: Share
+              onPressed: () {},
+            ),
+          ],
         ),
       ),
     );
