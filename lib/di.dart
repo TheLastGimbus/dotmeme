@@ -37,9 +37,10 @@ void init(Environment env) {
       // Because hot-reload doesn't work in FServices
       // Edit: actually, it became annoying the other way
       // TODO: Some cool way to hot-switch this
-      () => /* kDebugMode */ false
-          ? MockForegroundServiceManager()
-          : ForegroundServiceManager(),
+      // () => kDebugMode
+      //     ? MockForegroundServiceManager()
+      //     : ForegroundServiceManager(),
+      () => ForegroundServiceManager(),
       dispose: (fsm) => fsm.dispose(),
     );
     getIt.registerLazySingleton<OcrScanner>(() => OcrScanner());
