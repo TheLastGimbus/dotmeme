@@ -108,19 +108,16 @@ extension MediaSync on Memebase {
     // Also, with every "file moved", two events come:
     // DELETE in one and ADD in the other
     // But our DirWatcher stream emits events as-is
-    // So we hold those for some time in those two sets
+    // So we hold those for some time in this Set
 
-    // Keeps track of which folders have to be refreshed (something was added)
-    final devFoldersToRefresh = <AssetPathEntity>{};
     // Keeps track of what folders to sync in general
     final foldersToSync = <int>{};
 
     // This function is called after events stop coming for some time
     Future<void> flushEvents() async {
-      _log.d("Flushing changeEvent buffer - \n"
-          "devFolders to refresh: $devFoldersToRefresh ; \n"
-          "folders to sync: $foldersToSync");
-      for (final ass in devFoldersToRefresh) {
+      _log.d("Flushing changeEvent buffer: $foldersToSync");
+      for (final ass in deviceFolders
+          .where((e) => foldersToSync.contains(int.parse(e.id)))) {
         await ass.refreshPathProperties();
       }
       await _foldersMemeSync(
@@ -128,7 +125,7 @@ extension MediaSync on Memebase {
             .get(),
         deviceFolders,
       );
-      devFoldersToRefresh.clear();
+      _log.d("Flushing $foldersToSync done");
       foldersToSync.clear();
     }
 
@@ -156,7 +153,6 @@ extension MediaSync on Memebase {
           // When new events come, add them to buffer and reset the
           // Future.delayed()
           await _fileWatcherBufferFlush?.cancel();
-          if (e.type == ChangeType.ADD) devFoldersToRefresh.add(devFol);
           switch (e.type) {
             case ChangeType.ADD:
             case ChangeType.REMOVE:
