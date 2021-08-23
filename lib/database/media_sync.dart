@@ -50,12 +50,21 @@ extension MediaSync on Memebase {
   }
 
   Future<void> _foldersMemeSync(
-      List<Folder> dbFolders, List<AssetPathEntity> deviceFolders) async {
+    List<Folder> dbFolders,
+    List<AssetPathEntity> deviceFolders, {
+    bool skipIfNotModified = true,
+  }) async {
     await batch((b) async {
       for (final f in dbFolders) {
-        final assets = await deviceFolders
-            .firstWhere((e) => int.parse(e.id) == f.id)
-            .assetList;
+        final assPath =
+            deviceFolders.firstWhere((e) => int.parse(e.id) == f.id);
+        // This requires as to be BOY SURE that db's lastModified stuff is
+        // correct and doesn't mess with local timezones etc
+        // TODO URGENT: Test this before production
+        if (skipIfNotModified && assPath.lastModified == f.lastModified) {
+          continue;
+        }
+        final assets = await assPath.assetList;
         final newMemes = assets.map((e) => Meme(
               id: int.parse(e.id),
               folderId: f.id,
@@ -68,6 +77,14 @@ extension MediaSync on Memebase {
           memes,
           (Memes tbl) => (tbl.folderId.equals(f.id) &
               tbl.id.isNotIn(assets.map((e) => int.parse(e.id)))),
+        );
+        b.update(
+          folders,
+          FoldersCompanion(
+            name: Value(assPath.name),
+            lastModified: Value(assPath.lastModified!),
+          ),
+          where: (Folders tbl) => tbl.id.equals(f.id),
         );
       }
     });
@@ -84,7 +101,7 @@ extension MediaSync on Memebase {
     final foldersToAdd = deviceFolders.map((e) => FoldersCompanion.insert(
           id: Value(int.parse(e.id)),
           name: e.name,
-          lastModified: Value(e.lastModified ?? DateTime.now()),
+          lastModified: Value(e.lastModified!),
         ));
     // Folders that are in db but not on device (they were deleted by user)
     final foldersToDelete = dbIds.where((e) => !pathIds.contains(e));
