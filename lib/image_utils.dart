@@ -24,10 +24,16 @@ Uint8List addTextWatermark(
   final orig = ui.decodeImage(image);
   if (orig == null) throw "Can't decode image!";
 
-  // Watermark will take 1/N-th of image width
-  var watermark = ui.Image(630, 70);
+  final font = ui.arial_48;
+  var textWidth = 0.0;
+  for (final c in text.characters) {
+    textWidth += font.characterXAdvance(c) * 1.165;
+  }
+
+  const margin = 10;
+  var watermark = ui.Image(textWidth.round() + margin * 2, 50 + (margin * 2));
   watermark = watermark.fill(Colors.white.value);
-  watermark = ui.drawString(watermark, ui.arial_48, 10, 10, text,
+  watermark = ui.drawString(watermark, font, margin, margin, text,
       color: Colors.black.value);
   watermark = ui.colorOffset(watermark, alpha: alpha - 255);
   final scale = (orig.width * widthFraction) / watermark.width;
