@@ -776,7 +776,20 @@ abstract class _$Memebase extends GeneratedDatabase {
   late final $FoldersTable folders = $FoldersTable(this);
   Selectable<Meme> searchMemesByScannedText(String string) {
     return customSelect(
-        'SELECT memes.* FROM memes INNER JOIN memes_fts mF on memes.ROWID = mF.ROWID\n    WHERE mF.scanned_text MATCH :string\n    ORDER BY rank ASC, memes.last_modified DESC',
+        'SELECT memes.* FROM memes\n    INNER JOIN folders on memes.folder_id = folders.id\n    INNER JOIN memes_fts mF on memes.ROWID = mF.ROWID\n    WHERE folders.scanning_enabled = true AND mF.scanned_text MATCH :string\n    ORDER BY rank ASC, memes.last_modified DESC',
+        variables: [
+          Variable<String>(string)
+        ],
+        readsFrom: {
+          memes,
+          folders,
+          memesFts,
+        }).map(memes.mapFromRow);
+  }
+
+  Selectable<Meme> searchAllMemesLiteralByScannedText(String string) {
+    return customSelect(
+        'SELECT memes.* FROM memes\n    INNER JOIN memes_fts mF on memes.ROWID = mF.ROWID\n    WHERE mF.scanned_text MATCH :string\n    ORDER BY rank ASC, memes.last_modified DESC',
         variables: [
           Variable<String>(string)
         ],

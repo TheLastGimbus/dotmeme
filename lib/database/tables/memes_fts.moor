@@ -1,5 +1,6 @@
 -- This file contains declarations of FTS5 table and queries for *searching memes*
 import 'memes.dart';
+import 'folders.dart';
 
 -- This will use data from 'memes' table (text won't be duplicated)
 CREATE VIRTUAL TABLE memes_fts USING fts5(
@@ -20,7 +21,17 @@ CREATE TRIGGER memes_au AFTER UPDATE ON memes BEGIN
     INSERT INTO memes_fts(ROWID, scanned_text) VALUES (NEW.id, NEW.scanned_text);
 END;
 
+-- Search memes from enabled folders
 searchMemesByScannedText:
-    SELECT memes.* FROM memes INNER JOIN memes_fts mF on memes.ROWID = mF.ROWID
+    SELECT memes.* FROM memes
+    INNER JOIN folders on memes.folder_id = folders.id
+    INNER JOIN memes_fts mF on memes.ROWID = mF.ROWID
+    WHERE folders.scanning_enabled = true AND mF.scanned_text MATCH :string
+    ORDER BY rank ASC, memes.last_modified DESC;
+
+-- Search *literally* all memes - even disabled ones aka non-memes
+searchAllMemesLiteralByScannedText:
+    SELECT memes.* FROM memes
+    INNER JOIN memes_fts mF on memes.ROWID = mF.ROWID
     WHERE mF.scanned_text MATCH :string
     ORDER BY rank ASC, memes.last_modified DESC;
