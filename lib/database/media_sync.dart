@@ -110,6 +110,7 @@ extension MediaSync on Memebase {
             // TODO: Optimize this with some buffer
             .listen((e) async {
           _log.d(e);
+          if (e.type == ChangeType.ADD) await devFol.refreshPathProperties();
           switch (e.type) {
             case ChangeType.ADD:
             case ChangeType.REMOVE:
