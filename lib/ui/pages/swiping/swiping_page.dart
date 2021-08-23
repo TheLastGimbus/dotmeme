@@ -1,11 +1,8 @@
-import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:dotmeme/image_utils.dart' as imutils;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:path/path.dart' as p;
-import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../../database/memebase.dart';
@@ -78,24 +75,17 @@ class _SwipingPageState extends State<SwipingPage> {
                 child: Icon(Icons.share, color: Colors.white),
               ),
               onTap: () async {
-                // TODO: Move this to separate logic
                 final currentMeme = widget.memes[pageCtrl.page!.round()];
-                final imageBytes =
-                    await cacheCbt.getImageWithCache(currentMeme.id);
-                if (imageBytes == null) throw "$currentMeme bytes is null!";
-
-                final withWater = imutils.addTextWatermark(
-                    imageBytes, "Found with (new) dotmeme!");
-
-                final dir = await getApplicationDocumentsDirectory();
-                final tmpFile = File(p.join(dir.path, 'tmp.png'));
-                final w = await tmpFile.writeAsBytes(withWater);
-
-                await Share.shareFiles([w.path]);
+                final bytes = await cacheCbt.getImageWithCache(currentMeme.id);
+                if (bytes == null) throw "$currentMeme bytes is null!";
+                final tmpFile = await imutils.writeTmpFile(
+                  imutils.addTextWatermark(bytes, "Found with (new) dotmeme!"),
+                  ".png",
+                );
+                await Share.shareFiles([tmpFile.path]);
               },
               // No watermark on long press
               onLongPress: () async {
-                // TODO: Move this to separate logic
                 final currentMeme = widget.memes[pageCtrl.page!.round()];
                 final file = await cacheCbt.getFileWithCache(currentMeme.id);
                 if (file == null) throw "$currentMeme file is null!";
