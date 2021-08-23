@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:async/async.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:moor/moor.dart';
@@ -15,6 +16,10 @@ import 'tables/memes.dart';
 final _mm = GetIt.I<MediaManager>();
 final _log = GetIt.I<Logger>();
 final _dirWatchers = <StreamSubscription<WatchEvent>>[];
+CancelableOperation? _fileWatcherBufferFlush;
+
+/// Await this to make sure file watchers are all done
+Future<void>? _fileWatcherBufferFlushing;
 
 /// This extension syncs index of media from device to db
 /// Note that those operations may take a while (some 500ms!),
@@ -92,9 +97,47 @@ extension MediaSync on Memebase {
     return foldersToAdd.map((e) => e.id.value).toList();
   }
 
+  // TODO: Integration tests for this :pray:
+  // TODO someday: "New folder" watcher - isn't urgent tho
   /// Set up system file watchers that will auto-sync db whenever some media
   /// are added/moved/deleted
   Future<void> setupFileWatchers(List<AssetPathEntity> deviceFolders) async {
+    // Okay, how this beauty works:
+    // File move operations are often than on multiple files (user moves N files
+    // instead of just one)
+    // Also, with every "file moved", two events come:
+    // DELETE in one and ADD in the other
+    // But our DirWatcher stream emits events as-is
+    // So we hold those for some time in those two sets
+
+    // Keeps track of which folders have to be refreshed (something was added)
+    final devFoldersToRefresh = <AssetPathEntity>{};
+    // Keeps track of what folders to sync in general
+    final foldersToSync = <int>{};
+
+    // This function is called after events stop coming for some time
+    Future<void> flushEvents() async {
+      _log.d("Flushing changeEvent buffer - \n"
+          "devFolders to refresh: $devFoldersToRefresh ; \n"
+          "folders to sync: $foldersToSync");
+      for (final ass in devFoldersToRefresh) {
+        await ass.refreshPathProperties();
+      }
+      await _foldersMemeSync(
+        await (select(folders)..where((tbl) => tbl.id.isIn(foldersToSync)))
+            .get(),
+        deviceFolders,
+      );
+      devFoldersToRefresh.clear();
+      foldersToSync.clear();
+    }
+
+    // Duration here is the time in which we will execute flushEvents() when
+    // events stop coming
+    getFlushFuture() => CancelableOperation.fromFuture(
+        Future.delayed(const Duration(milliseconds: 2000)))
+      ..value.then((_) => _fileWatcherBufferFlushing = flushEvents());
+
     for (final devFol in deviceFolders) {
       final ass = await devFol.getAssetListRange(start: 0, end: 1);
       final file = await ass.first.file;
@@ -102,31 +145,24 @@ extension MediaSync on Memebase {
         _log.e("Can't watch $devFol because first file is null!");
         continue;
       }
-      final w = DirectoryWatcher(file.parent.path);
+      final dirWatcher = DirectoryWatcher(file.parent.path,
+          pollingDelay: const Duration(milliseconds: 500));
       _dirWatchers.add(
-        w.events
+        dirWatcher.events
             // Not recursive
             .where((e) => File(e.path).parent.path == file.parent.path)
-            // TODO: Optimize this with some buffer
             .listen((e) async {
           _log.d(e);
-          if (e.type == ChangeType.ADD) await devFol.refreshPathProperties();
+          // When new events come, add them to buffer and reset the
+          // Future.delayed()
+          await _fileWatcherBufferFlush?.cancel();
+          if (e.type == ChangeType.ADD) devFoldersToRefresh.add(devFol);
           switch (e.type) {
             case ChangeType.ADD:
             case ChangeType.REMOVE:
-              // TODO: Optimize this with file-based changes
-              // This would probably require saving filepath in db or something
-              // Which I'm not sure is what we want to do
-              await _foldersMemeSync(
-                [
-                  await (select(folders)
-                        ..where((tbl) => tbl.id.equals(int.parse(devFol.id))))
-                      .getSingle()
-                ],
-                deviceFolders,
-              );
-              break;
+              foldersToSync.add(int.parse(devFol.id));
           }
+          _fileWatcherBufferFlush = getFlushFuture();
         }),
       );
     }
@@ -134,6 +170,8 @@ extension MediaSync on Memebase {
 
   /// Close all file watchers. Remember to call this to avoid leaks
   Future<void> closeFileWatchers() async {
+    await _fileWatcherBufferFlush?.cancel();
+    await _fileWatcherBufferFlushing; // Will wait until syncing is done
     for (final dw in _dirWatchers) {
       await dw.cancel();
     }
