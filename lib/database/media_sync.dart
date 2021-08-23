@@ -1,6 +1,11 @@
+import 'dart:async';
+import 'dart:io';
+
 import 'package:get_it/get_it.dart';
+import 'package:logger/logger.dart';
 import 'package:moor/moor.dart';
 import 'package:photo_manager/photo_manager.dart';
+import 'package:watcher/watcher.dart';
 
 import '../device_media/media_manager.dart';
 import 'memebase.dart';
@@ -8,6 +13,8 @@ import 'tables/folders.dart';
 import 'tables/memes.dart';
 
 final _mm = GetIt.I<MediaManager>();
+final _log = GetIt.I<Logger>();
+final _dirWatchers = <StreamSubscription<WatchEvent>>[];
 
 /// This extension syncs index of media from device to db
 /// Note that those operations may take a while (some 500ms!),
@@ -83,6 +90,53 @@ extension MediaSync on Memebase {
       b.deleteWhere(folders, (Folders tbl) => tbl.id.isIn(foldersToDelete));
     });
     return foldersToAdd.map((e) => e.id.value).toList();
+  }
+
+  /// Set up system file watchers that will auto-sync db whenever some media
+  /// are added/moved/deleted
+  Future<void> setupFileWatchers(List<AssetPathEntity> deviceFolders) async {
+    for (final devFol in deviceFolders) {
+      final ass = await devFol.getAssetListRange(start: 0, end: 1);
+      final file = await ass.first.file;
+      if (file == null) {
+        _log.e("Can't watch $devFol because first file is null!");
+        continue;
+      }
+      final w = DirectoryWatcher(file.parent.path);
+      _dirWatchers.add(
+        w.events
+            // Not recursive
+            .where((e) => File(e.path).parent.path == file.parent.path)
+            // TODO: Optimize this with some buffer
+            .listen((e) async {
+          _log.d(e);
+          switch (e.type) {
+            case ChangeType.ADD:
+            case ChangeType.REMOVE:
+              // TODO: Optimize this with file-based changes
+              // This would probably require saving filepath in db or something
+              // Which I'm not sure is what we want to do
+              await _foldersMemeSync(
+                [
+                  await (select(folders)
+                        ..where((tbl) => tbl.id.equals(int.parse(devFol.id))))
+                      .getSingle()
+                ],
+                deviceFolders,
+              );
+              break;
+          }
+        }),
+      );
+    }
+  }
+
+  /// Close all file watchers. Remember to call this to avoid leaks
+  Future<void> closeFileWatchers() async {
+    for (final dw in _dirWatchers) {
+      await dw.cancel();
+    }
+    _dirWatchers.clear();
   }
 
   static Future<List<AssetPathEntity>> getMediaFolders() =>

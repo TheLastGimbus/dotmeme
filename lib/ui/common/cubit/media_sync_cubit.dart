@@ -22,6 +22,7 @@ class MediaSyncCubit extends Cubit<void> {
   /// Execute when user opens app
   void appOpenSync() async {
     final devFolders = await MediaSync.getMediaFolders();
+    db.setupFileWatchers(devFolders); // Don't await it, just go
     await db.enabledFoldersMemeSync(devFolders);
     await db.foldersSync(devFolders);
     // Idk how to do this better
@@ -31,7 +32,7 @@ class MediaSyncCubit extends Cubit<void> {
 
   @override
   Future<void> close() async {
-    // File watchers close
+    await db.closeFileWatchers();
     return await super.close();
   }
 }
