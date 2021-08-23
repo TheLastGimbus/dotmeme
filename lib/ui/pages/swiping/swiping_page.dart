@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:dotmeme/image_utils.dart' as imutils;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:share_plus/share_plus.dart';
@@ -78,9 +79,11 @@ class _SwipingPageState extends State<SwipingPage> {
                 final currentMeme = widget.memes[pageCtrl.page!.round()];
                 final bytes = await cacheCbt.getImageWithCache(currentMeme.id);
                 if (bytes == null) throw "$currentMeme bytes is null!";
+                // I tired to put this into compute(), but OMG is it unpractical
+                // I don't care that ui hangs -_-
                 final tmpFile = await imutils.writeTmpFile(
                   imutils.addTextWatermark(bytes, "Found with (new) dotmeme!"),
-                  ".png",
+                  ".jpg",
                 );
                 await Share.shareFiles([tmpFile.path]);
               },

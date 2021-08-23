@@ -12,7 +12,7 @@ import 'package:path_provider/path_provider.dart' as pp;
 /// I don't know where to put it yet, that's why it's directly in lib/ folder
 /// Tho it will probably be moved somewhere else when more stuff like this comes
 
-/// Adds text watermark to given image. Returned bytes are in .png format
+/// Adds text watermark to given image. Returned bytes are in .jpg format
 ///
 /// [widthFraction] is how much width of original image watermark will take
 Uint8List addTextWatermark(
@@ -39,7 +39,7 @@ Uint8List addTextWatermark(
 
   final withWater =
       ui.copyInto(orig, watermark, dstX: 0, dstY: (orig.height * 0.9).round());
-  return Uint8List.fromList(ui.encodePng(withWater));
+  return Uint8List.fromList(ui.encodeJpg(withWater));
 }
 
 /// Save file to `tmp.[extension]` file in app cache dir
