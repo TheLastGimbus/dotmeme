@@ -1,12 +1,12 @@
 import 'dart:typed_data';
 
-import 'package:dotmeme/image_utils.dart' as imutils;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../../database/memebase.dart';
+import '../../../image_utils.dart' as imutils;
 import '../../common/cubit/common_cache_cubit.dart';
 
 class SwipingPage extends StatefulWidget {
