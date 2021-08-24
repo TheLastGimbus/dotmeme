@@ -125,11 +125,18 @@ void main() {
       final dummy = File(p.join(redditFolder.path, 'dummy.txt'));
       await dummy.exists() ? await dummy.delete() : await dummy.create();
       // Wait as much as watcher's buffer waits for "no more events" + margin
+      // WTF: This for some reason takes real 3 seconds
+      // Maybe fix it with some fake_async or something :/
       await Future.delayed(
-          MediaSync.fileWatcherBufferWait + const Duration(seconds: 2));
+          MediaSync.fileWatcherBufferWait + const Duration(seconds: 1));
 
       await db.closeFileWatchers();
       if (await dummy.exists()) await dummy.delete(); // Cleanup
+      // Necessary bloat :/ but takes only ~60ms tho
+      await Process.run("python3", [
+        "scripts/_set_correct_test_media_timestamps.py",
+        "test/_test_media"
+      ]);
     });
   });
 }
