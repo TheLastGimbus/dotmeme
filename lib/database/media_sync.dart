@@ -33,23 +33,33 @@ extension MediaSync on Memebase {
 
   // This should be done otherwise
   // But i don't have better idea for now, just put it in BenchmarkPage
-  Future<void> allFoldersMemeSync(List<AssetPathEntity> deviceFolders) async =>
-      await _foldersMemeSync(await select(folders).get(), deviceFolders);
+  Future<void> allFoldersMemeSync(
+    List<AssetPathEntity> deviceFolders, {
+    bool skipIfNotModified = true,
+  }) async =>
+      await _foldersMemeSync(await select(folders).get(), deviceFolders,
+          skipIfNotModified: skipIfNotModified);
 
   Future<void> enabledFoldersMemeSync(
-      List<AssetPathEntity> deviceFolders) async {
+    List<AssetPathEntity> deviceFolders, {
+    bool skipIfNotModified = true,
+  }) async {
     final enabled = await (select(folders)
           ..where((tbl) => tbl.scanningEnabled.equals(true)))
         .get();
-    await _foldersMemeSync(enabled, deviceFolders);
+    await _foldersMemeSync(enabled, deviceFolders,
+        skipIfNotModified: skipIfNotModified);
   }
 
   Future<void> disabledFoldersMemeSync(
-      List<AssetPathEntity> deviceFolders) async {
+    List<AssetPathEntity> deviceFolders, {
+    bool skipIfNotModified = true,
+  }) async {
     final enabled = await (select(folders)
           ..where((tbl) => tbl.scanningEnabled.equals(false)))
         .get();
-    await _foldersMemeSync(enabled, deviceFolders);
+    await _foldersMemeSync(enabled, deviceFolders,
+        skipIfNotModified: skipIfNotModified);
   }
 
   Future<void> _foldersMemeSync(
@@ -132,7 +142,10 @@ extension MediaSync on Memebase {
   // TODO someday: "New folder" watcher - isn't urgent tho
   /// Set up system file watchers that will auto-sync db whenever some media
   /// are added/moved/deleted
-  Future<void> setupFileWatchers(List<AssetPathEntity> deviceFolders) async {
+  Future<void> setupFileWatchers(
+    List<AssetPathEntity> deviceFolders, {
+    bool skipIfNotModified = true,
+  }) async {
     // Okay, how this beauty works:
     // File move operations are often done on multiple files (user moves N files
     // instead of just one)
@@ -156,6 +169,7 @@ extension MediaSync on Memebase {
         await (select(folders)..where((tbl) => tbl.id.isIn(foldersToSync)))
             .get(),
         deviceFolders,
+        skipIfNotModified: skipIfNotModified,
       );
       _log.d("Flushing $foldersToSync done");
       foldersToSync.clear();
