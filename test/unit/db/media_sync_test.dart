@@ -10,6 +10,7 @@ import 'package:photo_manager/photo_manager.dart';
 final getIt = GetIt.I;
 
 void main() {
+  final universeBegin = DateTime(1970);
   late Memebase db;
   late MediaManager mm;
   late List<AssetPathEntity> mediaPaths;
@@ -37,10 +38,12 @@ void main() {
       expect(
         dbFolders.map((e) => e.copyWith(lastModified: e.lastModified.toUtc())),
         [
-          _folder(
-              6654389, "Screenshots", false, _utc(2021, 07, 10, 20, 55, 32)),
-          _folder(254352, "Camera", false, _utc(2021, 07, 09, 17, 56, 27)),
-          _folder(876683, "Reddit", false, _utc(2021, 07, 09, 11, 34, 00)),
+          _folder(6654389, "Screenshots", false, _utc(2021, 07, 10, 20, 55, 32),
+              universeBegin),
+          _folder(254352, "Camera", false, _utc(2021, 07, 09, 17, 56, 27),
+              universeBegin),
+          _folder(876683, "Reddit", false, _utc(2021, 07, 09, 11, 34, 00),
+              universeBegin),
         ],
       );
     });
@@ -104,12 +107,14 @@ _meme(int id, int folderId, int memeType, DateTime lastModified,
       scannedText: scannedText,
     );
 
-_folder(int id, String name, bool scanningEnabled, DateTime lastModified) =>
+_folder(int id, String name, bool scanningEnabled, DateTime lastModified,
+        DateTime lastSync) =>
     Folder(
       id: id,
       name: name,
       scanningEnabled: scanningEnabled,
       lastModified: lastModified,
+      lastSync: lastSync,
     );
 
 _utc(
