@@ -16,12 +16,21 @@ void main() {
   setUp(() async {
     db = Memebase(Memebase.virtualDatabase);
     await db.batch((b) {
+      b.insert(
+        db.folders,
+        Folder(
+          id: 2137,
+          name: "Dummy folder",
+          scanningEnabled: true,
+          lastModified: DateTime(2003),
+        ),
+      );
       for (final entry in _memez.entries) {
         b.insert(
           db.memes,
           Meme(
             id: entry.key,
-            folderId: 69,
+            folderId: 2137,
             memeType: MemeType.image.index,
             lastModified: DateTime.now(),
             scannedText: entry.value,
