@@ -41,16 +41,8 @@ class _SwipingPageState extends State<SwipingPage> {
             controller: pageCtrl,
             physics: isZoomed ? const NeverScrollableScrollPhysics() : null,
             itemCount: widget.memes.length,
-            itemBuilder: (context, index) => GestureDetector(
-              child: _image(context, widget.memes[index]),
-              onVerticalDragEnd: isZoomed
-                  ? null
-                  : (details) {
-                      if (details.velocity.pixelsPerSecond.direction > 0) {
-                        Navigator.of(context).pop();
-                      }
-                    },
-            ),
+            itemBuilder: (context, index) =>
+                _image(context, widget.memes[index]),
           ),
           Align(alignment: Alignment.bottomCenter, child: _bottomBar(context)),
         ],
