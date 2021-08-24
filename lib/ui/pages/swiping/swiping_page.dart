@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:share_plus/share_plus.dart';
@@ -24,6 +25,7 @@ class SwipingPage extends StatefulWidget {
 class _SwipingPageState extends State<SwipingPage> {
   late PageController pageCtrl;
   var isZoomed = false;
+  double? _statusBarHeight;
 
   @override
   void initState() {
@@ -33,6 +35,13 @@ class _SwipingPageState extends State<SwipingPage> {
 
   @override
   Widget build(BuildContext context) {
+    _statusBarHeight ??= MediaQuery.of(context).padding.top;
+    SystemChrome.setSystemUIOverlayStyle(
+      const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.light,
+      ),
+    );
     return Scaffold(
       backgroundColor: Colors.black,
       body: Stack(
@@ -44,8 +53,44 @@ class _SwipingPageState extends State<SwipingPage> {
             itemBuilder: (context, index) =>
                 _image(context, widget.memes[index]),
           ),
+          Align(alignment: Alignment.topCenter, child: _topBar(context)),
           Align(alignment: Alignment.bottomCenter, child: _bottomBar(context)),
         ],
+      ),
+    );
+  }
+
+  Widget _topBar(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: Container(
+        height: _statusBarHeight! + 64,
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.bottomCenter,
+            end: Alignment.topCenter,
+            colors: [Colors.transparent, Colors.black54],
+          ),
+        ),
+        child: Column(
+          children: [
+            SizedBox(height: _statusBarHeight),
+            Row(
+              children: [
+                const BackButton(color: Colors.white),
+                const Expanded(child: SizedBox()),
+                InkWell(
+                  customBorder: const CircleBorder(),
+                  child: const Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child: Icon(Icons.info, color: Colors.white),
+                  ),
+                  onTap: () {},
+                )
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
