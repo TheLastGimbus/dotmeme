@@ -63,6 +63,14 @@ extension MediaSync on Memebase {
         // This requires as to be BOY SURE that db's lastModified stuff is
         // correct and doesn't mess with local timezones etc
         // TODO URGENT: Test this before production
+        // Note1: Yep, it looks like it works :ok_hand: - integer timestamps in
+        // db are saved in UTC, and when you query them (like f.lastSync below)
+        // They return DateTime.isUtc==false (local time) object
+        // AssetPathEntity.lastModified also returns local DateTime object
+        // I tested it a bit by changing device time zone, and it worked ok
+        // Tho sometimes AssetPathEntities returned old time zone :/
+        // probably because not-refreshing them. They do come back to correct
+        // after restarting the app :+1:
         if (skipIfNotModified && assPath.lastModified!.isBefore(f.lastSync)) {
           continue;
         }
