@@ -114,7 +114,7 @@ class ScanForegroundService implements TheForegroundService {
         onDone: () async {
           final time = DateTime.now().difference(scanBegin);
           _log.v("Finished scanning: $scannedCount memes in $time "
-              "- ${(scannedCount / time.inSeconds) * 60}memes/min");
+              "- ${(scannedCount / time.inMilliseconds) * 60 * 1000}memes/min");
           await _allMemesStream.cancel();
           await _ctrl.close();
         },
