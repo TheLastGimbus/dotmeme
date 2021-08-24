@@ -2,6 +2,7 @@
 name: Main Flutter checks
 
 on:
+  workflow_dispatch:
   push:
     branches: [ master, dev ]
   pull_request:
