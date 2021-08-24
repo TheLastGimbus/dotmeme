@@ -26,6 +26,9 @@ Future<void>? _fileWatcherBufferFlushing;
 /// and simultaneously, are super important for good experience
 /// - use with caution and awareness
 extension MediaSync on Memebase {
+  /// How long buffer will wait after no more events come before flushing
+  static const fileWatcherBufferWait = Duration(milliseconds: 2000);
+
   Future<void> fullSync() => throw UnimplementedError("Idk if this will exist");
 
   // This should be done otherwise
@@ -160,9 +163,9 @@ extension MediaSync on Memebase {
 
     // Duration here is the time in which we will execute flushEvents() when
     // events stop coming
-    getFlushFuture() => CancelableOperation.fromFuture(
-        Future.delayed(const Duration(milliseconds: 2000)))
-      ..value.then((_) => _fileWatcherBufferFlushing = flushEvents());
+    getFlushFuture() =>
+        CancelableOperation.fromFuture(Future.delayed(fileWatcherBufferWait))
+          ..value.then((_) => _fileWatcherBufferFlushing = flushEvents());
 
     for (final devFol in deviceFolders) {
       final ass = await devFol.getAssetListRange(start: 0, end: 1);
