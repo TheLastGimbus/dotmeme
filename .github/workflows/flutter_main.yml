@@ -32,6 +32,6 @@ jobs:
       run: |
         ./scripts/setup-test-media.sh
         ./scripts/setup-ocr.sh
-    - run: sudo apt instal libsqlite3-dev -y
+    - run: sudo apt install libsqlite3-dev
     - name: Run tests
       run: flutter test --no-pub --coverage
