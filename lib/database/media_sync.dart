@@ -54,6 +54,8 @@ extension MediaSync on Memebase {
     List<AssetPathEntity> deviceFolders, {
     bool skipIfNotModified = true,
   }) async {
+    // Less optimistic value = less bugs
+    final syncBegin = DateTime.now();
     await batch((b) async {
       for (final f in dbFolders) {
         final assPath =
@@ -61,7 +63,7 @@ extension MediaSync on Memebase {
         // This requires as to be BOY SURE that db's lastModified stuff is
         // correct and doesn't mess with local timezones etc
         // TODO URGENT: Test this before production
-        if (skipIfNotModified && assPath.lastModified == f.lastModified) {
+        if (skipIfNotModified && assPath.lastModified!.isBefore(f.lastSync)) {
           continue;
         }
         final assets = await assPath.assetList;
@@ -83,6 +85,7 @@ extension MediaSync on Memebase {
           FoldersCompanion(
             name: Value(assPath.name),
             lastModified: Value(assPath.lastModified!),
+            lastSync: Value(syncBegin),
           ),
           where: (Folders tbl) => tbl.id.equals(f.id),
         );

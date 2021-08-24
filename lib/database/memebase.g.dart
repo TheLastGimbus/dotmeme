@@ -512,11 +512,13 @@ class Folder extends DataClass implements Insertable<Folder> {
   /// WARNING: Turns out moor returns DateTimes in local time!
   /// This, for example, brakes tests!
   final DateTime lastModified;
+  final DateTime lastSync;
   Folder(
       {required this.id,
       required this.name,
       required this.scanningEnabled,
-      required this.lastModified});
+      required this.lastModified,
+      required this.lastSync});
   factory Folder.fromData(Map<String, dynamic> data, GeneratedDatabase db,
       {String? prefix}) {
     final effectivePrefix = prefix ?? '';
@@ -529,6 +531,8 @@ class Folder extends DataClass implements Insertable<Folder> {
           .mapFromDatabaseResponse(data['${effectivePrefix}scanning_enabled'])!,
       lastModified: const DateTimeType()
           .mapFromDatabaseResponse(data['${effectivePrefix}last_modified'])!,
+      lastSync: const DateTimeType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}last_sync'])!,
     );
   }
   @override
@@ -538,6 +542,7 @@ class Folder extends DataClass implements Insertable<Folder> {
     map['name'] = Variable<String>(name);
     map['scanning_enabled'] = Variable<bool>(scanningEnabled);
     map['last_modified'] = Variable<DateTime>(lastModified);
+    map['last_sync'] = Variable<DateTime>(lastSync);
     return map;
   }
 
@@ -547,6 +552,7 @@ class Folder extends DataClass implements Insertable<Folder> {
       name: Value(name),
       scanningEnabled: Value(scanningEnabled),
       lastModified: Value(lastModified),
+      lastSync: Value(lastSync),
     );
   }
 
@@ -558,6 +564,7 @@ class Folder extends DataClass implements Insertable<Folder> {
       name: serializer.fromJson<String>(json['name']),
       scanningEnabled: serializer.fromJson<bool>(json['scanningEnabled']),
       lastModified: serializer.fromJson<DateTime>(json['lastModified']),
+      lastSync: serializer.fromJson<DateTime>(json['lastSync']),
     );
   }
   @override
@@ -568,6 +575,7 @@ class Folder extends DataClass implements Insertable<Folder> {
       'name': serializer.toJson<String>(name),
       'scanningEnabled': serializer.toJson<bool>(scanningEnabled),
       'lastModified': serializer.toJson<DateTime>(lastModified),
+      'lastSync': serializer.toJson<DateTime>(lastSync),
     };
   }
 
@@ -575,12 +583,14 @@ class Folder extends DataClass implements Insertable<Folder> {
           {int? id,
           String? name,
           bool? scanningEnabled,
-          DateTime? lastModified}) =>
+          DateTime? lastModified,
+          DateTime? lastSync}) =>
       Folder(
         id: id ?? this.id,
         name: name ?? this.name,
         scanningEnabled: scanningEnabled ?? this.scanningEnabled,
         lastModified: lastModified ?? this.lastModified,
+        lastSync: lastSync ?? this.lastSync,
       );
   @override
   String toString() {
@@ -588,7 +598,8 @@ class Folder extends DataClass implements Insertable<Folder> {
           ..write('id: $id, ')
           ..write('name: $name, ')
           ..write('scanningEnabled: $scanningEnabled, ')
-          ..write('lastModified: $lastModified')
+          ..write('lastModified: $lastModified, ')
+          ..write('lastSync: $lastSync')
           ..write(')'))
         .toString();
   }
@@ -596,8 +607,10 @@ class Folder extends DataClass implements Insertable<Folder> {
   @override
   int get hashCode => $mrjf($mrjc(
       id.hashCode,
-      $mrjc(name.hashCode,
-          $mrjc(scanningEnabled.hashCode, lastModified.hashCode))));
+      $mrjc(
+          name.hashCode,
+          $mrjc(scanningEnabled.hashCode,
+              $mrjc(lastModified.hashCode, lastSync.hashCode)))));
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -605,7 +618,8 @@ class Folder extends DataClass implements Insertable<Folder> {
           other.id == this.id &&
           other.name == this.name &&
           other.scanningEnabled == this.scanningEnabled &&
-          other.lastModified == this.lastModified);
+          other.lastModified == this.lastModified &&
+          other.lastSync == this.lastSync);
 }
 
 class FoldersCompanion extends UpdateCompanion<Folder> {
@@ -613,29 +627,34 @@ class FoldersCompanion extends UpdateCompanion<Folder> {
   final Value<String> name;
   final Value<bool> scanningEnabled;
   final Value<DateTime> lastModified;
+  final Value<DateTime> lastSync;
   const FoldersCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
     this.scanningEnabled = const Value.absent(),
     this.lastModified = const Value.absent(),
+    this.lastSync = const Value.absent(),
   });
   FoldersCompanion.insert({
     this.id = const Value.absent(),
     required String name,
     this.scanningEnabled = const Value.absent(),
     this.lastModified = const Value.absent(),
+    this.lastSync = const Value.absent(),
   }) : name = Value(name);
   static Insertable<Folder> custom({
     Expression<int>? id,
     Expression<String>? name,
     Expression<bool>? scanningEnabled,
     Expression<DateTime>? lastModified,
+    Expression<DateTime>? lastSync,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (name != null) 'name': name,
       if (scanningEnabled != null) 'scanning_enabled': scanningEnabled,
       if (lastModified != null) 'last_modified': lastModified,
+      if (lastSync != null) 'last_sync': lastSync,
     });
   }
 
@@ -643,12 +662,14 @@ class FoldersCompanion extends UpdateCompanion<Folder> {
       {Value<int>? id,
       Value<String>? name,
       Value<bool>? scanningEnabled,
-      Value<DateTime>? lastModified}) {
+      Value<DateTime>? lastModified,
+      Value<DateTime>? lastSync}) {
     return FoldersCompanion(
       id: id ?? this.id,
       name: name ?? this.name,
       scanningEnabled: scanningEnabled ?? this.scanningEnabled,
       lastModified: lastModified ?? this.lastModified,
+      lastSync: lastSync ?? this.lastSync,
     );
   }
 
@@ -667,6 +688,9 @@ class FoldersCompanion extends UpdateCompanion<Folder> {
     if (lastModified.present) {
       map['last_modified'] = Variable<DateTime>(lastModified.value);
     }
+    if (lastSync.present) {
+      map['last_sync'] = Variable<DateTime>(lastSync.value);
+    }
     return map;
   }
 
@@ -676,7 +700,8 @@ class FoldersCompanion extends UpdateCompanion<Folder> {
           ..write('id: $id, ')
           ..write('name: $name, ')
           ..write('scanningEnabled: $scanningEnabled, ')
-          ..write('lastModified: $lastModified')
+          ..write('lastModified: $lastModified, ')
+          ..write('lastSync: $lastSync')
           ..write(')'))
         .toString();
   }
@@ -709,9 +734,15 @@ class $FoldersTable extends Folders with TableInfo<$FoldersTable, Folder> {
           typeName: 'INTEGER',
           requiredDuringInsert: false,
           defaultValue: currentDateAndTime);
+  final VerificationMeta _lastSyncMeta = const VerificationMeta('lastSync');
+  late final GeneratedColumn<DateTime?> lastSync = GeneratedColumn<DateTime?>(
+      'last_sync', aliasedName, false,
+      typeName: 'INTEGER',
+      requiredDuringInsert: false,
+      defaultValue: Constant(DateTime(1970)));
   @override
   List<GeneratedColumn> get $columns =>
-      [id, name, scanningEnabled, lastModified];
+      [id, name, scanningEnabled, lastModified, lastSync];
   @override
   String get aliasedName => _alias ?? 'folders';
   @override
@@ -741,6 +772,10 @@ class $FoldersTable extends Folders with TableInfo<$FoldersTable, Folder> {
           _lastModifiedMeta,
           lastModified.isAcceptableOrUnknown(
               data['last_modified']!, _lastModifiedMeta));
+    }
+    if (data.containsKey('last_sync')) {
+      context.handle(_lastSyncMeta,
+          lastSync.isAcceptableOrUnknown(data['last_sync']!, _lastSyncMeta));
     }
     return context;
   }

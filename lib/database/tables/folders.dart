@@ -10,11 +10,14 @@ class Folders extends Table {
   BoolColumn get scanningEnabled =>
       boolean().withDefault(const Constant(false))();
 
-  // This should help with media sync
   /// WARNING: Turns out moor returns DateTimes in local time!
   /// This, for example, brakes tests!
   DateTimeColumn get lastModified =>
       dateTime().withDefault(currentDateAndTime)();
+
+  // This should help with optimizing media sync
+  DateTimeColumn get lastSync =>
+      dateTime().withDefault(Constant(DateTime(1970)))();
 
   @override
   Set<Column> get primaryKey => {id};
