@@ -170,11 +170,7 @@ extension MediaSync on Memebase {
           // When new events come, add them to buffer and reset the
           // Future.delayed()
           await _fileWatcherBufferFlush?.cancel();
-          switch (e.type) {
-            case ChangeType.ADD:
-            case ChangeType.REMOVE:
-              foldersToSync.add(int.parse(devFol.id));
-          }
+          foldersToSync.add(int.parse(devFol.id));
           _fileWatcherBufferFlush = getFlushFuture();
         }),
       );
