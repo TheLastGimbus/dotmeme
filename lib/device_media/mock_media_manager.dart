@@ -321,6 +321,37 @@ class MockAssetPathEntity extends Mock implements AssetPathEntity {
   @override
   bool isAll = false;
 
+  /// WARNING: This depends on GetIt.I<MediaManager>()
+  @override
+  Future<void> refreshPathProperties({
+    bool maxDateTimeToNow = true,
+  }) async {
+    // I don't know what it does, I copied it from plugin
+    if (maxDateTimeToNow) {
+      filterOption = filterOption.copyWith(
+        createTimeCond: filterOption.createTimeCond.copyWith(
+          max: DateTime.now(),
+        ),
+        updateTimeCond: filterOption.updateTimeCond.copyWith(
+          max: DateTime.now(),
+        ),
+      );
+    }
+    // Dependency ;_; I hope this doesn't break anything in future
+    final result = await GetIt.I<MediaManager>().fetchPathProperties(
+      entity: this,
+      filterOptionGroup: filterOption,
+    );
+    if (result != null) {
+      assetCount = result.assetCount;
+      name = result.name;
+      isAll = result.isAll;
+      type = result.type;
+      filterOption = filterOption;
+      lastModified = result.lastModified;
+    }
+  }
+
   @override
   Future<List<AssetEntity>> getAssetListPaged(int page, int pageSize) =>
       getAssetListRange(start: pageSize * page, end: (pageSize * (page + 1)));
