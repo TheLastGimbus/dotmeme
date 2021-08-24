@@ -123,12 +123,13 @@ extension MediaSync on Memebase {
   /// are added/moved/deleted
   Future<void> setupFileWatchers(List<AssetPathEntity> deviceFolders) async {
     // Okay, how this beauty works:
-    // File move operations are often than on multiple files (user moves N files
+    // File move operations are often done on multiple files (user moves N files
     // instead of just one)
     // Also, with every "file moved", two events come:
-    // DELETE in one and ADD in the other
+    // DELETE in one and ADD in the other (and sometimes MODIFY for some reason)
     // But our DirWatcher stream emits events as-is
-    // So we hold those for some time in this Set
+    // So we hold those for some time in this Set, and then run them all after
+    // there are no events for given time
 
     // Keeps track of what folders to sync in general
     final foldersToSync = <int>{};
