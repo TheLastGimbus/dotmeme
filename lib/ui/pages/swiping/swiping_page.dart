@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:photo_view/photo_view.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../../database/memebase.dart';
@@ -22,6 +23,7 @@ class SwipingPage extends StatefulWidget {
 
 class _SwipingPageState extends State<SwipingPage> {
   late PageController pageCtrl;
+  var isZoomed = false;
 
   @override
   void initState() {
@@ -37,14 +39,17 @@ class _SwipingPageState extends State<SwipingPage> {
         children: [
           PageView.builder(
             controller: pageCtrl,
+            physics: isZoomed ? const NeverScrollableScrollPhysics() : null,
             itemCount: widget.memes.length,
             itemBuilder: (context, index) => GestureDetector(
               child: _image(context, widget.memes[index]),
-              onVerticalDragEnd: (details) {
-                if (details.velocity.pixelsPerSecond.direction > 0) {
-                  Navigator.of(context).pop();
-                }
-              },
+              onVerticalDragEnd: isZoomed
+                  ? null
+                  : (details) {
+                      if (details.velocity.pixelsPerSecond.direction > 0) {
+                        Navigator.of(context).pop();
+                      }
+                    },
             ),
           ),
           Align(alignment: Alignment.bottomCenter, child: _bottomBar(context)),
@@ -107,7 +112,23 @@ class _SwipingPageState extends State<SwipingPage> {
       builder: (context, AsyncSnapshot<Uint8List?> snap) {
         return snap.hasData
             ? snap.data != null
-                ? Image.memory(snap.data!)
+                ? PhotoView(
+                    imageProvider: MemoryImage(snap.data!),
+                    gaplessPlayback: true,
+                    scaleStateChangedCallback: (newState) {
+                      final _zoomed = newState != PhotoViewScaleState.initial;
+                      if (_zoomed != isZoomed) {
+                        isZoomed = _zoomed;
+                        setState(() {});
+                      }
+                    },
+                    maxScale: 50.0,
+                    minScale: PhotoViewComputedScale.contained,
+                    scaleStateCycle: (scaleState) =>
+                        scaleState == PhotoViewScaleState.initial
+                            ? PhotoViewScaleState.covering
+                            : PhotoViewScaleState.initial,
+                  )
                 : const Icon(Icons.warning)
             : const Icon(Icons.autorenew);
       },
