@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:dotmeme/database/media_sync.dart';
 import 'package:dotmeme/database/memebase.dart';
 import 'package:dotmeme/database/queries.dart';
@@ -5,6 +7,7 @@ import 'package:dotmeme/device_media/media_manager.dart';
 import 'package:dotmeme/di.dart' as di;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
+import 'package:path/path.dart' as p;
 import 'package:photo_manager/photo_manager.dart';
 
 final getIt = GetIt.I;
@@ -92,6 +95,41 @@ void main() {
       );
       await db.enabledFoldersMemeSync(mediaPaths);
       await Future.delayed(const Duration(milliseconds: 1)); // ¯\_(ツ)_/¯
+    });
+
+    /// Test if file watchers are watching :eyes:
+    test("File watchers", () async {
+      final memeStream = db.allMemesLiteral.watch();
+      expect(
+        memeStream.map((e) =>
+            e.map((e) => e.copyWith(lastModified: e.lastModified.toUtc()))),
+        emitsInOrder([
+          [], // Initial nothingness
+          [], // Pure folder-sync
+          [
+            _meme(1315402535634264, 876683, 0, _utc(2021, 07, 09, 11, 34, 00)),
+            _meme(437854092489234, 876683, 0, _utc(2021, 07, 09, 10, 34, 00)),
+          ], // Reddit sync triggered by watchers
+        ]),
+      );
+      await db.foldersSync(mediaPaths);
+      await db.setupFileWatchers(mediaPaths);
+      // Get filesystem folder
+      final redditFolder = (await (await mediaPaths
+                  .firstWhere((f) => f.name == "Reddit")
+                  .getAssetListRange(start: 0, end: 1))
+              .first
+              .file)!
+          .parent;
+      // Create a dummy file to trigger watchers
+      final dummy = File(p.join(redditFolder.path, 'dummy.txt'));
+      await dummy.exists() ? await dummy.delete() : await dummy.create();
+      // Wait as much as watcher's buffer waits for "no more events" + margin
+      await Future.delayed(
+          MediaSync.fileWatcherBufferWait + const Duration(seconds: 2));
+
+      await db.closeFileWatchers();
+      if (await dummy.exists()) await dummy.delete(); // Cleanup
     });
   });
 }
