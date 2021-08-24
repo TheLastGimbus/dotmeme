@@ -7,18 +7,21 @@ import 'package:dotmeme/device_media/media_manager.dart';
 import 'package:dotmeme/di.dart' as di;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
+import 'package:logger/logger.dart';
 import 'package:path/path.dart' as p;
 import 'package:photo_manager/photo_manager.dart';
 
 final getIt = GetIt.I;
 
 void main() {
+  late Logger log;
   final universeBegin = DateTime(1970);
   late Memebase db;
   late MediaManager mm;
   late List<AssetPathEntity> mediaPaths;
   setUp(() async {
     di.init(di.Environment.test);
+    log = getIt<Logger>();
     db = getIt<Memebase>();
     mm = getIt<MediaManager>();
     await mm.requestPermissionExtend();
@@ -95,6 +98,29 @@ void main() {
       );
       await db.enabledFoldersMemeSync(mediaPaths);
       await Future.delayed(const Duration(milliseconds: 1)); // ¯\_(ツ)_/¯
+    });
+
+    // I know this is kinda dependent on machine, but I think running them 50
+    // times is enough to be sure that one is faster :ok_hand:
+    // Note: All other aspects of skipIfNotModified and it's potential bugs
+    // should be already covered in other tests :ok_hand:
+    test("skipIfNotModified=true is faster", () async {
+      await db.foldersSync(mediaPaths);
+      await db.allFoldersMemeSync(mediaPaths);
+      final w = Stopwatch()..start();
+      for (final _ in Iterable.generate(50)) {
+        await db.allFoldersMemeSync(mediaPaths);
+      }
+      final skipped = w.elapsedMilliseconds;
+
+      w.reset();
+      for (final _ in Iterable.generate(50)) {
+        await db.allFoldersMemeSync(mediaPaths, skipIfNotModified: false);
+      }
+      final notSkipped = w.elapsedMilliseconds;
+
+      log.d("skipped: $skipped ; notSkipped: $notSkipped");
+      expect(skipped < notSkipped, true);
     });
 
     /// Test if file watchers are watching :eyes:
