@@ -23,6 +23,7 @@ void main() {
           name: "Dummy folder",
           scanningEnabled: true,
           lastModified: DateTime(2003),
+          lastSync: DateTime(2003),
         ),
       );
       for (final entry in _memez.entries) {
