@@ -5,6 +5,7 @@ import 'analysis/vision/ocr/ocr_scanner.dart';
 import 'analysis/vision/ocr/terminal_ocr_scanner.dart';
 import 'background/foreground_service/foreground_service_manager.dart';
 import 'background/foreground_service/mock_foreground_service_manager.dart';
+import 'config_flags.dart' as flags;
 import 'database/memebase.dart';
 import 'device_media/media_manager.dart';
 import 'device_media/mock_media_manager.dart';
@@ -22,7 +23,9 @@ bool _isInitialized = false;
 void init(Environment env) {
   if (env == Environment.prod) {
     getIt.registerLazySingleton<Memebase>(
-      () => Memebase.getBackgroundDatabase(),
+      () => flags.singleIsolate
+          ? Memebase(Memebase.diskDatabase)
+          : Memebase.getBackgroundDatabase(),
       dispose: (db) => db.close(),
     );
     getIt.registerSingleton<MediaManager>(MediaManager());
@@ -35,12 +38,9 @@ void init(Environment env) {
     getIt.registerLazySingleton<ForegroundServiceManager>(
       // Save few hours wasted on re-installing the app
       // Because hot-reload doesn't work in FServices
-      // Edit: actually, it became annoying the other way
-      // TODO: Some cool way to hot-switch this
-      // () => kDebugMode
-      //     ? MockForegroundServiceManager()
-      //     : ForegroundServiceManager(),
-      () => ForegroundServiceManager(),
+      () => flags.singleIsolate
+          ? MockForegroundServiceManager()
+          : ForegroundServiceManager(),
       dispose: (fsm) => fsm.dispose(),
     );
     getIt.registerLazySingleton<OcrScanner>(() => OcrScanner());

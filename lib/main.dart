@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 
+import 'config_flags.dart' as flags;
 import 'database/bloc.dart';
 import 'database/memebase.dart';
 import 'di.dart' as di;
@@ -12,6 +13,11 @@ import 'ui/common/theme/theme.dart' as theme;
 import 'ui/pages/home/home_page.dart';
 
 void main() {
+  // ignore: avoid_print
+  print(
+    "Starting app with flags:\n"
+    "\tsingleIsolate: ${flags.singleIsolate}",
+  );
   di.init(di.Environment.prod);
 
   runApp(MyApp());
