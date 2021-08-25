@@ -74,8 +74,8 @@ Size? getImageSize(Uint8List image) {
 /// This function gets you list of key-value-like properties of given meme to
 /// nicely show to user. It's dependent on lot of things, and pretty much only
 /// used in [SwipingPage] :ok_hand:
-Future<List<MemeProperty>> getMemeProperties(
-    BuildContext context, Meme meme) async {
+Future<List<MemeProperty>> getMemeProperties(BuildContext context, Meme meme,
+    {bool calcPngSize = false}) async {
   final cacheCbt = context.read<CommonCacheCubit>();
   final ass = await cacheCbt.getAssetEntityWithCache(meme.id);
   if (ass == null) throw "WTF: Can't get $meme asset";
@@ -87,22 +87,30 @@ Future<List<MemeProperty>> getMemeProperties(
     if (width != height) {
       _log.wtf("One dimension of $ass is 0 but other isn't");
     }
-    final img = await cacheCbt.getImageWithCache(meme.id);
-    if (img == null) {
-      _log.wtf("Can't get image bytes of $meme ; $ass");
-    } else {
-      final size = getImageSize(img);
-      width = size?.width.toInt() ?? 0;
-      height = size?.height.toInt() ?? 0;
+    // This is heavy - and probably not worth the lag :/
+    if (calcPngSize) {
+      final img = await cacheCbt.getImageWithCache(meme.id);
+      if (img == null) {
+        _log.wtf("Can't get image bytes of $meme ; $ass");
+      } else {
+        final size = getImageSize(img);
+        width = size?.width.toInt() ?? 0;
+        height = size?.height.toInt() ?? 0;
+      }
     }
   }
   return [
     MemeProperty(name: "Name", value: ass.title),
     MemeProperty(name: "Path", value: file.path),
     MemeProperty(name: "Size", value: filesize(await file.length())),
-    MemeProperty(name: "Resolution", value: "$width x $height"),
+    MemeProperty(
+      name: "Resolution",
+      value: (width <= 0 || height <= 0) ? null : "$width x $height",
+    ),
     MemeProperty(name: "Last modified", value: ass.modifiedDateTime.toString()),
     MemeProperty(
-        name: "Scanned text", value: meme.scannedText ?? "<not scanned yet>"),
+      name: "Scanned text",
+      value: meme.scannedText ?? "<not scanned yet>",
+    ),
   ];
 }
