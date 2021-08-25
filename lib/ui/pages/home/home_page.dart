@@ -74,6 +74,8 @@ class HomeView extends StatefulWidget {
 }
 
 class _HomeViewState extends State<HomeView> {
+  var keyboardVisible = false;
+
   @override
   void initState() {
     super.initState();
@@ -82,6 +84,16 @@ class _HomeViewState extends State<HomeView> {
 
   @override
   Widget build(BuildContext context) {
+    final _keeb = MediaQuery.of(context).viewInsets.bottom > 0.0;
+    if (keyboardVisible && !_keeb) {
+      // Keyboard was hidden - unfocus search bar
+      // NOTE: We may try, but any Navigator event will also be annoying
+      // (keeb will pop back) - I think we should run this function in some
+      // onGenerateRoute (which we currently don't have)
+      // TODO: run FocusScope.unfocus() on page change
+      FocusScope.of(context).unfocus();
+    }
+    keyboardVisible = _keeb;
     final homeCbt = context.watch<HomeCubit>();
     final state = homeCbt.state;
     Widget body = const _LoadingBody();
@@ -147,12 +159,15 @@ class _SuccessBody extends StatelessWidget {
                 margin: const EdgeInsets.all(0.5),
                 child: _memeThumbnail(context, state.memes[index]),
               ),
-              onTap: () => Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (_) =>
-                      SwipingPage(memes: state.memes, initialIndex: index),
-                ),
-              ),
+              onTap: () {
+                FocusScope.of(context).unfocus();
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) =>
+                        SwipingPage(memes: state.memes, initialIndex: index),
+                  ),
+                );
+              },
             ),
             itemCount: state.memes.length,
             cacheExtent: 200,
