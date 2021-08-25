@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:async/async.dart';
+import 'package:filesize/filesize.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:moor/moor.dart';
@@ -39,6 +40,15 @@ class ScanForegroundService implements TheForegroundService {
       final file = await ass?.file;
       if (file == null) {
         _log.e("$meme returned null file - skipping scan");
+        continue;
+      }
+      _log.d("Now scanning: $meme ; $ass ; $file");
+      final size = await file.length();
+      if (size < 64) {
+        // TODO maybe?:
+        _log.e("File smaller than 64 bytes (${filesize(size)})! "
+            "Probably broken, skipping...\n"
+            "TODO: Maybe some flag in DB to mark it?");
         continue;
       }
       String? text;
