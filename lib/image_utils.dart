@@ -55,3 +55,8 @@ Future<File> writeTmpFile(Uint8List bytes, String extension) async {
   final tmpFile = File(p.join(dir.path, 'tmp' + extension));
   return tmpFile.writeAsBytes(bytes);
 }
+
+Size? getImageSize(Uint8List image) {
+  final img = ui.decodeImage(image);
+  return img == null ? null : Size(img.width.toDouble(), img.height.toDouble());
+}

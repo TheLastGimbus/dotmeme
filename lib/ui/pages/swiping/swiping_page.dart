@@ -5,6 +5,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
+import 'package:logger/logger.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -25,6 +27,7 @@ class SwipingPage extends StatefulWidget {
 }
 
 class _SwipingPageState extends State<SwipingPage> {
+  final log = GetIt.I<Logger>();
   late PageController pageCtrl;
   var isZoomed = false;
   double? _statusBarHeight;
@@ -97,11 +100,27 @@ class _SwipingPageState extends State<SwipingPage> {
                     child: Icon(Icons.info, color: Colors.white),
                   ),
                   onTap: () async {
+                    // TODO: Export this crap somewhere else
                     final meme = widget.memes[pageCtrl.page!.round()];
                     final ass = await cacheCbt.getAssetEntityWithCache(meme.id);
                     if (ass == null) throw "WTF: Can't get $meme asset";
                     final file = await cacheCbt.getFileWithCache(meme.id);
                     if (file == null) throw "WTF: Can't get $meme asset";
+                    var width = ass.width;
+                    var height = ass.height;
+                    if (width <= 0 || height <= 0) {
+                      if (width != height) {
+                        log.wtf("One dimension of $ass is 0 but other isn't");
+                      }
+                      final img = await cacheCbt.getImageWithCache(meme.id);
+                      if (img == null) {
+                        log.wtf("Can't get image bytes of $meme ; $ass");
+                      } else {
+                        final size = imutils.getImageSize(img);
+                        width = size?.width.toInt() ?? 0;
+                        height = size?.height.toInt() ?? 0;
+                      }
+                    }
                     final props = [
                       MemeProperty(name: "Name", value: ass.title),
                       MemeProperty(name: "Path", value: file.path),
@@ -111,7 +130,7 @@ class _SwipingPageState extends State<SwipingPage> {
                       ),
                       MemeProperty(
                         name: "Resolution",
-                        value: "${ass.width} x ${ass.height}",
+                        value: "$width x $height",
                       ),
                       MemeProperty(
                         name: "Last modified",
