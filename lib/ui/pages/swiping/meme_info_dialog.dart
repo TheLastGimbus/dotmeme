@@ -22,7 +22,7 @@ class MemeInfoDialog extends StatelessWidget {
             for (final p in properties)
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 6.0),
-                child: _property(context, p),
+                child: _Property(p),
               ),
           ],
         ),
@@ -35,9 +35,28 @@ class MemeInfoDialog extends StatelessWidget {
       ],
     );
   }
+}
 
-  Widget _property(BuildContext context, MemeProperty prop) {
+// Needs to be stateful because of expandable text :+1:
+class _Property extends StatefulWidget {
+  final MemeProperty property;
+
+  const _Property(this.property, {Key? key}) : super(key: key);
+
+  @override
+  _PropertyState createState() => _PropertyState();
+}
+
+class _PropertyState extends State<_Property> {
+  var showLong = false;
+
+  bool isLong(String text) =>
+      text.allMatches("\n").length > 4 || text.length > 100;
+
+  @override
+  Widget build(BuildContext context) {
     final th = Theme.of(context);
+    final prop = widget.property;
     return GestureDetector(
       onTap: prop.onTap,
       onLongPress: prop.onLongPress ??
@@ -63,7 +82,27 @@ class MemeInfoDialog extends StatelessWidget {
           Text(prop.name, style: th.textTheme.caption),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: Text(prop.value ?? "<unknown>"),
+            child: isLong(prop.value ?? "")
+                ? Column(
+                    children: [
+                      Text(
+                        showLong
+                            ? prop.value!
+                            : prop.value!
+                                    .replaceAll("\n", " ")
+                                    .substring(0, 60) +
+                                "...",
+                      ),
+                      Align(
+                        alignment: Alignment.bottomRight,
+                        child: TextButton(
+                          onPressed: () => setState(() => showLong = !showLong),
+                          child: Text(showLong ? "Show less" : "Show all"),
+                        ),
+                      )
+                    ],
+                  )
+                : Text(prop.value ?? "<unknown>"),
           ),
         ],
       ),
