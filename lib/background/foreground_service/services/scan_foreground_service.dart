@@ -38,11 +38,12 @@ class ScanForegroundService implements TheForegroundService {
     for (final meme in memes) {
       final ass = await _mm.assetEntityFromId(meme.id.toString());
       final file = await ass?.file;
-      if (file == null) {
-        _log.e("$meme returned null file - skipping scan");
+      _log.d("Now scanning: $meme ; $ass ; $file");
+      if (file == null || !(await file.exists())) {
+        _log.e("$meme returned null or not-existing file - skipping scan");
         continue;
       }
-      _log.d("Now scanning: $meme ; $ass ; $file");
+      // TODO someday: include such broken file in tests
       final size = await file.length();
       if (size < 64) {
         // TODO maybe?:
