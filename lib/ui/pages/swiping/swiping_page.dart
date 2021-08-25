@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'package:filesize/filesize.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -10,6 +11,7 @@ import 'package:share_plus/share_plus.dart';
 import '../../../database/memebase.dart';
 import '../../../image_utils.dart' as imutils;
 import '../../common/cubit/common_cache_cubit.dart';
+import 'meme_info_dialog.dart';
 
 class SwipingPage extends StatefulWidget {
   final List<Meme> memes;
@@ -69,6 +71,7 @@ class _SwipingPageState extends State<SwipingPage> {
   }
 
   Widget _topBar(BuildContext context) {
+    final cacheCbt = context.read<CommonCacheCubit>();
     return Material(
       color: Colors.transparent,
       child: Container(
@@ -93,7 +96,23 @@ class _SwipingPageState extends State<SwipingPage> {
                     padding: EdgeInsets.all(16.0),
                     child: Icon(Icons.info, color: Colors.white),
                   ),
-                  onTap: () {},
+                  onTap: () async {
+                    final meme = widget.memes[pageCtrl.page!.round()];
+                    final ass = await cacheCbt.getAssetEntityWithCache(meme.id);
+                    if (ass == null) throw "WTF: Can't get $meme asset";
+                    final file = await cacheCbt.getFileWithCache(meme.id);
+                    if (file == null) throw "WTF: Can't get $meme asset";
+                    final props = [
+                      MemeProperty(name: "Name", value: ass.title),
+                      MemeProperty(name: "Path", value: file.path),
+                      MemeProperty(
+                          name: "Size", value: filesize(await file.length())),
+                    ];
+                    return showDialog(
+                      context: context,
+                      builder: (context) => MemeInfoDialog(properties: props),
+                    );
+                  },
                 )
               ],
             ),

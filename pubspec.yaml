@@ -29,6 +29,7 @@ dependencies:
   async: ">=2.0.0 <3.0.0"
   equatable: ^2.0.3
   logger: ^1.0.0
+  filesize: ^2.0.1
 
   ## DI
   get_it: ^7.2.0
