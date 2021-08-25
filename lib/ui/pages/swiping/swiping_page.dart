@@ -1,6 +1,5 @@
 import 'dart:typed_data';
 
-import 'package:filesize/filesize.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -74,7 +73,6 @@ class _SwipingPageState extends State<SwipingPage> {
   }
 
   Widget _topBar(BuildContext context) {
-    final cacheCbt = context.read<CommonCacheCubit>();
     return Material(
       color: Colors.transparent,
       child: Container(
@@ -100,47 +98,9 @@ class _SwipingPageState extends State<SwipingPage> {
                     child: Icon(Icons.info, color: Colors.white),
                   ),
                   onTap: () async {
-                    // TODO: Export this crap somewhere else
                     final meme = widget.memes[pageCtrl.page!.round()];
-                    final ass = await cacheCbt.getAssetEntityWithCache(meme.id);
-                    if (ass == null) throw "WTF: Can't get $meme asset";
-                    final file = await cacheCbt.getFileWithCache(meme.id);
-                    if (file == null) throw "WTF: Can't get $meme asset";
-                    var width = ass.width;
-                    var height = ass.height;
-                    if (width <= 0 || height <= 0) {
-                      if (width != height) {
-                        log.wtf("One dimension of $ass is 0 but other isn't");
-                      }
-                      final img = await cacheCbt.getImageWithCache(meme.id);
-                      if (img == null) {
-                        log.wtf("Can't get image bytes of $meme ; $ass");
-                      } else {
-                        final size = imutils.getImageSize(img);
-                        width = size?.width.toInt() ?? 0;
-                        height = size?.height.toInt() ?? 0;
-                      }
-                    }
-                    final props = [
-                      MemeProperty(name: "Name", value: ass.title),
-                      MemeProperty(name: "Path", value: file.path),
-                      MemeProperty(
-                        name: "Size",
-                        value: filesize(await file.length()),
-                      ),
-                      MemeProperty(
-                        name: "Resolution",
-                        value: "$width x $height",
-                      ),
-                      MemeProperty(
-                        name: "Last modified",
-                        value: ass.modifiedDateTime.toString(),
-                      ),
-                      MemeProperty(
-                        name: "Scanned text",
-                        value: meme.scannedText ?? "<not scanned yet>",
-                      ),
-                    ];
+                    final props =
+                        await imutils.getMemeProperties(context, meme);
                     return showDialog(
                       context: context,
                       builder: (context) => MemeInfoDialog(properties: props),
