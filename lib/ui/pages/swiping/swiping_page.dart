@@ -106,7 +106,21 @@ class _SwipingPageState extends State<SwipingPage> {
                       MemeProperty(name: "Name", value: ass.title),
                       MemeProperty(name: "Path", value: file.path),
                       MemeProperty(
-                          name: "Size", value: filesize(await file.length())),
+                        name: "Size",
+                        value: filesize(await file.length()),
+                      ),
+                      MemeProperty(
+                        name: "Resolution",
+                        value: "${ass.width} x ${ass.height}",
+                      ),
+                      MemeProperty(
+                        name: "Last modified",
+                        value: ass.modifiedDateTime.toString(),
+                      ),
+                      MemeProperty(
+                        name: "Scanned text",
+                        value: meme.scannedText ?? "<not scanned yet>",
+                      ),
                     ];
                     return showDialog(
                       context: context,
