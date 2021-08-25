@@ -12,7 +12,7 @@ import 'package:share_plus/share_plus.dart';
 import '../../../database/memebase.dart';
 import '../../../image_utils.dart' as imutils;
 import '../../common/cubit/common_cache_cubit.dart';
-import 'meme_info_dialog.dart';
+import 'widgets/meme_info_dialog.dart';
 
 class SwipingPage extends StatefulWidget {
   final List<Meme> memes;

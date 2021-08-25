@@ -12,7 +12,7 @@ import 'package:path_provider/path_provider.dart' as pp;
 
 import 'database/memebase.dart';
 import 'ui/common/cubit/common_cache_cubit.dart';
-import 'ui/pages/swiping/meme_info_dialog.dart';
+import 'ui/pages/swiping/widgets/meme_info_dialog.dart';
 
 final _log = GetIt.I<Logger>();
 
@@ -58,7 +58,7 @@ Uint8List addTextWatermark(
   return Uint8List.fromList(ui.encodeJpg(withWater));
 }
 
-/// Save file to `tmp.[extension]` file in app cache dir
+/// Save file to tmp.[extension] file in app cache dir
 // This could be in another utils file
 Future<File> writeTmpFile(Uint8List bytes, String extension) async {
   final dir = await pp.getTemporaryDirectory();
@@ -71,6 +71,9 @@ Size? getImageSize(Uint8List image) {
   return img == null ? null : Size(img.width.toDouble(), img.height.toDouble());
 }
 
+/// This function gets you list of key-value-like properties of given meme to
+/// nicely show to user. It's dependent on lot of things, and pretty much only
+/// used in [SwipingPage] :ok_hand:
 Future<List<MemeProperty>> getMemeProperties(
     BuildContext context, Meme meme) async {
   final cacheCbt = context.read<CommonCacheCubit>();
