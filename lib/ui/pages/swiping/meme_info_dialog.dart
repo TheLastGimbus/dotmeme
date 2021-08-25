@@ -13,16 +13,19 @@ class MemeInfoDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     return AlertDialog(
       title: const Text("Properties"),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          for (final p in properties)
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 6.0),
-              child: _property(context, p),
-            ),
-        ],
+      contentPadding: const EdgeInsets.all(12.0),
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            for (final p in properties)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 6.0),
+                child: _property(context, p),
+              ),
+          ],
+        ),
       ),
       actions: [
         TextButton(
@@ -40,6 +43,7 @@ class MemeInfoDialog extends StatelessWidget {
       onLongPress: prop.onLongPress ??
           () {
             Clipboard.setData(ClipboardData(text: prop.value));
+            // TODO: Some *better* way to indicate this
             final msg = ScaffoldMessenger.of(context);
             msg.hideCurrentSnackBar(reason: SnackBarClosedReason.hide);
             msg.showSnackBar(
