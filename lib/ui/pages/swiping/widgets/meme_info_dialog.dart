@@ -93,7 +93,6 @@ class _PropertyState extends State<_Property> {
                 // TODO: Animate this
                 ? RichText(
                     text: TextSpan(
-                      text: 'dupa',
                       style: th.textTheme.bodyText2,
                       children: [
                         TextSpan(
