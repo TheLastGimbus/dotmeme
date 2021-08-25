@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -48,10 +49,15 @@ class _Property extends StatefulWidget {
 }
 
 class _PropertyState extends State<_Property> {
+  static const _longCharCount = 100;
   var showLong = false;
 
   bool isLong(String text) =>
-      text.allMatches("\n").length > 4 || text.length > 100;
+      text.allMatches("\n").length > 4 || text.length > _longCharCount;
+
+  String shortenText(String text) =>
+      text.replaceAll("\n", " ").substring(0, (_longCharCount * 0.7).round()) +
+      "... ";
 
   @override
   Widget build(BuildContext context) {
@@ -82,25 +88,29 @@ class _PropertyState extends State<_Property> {
           Text(prop.name, style: th.textTheme.caption),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8),
+            // Fold text if it's very long
             child: isLong(prop.value ?? "")
-                ? Column(
-                    children: [
-                      Text(
-                        showLong
-                            ? prop.value!
-                            : prop.value!
-                                    .replaceAll("\n", " ")
-                                    .substring(0, 60) +
-                                "...",
-                      ),
-                      Align(
-                        alignment: Alignment.bottomRight,
-                        child: TextButton(
-                          onPressed: () => setState(() => showLong = !showLong),
-                          child: Text(showLong ? "Show less" : "Show all"),
+                // TODO: Animate this
+                ? RichText(
+                    text: TextSpan(
+                      text: 'dupa',
+                      style: th.textTheme.bodyText2,
+                      children: [
+                        TextSpan(
+                          text: showLong
+                              ? prop.value! + "\n"
+                              : shortenText(prop.value!),
                         ),
-                      )
-                    ],
+                        TextSpan(
+                          text: showLong ? "Show less" : "Show all",
+                          style: th.textTheme.bodyText1
+                              ?.copyWith(color: Colors.blue),
+                          recognizer: TapGestureRecognizer()
+                            ..onTap =
+                                () => setState(() => showLong = !showLong),
+                        )
+                      ],
+                    ),
                   )
                 : Text(prop.value ?? "<unknown>"),
           ),
@@ -110,6 +120,7 @@ class _PropertyState extends State<_Property> {
   }
 }
 
+/// Universal class to hold "key-value" like properties - like "Name: rule.jpg"
 class MemeProperty {
   final String name;
   final String? value;
