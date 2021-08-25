@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 
 import '../../../../database/memebase.dart';
 import '../../../../database/queries.dart';
@@ -14,10 +15,10 @@ import 'home_state.dart';
 /// - results from search even?
 
 class HomeCubit extends Cubit<HomeState> {
-  final Memebase db;
+  final db = GetIt.I<Memebase>();
   StreamSubscription? _selectedMemesStream;
 
-  HomeCubit(this.db) : super(HomeLoadingState()) {
+  HomeCubit() : super(HomeLoadingState()) {
     allMemes();
   }
 

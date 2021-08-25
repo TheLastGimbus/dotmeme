@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 
 import '../../../database/media_sync.dart';
 import '../../../database/memebase.dart';
@@ -12,12 +13,10 @@ import '../../../database/memebase.dart';
 ///
 /// However, we also need to do similar things when in background, so any
 /// independent logic of it should also be moved to different (non-cubit) place
-///
-/// TODO: File watchers
 class MediaSyncCubit extends Cubit<void> {
-  final Memebase db;
+  final db = GetIt.I<Memebase>();
 
-  MediaSyncCubit(this.db) : super(null);
+  MediaSyncCubit() : super(null);
 
   /// Execute when user opens app
   void appOpenSync() async {

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:settings_ui/settings_ui.dart';
 
-import '../../../database/bloc.dart';
 import 'cubit/settings_cubit.dart';
 import 'cubit/settings_state.dart';
 import 'debug_pages/benchmark_page.dart';
@@ -18,7 +17,7 @@ class SettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => SettingsCubit(context.watch<DbCubit>().state),
+      create: (_) => SettingsCubit(),
       child: Builder(
         builder: (context) => Scaffold(
           appBar: AppBar(title: const Text("Settings")),

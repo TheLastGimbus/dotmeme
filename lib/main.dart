@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get_it/get_it.dart';
 
 import 'config_flags.dart' as flags;
-import 'database/bloc.dart';
-import 'database/memebase.dart';
 import 'di.dart' as di;
 import 'ui/common/cubit/background_tasks_cubit.dart';
 import 'ui/common/cubit/common_cache_cubit.dart';
@@ -40,8 +37,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider(create: (_) => DbCubit(GetIt.I<Memebase>())),
-        BlocProvider(create: (_) => MediaSyncCubit(GetIt.I<Memebase>())),
+        BlocProvider(create: (_) => MediaSyncCubit()),
         BlocProvider(create: (_) => BackgroundTasksCubit()),
         BlocProvider(create: (_) => CommonCacheCubit())
       ],

@@ -1,16 +1,17 @@
 import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 
 import '../../../../database/memebase.dart';
 import '../../../../database/queries.dart';
 import 'settings_state.dart';
 
 class SettingsCubit extends Cubit<SettingsState> {
-  final Memebase db;
+  final db = GetIt.I<Memebase>();
   StreamSubscription? _foldersWatch;
 
-  SettingsCubit(this.db) : super(SettingsLoadingState()) {
+  SettingsCubit() : super(SettingsLoadingState()) {
     _init();
   }
 

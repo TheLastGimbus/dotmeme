@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:photo_manager/photo_manager.dart';
 
-import '../../../../database/bloc.dart';
 import '../../../../database/media_sync.dart';
+import '../../../../database/memebase.dart';
 
 class BenchmarkPage extends StatefulWidget {
   const BenchmarkPage({Key? key}) : super(key: key);
@@ -16,6 +16,8 @@ class BenchmarkPage extends StatefulWidget {
 }
 
 class _BenchmarkPageState extends State<BenchmarkPage> {
+  final db = GetIt.I<Memebase>();
+
   // TODO: Change this to MediaSyncCubit
   final Future<List<AssetPathEntity>> _deviceFolders =
       MediaSync.getMediaFolders();
@@ -31,7 +33,6 @@ class _BenchmarkPageState extends State<BenchmarkPage> {
 
   @override
   Widget build(BuildContext context) {
-    final db = context.watch<DbCubit>().state;
     return Scaffold(
       appBar: AppBar(title: const Text("Benchmark page")),
       body: ListView(
