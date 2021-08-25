@@ -26,6 +26,7 @@ class _SwipingPageState extends State<SwipingPage> {
   late PageController pageCtrl;
   var isZoomed = false;
   double? _statusBarHeight;
+  var fullscreen = false;
 
   @override
   void initState() {
@@ -36,6 +37,9 @@ class _SwipingPageState extends State<SwipingPage> {
   @override
   Widget build(BuildContext context) {
     _statusBarHeight ??= MediaQuery.of(context).padding.top;
+    // TODO: Transparent system navigation bar
+    SystemChrome.setEnabledSystemUIOverlays(
+        fullscreen ? [SystemUiOverlay.bottom] : SystemUiOverlay.values);
     SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
@@ -53,8 +57,12 @@ class _SwipingPageState extends State<SwipingPage> {
             itemBuilder: (context, index) =>
                 _image(context, widget.memes[index]),
           ),
-          Align(alignment: Alignment.topCenter, child: _topBar(context)),
-          Align(alignment: Alignment.bottomCenter, child: _bottomBar(context)),
+          // TODO: Smooth disappear
+          if (!fullscreen)
+            Align(alignment: Alignment.topCenter, child: _topBar(context)),
+          if (!fullscreen)
+            Align(
+                alignment: Alignment.bottomCenter, child: _bottomBar(context)),
         ],
       ),
     );
@@ -165,6 +173,8 @@ class _SwipingPageState extends State<SwipingPage> {
                         scaleState == PhotoViewScaleState.initial
                             ? PhotoViewScaleState.covering
                             : PhotoViewScaleState.initial,
+                    onTapUp: (context, details, val) =>
+                        setState(() => fullscreen = !fullscreen),
                   )
                 : const Icon(Icons.warning)
             : const Icon(Icons.autorenew);
