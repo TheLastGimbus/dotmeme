@@ -25,4 +25,5 @@ This app has quite few dependencies, so you will need some set up. Don't worry, 
 
 ## Communities
 
+- Discord - https://discord.gg/B3sgt6kaFe
 - Reddit - [r/dotmeme](https://www.reddit.com/r/dotmeme/)

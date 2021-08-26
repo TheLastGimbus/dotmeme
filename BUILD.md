@@ -29,4 +29,4 @@ To run tests, you will need three more things
     Add it to your `PATH` and test if it runs - you may need to provide it `.traineddata` file mentioned above
     Google the rest, I don't have windoza to test it, sorry :/
 
-What a ride! After all of that, `flutter test` should run smooth :grin: - otherwise, feel free to ask for help on Discord or other socials!
+What a ride! After all of that, `flutter test` should run smooth :grin: - otherwise, feel free to ask for help on [Discord](https://discord.gg/B3sgt6kaFe) or other socials!

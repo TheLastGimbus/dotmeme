@@ -6,6 +6,10 @@ Wanna contribute? Marvelous! Every little bugfix or typo fix is very much welcom
 
 Everything you need to know to happily run `flutter run` or `flutter test` is in [BUILD.md](BUILD.md)
 
+## Branches
+
+We use `Git flow` branching here - which means `master` is only for stable releases, and all development is kept on `dev` branch - that's where you should checkout from and submit PR into :ok_hand:
+
 ## I want to add some feature - where do I start?
 
 I think I made folder hierarchy pretty basic and intuitive - there is no crazy "clean code" architecture or something, because I was too lazy to read it :sparkling_heart:
@@ -20,7 +24,7 @@ I think I made folder hierarchy pretty basic and intuitive - there is no crazy "
 
 Besides from above description, most file should contain nice documentation of what they are at the top - some folders even contain their own `README.md` files for broader explanations :ok_hand: :rocket:
 
-If you ever feel like you don't know where to start or what can/should you do - feel welcome to ask on Discord or other community platform :sparkling_heart:
+If you ever feel like you don't know where to start or what can/should you do - feel welcome to ask on [Discord](https://discord.gg/B3sgt6kaFe) or other community platform :sparkling_heart:
 
 ## Okay, I made some changes - what now?
 
