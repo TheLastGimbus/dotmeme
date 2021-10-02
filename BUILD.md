@@ -10,7 +10,7 @@ If you have Ubuntu/Debian-based linux, you can run
 (just like CI does) and everything should be ready :ok_hand:
 
 ## `flutter run`
-To run it, you only need some `.traineddata` file for Tesseract-OCR to work. Download [one that I use](https://github.com/tesseract-ocr/tessdata_fast/raw/master/eng.traineddata), put it in `assets/tessdata/` and that should be it!
+To run it, you only need some `.traineddata` file for Tesseract-OCR to work. Download [one that I use](https://github.com/tesseract-ocr/tessdata_fast/raw/main/eng.traineddata), put it in `assets/tessdata/` and that should be it!
 
 ## `flutter test`
 To run tests, you will need three more things
